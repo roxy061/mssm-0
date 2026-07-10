@@ -186,6 +186,53 @@
                     </button>
                 </div>
             </div>
+
+            <!-- ─── VIEW MODE ─────────────────────────────────────── -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-eye text-emerald-400"></i> มุมมอง (View Mode)</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="setCameraViewMode('3d')" id="btnView3D"
+                        class="tool-btn active flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span class="text-base"><i class="fas fa-cube text-emerald-400"></i></span>
+                        <span>3D View</span>
+                    </button>
+                    <button onclick="setCameraViewMode('2d')" id="btnView2D"
+                        class="tool-btn flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span class="text-base"><i class="fas fa-map text-blue-400"></i></span>
+                        <span>2D Plan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ─── CONTROL MODE ──────────────────────────────────── -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-gamepad text-emerald-400"></i> โหมดควบคุม</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="setControlMode('build')" id="btnCtrlBuild"
+                        class="tool-btn active flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span class="text-base">🔨</span>
+                        <span>วางวัสดุ</span>
+                    </button>
+                    <button onclick="setControlMode('orbit')" id="btnCtrlOrbit"
+                        class="tool-btn flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span class="text-base">🔍</span>
+                        <span>หมุนกล้อง</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ─── HEIGHT OFFSET ─────────────────────────────────── -->
+            <div class="p-3">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-arrows-alt-v text-emerald-400"></i> ระดับความสูงวัสดุ</span>
+                <input type="range" id="heightOffsetSlider" min="0" max="3" step="0.2" value="0.0"
+                    oninput="updateHeightOffset()"
+                    class="w-full accent-emerald-500 h-1.5 rounded-lg appearance-none cursor-pointer">
+                <div class="flex items-center justify-between mt-1.5">
+                    <span class="text-[8px] text-slate-500">0 เมตร</span>
+                    <span class="text-[9px] text-emerald-400 font-black" id="lblHeightOffsetVal">0.0 ม. (ติดพื้น)</span>
+                    <span class="text-[8px] text-slate-500">3 เมตร</span>
+                </div>
+            </div>
         </aside>
 
         <!-- VIEWPORT: The core 3D Canvas -->
@@ -199,29 +246,7 @@
                 <i class="fas fa-bars"></i>
             </button>
 
-            <!-- Bottom Floating HUD: view options, cleanly arranged -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-800 px-4 py-2 rounded-full shadow-2xl flex items-center gap-2.5 z-10 shrink-0">
-                <button onclick="setCameraViewMode('3d')" id="btnView3D" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow">
-                    3D View
-                </button>
-                <button onclick="setCameraViewMode('2d')" id="btnView2D" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white">
-                    2D Plan
-                </button>
-                <div class="w-[1px] h-3 bg-slate-800"></div>
-                <button onclick="setControlMode('build')" id="btnCtrlBuild" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-slate-950 text-emerald-400 border border-emerald-500/20">
-                    🔨 วางวัสดุ
-                </button>
-                <button onclick="setControlMode('orbit')" id="btnCtrlOrbit" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white">
-                    🔍 หมุนกล้อง
-                </button>
-            </div>
 
-            <!-- Floor heights and placement height offset context panel -->
-            <div class="absolute top-4 right-4 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl shadow-xl flex flex-col gap-2 z-10 w-44">
-                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider"><i class="fas fa-arrows-alt-v text-emerald-400"></i> ระดับความสูงวัสดุ</span>
-                <input type="range" id="heightOffsetSlider" min="0" max="3" step="0.2" value="0.0" oninput="updateHeightOffset()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer">
-                <span class="text-[9px] text-emerald-400 font-bold block" id="lblHeightOffsetVal">0.0 เมตร (ติดพื้น)</span>
-            </div>
         </main>
     </div>
 
@@ -385,12 +410,12 @@
             const btnOrbit = document.getElementById('btnCtrlOrbit');
 
             if (mode === 'build') {
-                btnBuild.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
-                btnOrbit.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                btnBuild.classList.add('active');
+                btnOrbit.classList.remove('active');
                 controls.enabled = false;
             } else {
-                btnOrbit.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-slate-950 text-emerald-400 border border-emerald-500/20";
-                btnBuild.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                btnOrbit.classList.add('active');
+                btnBuild.classList.remove('active');
                 controls.enabled = true;
             }
         }
@@ -401,15 +426,15 @@
             const btn2D = document.getElementById('btnView2D');
 
             if (mode === '2d') {
-                btn2D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
-                btn3D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                btn2D.classList.add('active');
+                btn3D.classList.remove('active');
                 controls.reset();
                 camera.position.set(0, 10, 0);
                 controls.target.set(0, 0, 0);
                 controls.enableRotate = false;
             } else {
-                btn3D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
-                btn2D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                btn3D.classList.add('active');
+                btn2D.classList.remove('active');
                 controls.enableRotate = true;
                 camera.position.set(6, 6, 8);
                 controls.target.set(0, 0, 0);
@@ -418,8 +443,12 @@
 
         function selectBuildTool(tool) {
             activeTool = tool;
-            const buttons = document.querySelectorAll('.tool-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
+            // Only clear active state from tool-selection buttons (not view/control mode buttons)
+            const toolBtnIds = ['toolRotate','toolPillar','toolWall','toolRoof','toolDoor','toolWindow','toolBag_hungarian','toolBag_splitgill','toolMist','toolFan'];
+            toolBtnIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
 
             const activeBtn = document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1));
             if (activeBtn) activeBtn.classList.add('active');
