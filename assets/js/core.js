@@ -127,7 +127,7 @@ function initSmartHeader() {
     let lastScrollY = window.scrollY;
     const themeBtn = document.getElementById('themeToggle');
     const hamBtn = document.getElementById('hamburgerBtn');
-    if (!themeBtn && !hamBtn) return;
+    const connBtn = document.getElementById('connBadge');
 
     window.addEventListener('scroll', () => {
         const currentScrollY = window.scrollY;
@@ -136,46 +136,104 @@ function initSmartHeader() {
                 // scrolling down -> hide
                 themeBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
                 hamBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                connBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
             } else {
                 // scrolling up -> show
                 themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
                 hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
             }
         } else {
             // near top -> show
             themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
             hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+            connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
         }
         lastScrollY = currentScrollY;
     }, { passive: true });
 }
 
-// === NETWORK STATUS TOAST ===
+// === NETWORK STATUS TOAST & LIVE BADGE ===
 function initNetworkStatus() {
+    const badge = document.createElement('div');
+    badge.id = 'connBadge';
+    badge.className = 'fixed top-3 right-16 md:top-5 md:right-24 z-[100] flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 shadow-md backdrop-blur-md transition-all duration-300';
+    document.body.appendChild(badge);
+
     const toast = document.createElement('div');
     toast.id = 'network-status-toast';
     toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
     document.body.appendChild(toast);
 
-    function showToast(isOnline) {
+    function updateStatus(isOnline) {
         if (isOnline) {
-            toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-emerald-500/90 dark:bg-emerald-600/90 text-white border-emerald-400/30 flex items-center gap-2 animate-pop-in';
-            toast.innerHTML = '<i class="fas fa-bolt animate-pulse"></i> ออนไลน์แล้ว: ระบบพร้อมใช้งาน';
-            setTimeout(() => {
-                toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
-            }, 3000);
+            badge.innerHTML = `
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">LIVE</span>
+            `;
+            if (toast.dataset.initialized) {
+                toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-emerald-500/90 dark:bg-emerald-600/90 text-white border-emerald-400/30 flex items-center gap-2 animate-pop-in';
+                toast.innerHTML = '<i class="fas fa-bolt animate-pulse"></i> ออนไลน์แล้ว: ระบบพร้อมใช้งาน';
+                setTimeout(() => {
+                    toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
+                }, 3000);
+            }
         } else {
+            badge.innerHTML = `
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                </span>
+                <span class="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider animate-pulse">OFFLINE</span>
+            `;
             toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-red-500/90 dark:bg-red-600/90 text-white border-red-400/30 flex items-center gap-2 animate-pop-in';
             toast.innerHTML = '<i class="fas fa-wifi-slash animate-bounce"></i> ออฟไลน์อยู่: ตรวจสอบสัญญาณเน็ต';
         }
+        toast.dataset.initialized = "true";
     }
 
-    window.addEventListener('online', () => showToast(true));
-    window.addEventListener('offline', () => showToast(false));
+    window.addEventListener('online', () => updateStatus(true));
+    window.addEventListener('offline', () => updateStatus(false));
 
-    if (!navigator.onLine) {
-        showToast(false);
-    }
+    updateStatus(navigator.onLine);
+}
+
+// === LIGHTWEIGHT SCROLL REVEAL ENGINE ===
+function initScrollReveal() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scroll-reveal.reveal-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    `;
+    document.head.appendChild(style);
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('reveal-active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.05,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    const targets = document.querySelectorAll('section, .card-shine, .p-5, .p-7, main > div');
+    targets.forEach(t => {
+        t.classList.add('scroll-reveal');
+        observer.observe(t);
+    });
 }
 
 // === BOOT ===
@@ -186,4 +244,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSmartHeader();
     initNetworkStatus();
+    initScrollReveal();
 });

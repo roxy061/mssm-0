@@ -146,7 +146,20 @@ function renderCharts(data) {
     Object.values(charts).forEach(c => { try { c.destroy(); } catch (e) { } });
     charts = {};
 
-    const mk = (id, cfg) => { const el = document.getElementById(id); if (!el) return null; try { return new Chart(el.getContext('2d'), { responsive: true, maintainAspectRatio: false, ...cfg }); } catch (e) { return null; } };
+    const mk = (id, cfg) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        try {
+            if (!cfg.options) cfg.options = {};
+            cfg.options.animation = {
+                duration: 800,
+                easing: 'easeOutQuart'
+            };
+            return new Chart(el.getContext('2d'), { responsive: true, maintainAspectRatio: false, ...cfg });
+        } catch (e) {
+            return null;
+        }
+    };
 
     charts.radar = mk('radarChart', {
         type: 'radar',
