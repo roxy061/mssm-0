@@ -719,3 +719,79 @@ function toggleChatLoading(loading) {
         }
     }
 }
+
+let recognition = null;
+let isListening = false;
+
+function toggleSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("ขออภัยครับ เบราว์เซอร์ของคุณไม่สนับสนุนระบบสั่งการด้วยเสียง (Web Speech API)");
+        return;
+    }
+
+    const micBtn = document.getElementById('micBtn');
+    const micIcon = document.getElementById('micIcon');
+    const userInput = document.getElementById('userInput');
+
+    if (isListening) {
+        if (recognition) recognition.stop();
+        return;
+    }
+
+    if (!recognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'th-TH';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+            isListening = true;
+            if (micBtn) {
+                micBtn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+                micBtn.classList.add('bg-red-500', 'text-white', 'animate-pulse');
+            }
+            if (micIcon) {
+                micIcon.classList.remove('fa-microphone');
+                micIcon.classList.add('fa-microphone-slash');
+            }
+        };
+
+        recognition.onresult = (event) => {
+            const text = event.results[0][0].transcript;
+            if (userInput) {
+                userInput.value = (userInput.value ? userInput.value + ' ' : '') + text;
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            stopRecognitionUI();
+        };
+
+        recognition.onend = () => {
+            stopRecognitionUI();
+        };
+    }
+
+    try {
+        recognition.start();
+    } catch (e) {
+        console.error(e);
+        stopRecognitionUI();
+    }
+
+    function stopRecognitionUI() {
+        isListening = false;
+        if (micBtn) {
+            micBtn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-500', 'dark:text-gray-400');
+            micBtn.classList.remove('bg-red-500', 'text-white', 'animate-pulse');
+        }
+        if (micIcon) {
+            micIcon.classList.add('fa-microphone');
+            micIcon.classList.remove('fa-microphone-slash');
+        }
+    }
+}
