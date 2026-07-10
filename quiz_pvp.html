@@ -299,15 +299,15 @@
             return x - Math.floor(x);
         }
         function getSeededQuestions(pin) {
-            let seed = parseInt(pin) || 1234;
-            let pool = [...questionPool];
-            let shuffled = [];
-            while (pool.length > 0) {
-                let r = seedRandom(seed++);
-                shuffled.push(pool.splice(Math.floor(r * pool.length), 1)[0]);
-            }
-            return shuffled.slice(0, 5);
-        }
+    let seed = parseInt(pin) || 1234;
+    let pool = [...questionPool];
+    let shuffled = [];
+    while (pool.length > 0) {
+        let r = seedRandom(seed++);
+        shuffled.push(pool.splice(Math.floor(r * pool.length), 1)[0]);
+    }
+    return shuffled.slice(0, 10);
+}
 
         // ─── STORAGE HELPERS ─────────────────────────────────────────────────────
         function getRoom(pin) {
