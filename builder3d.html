@@ -169,6 +169,9 @@
             <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold transition-all text-xs">
                 <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 3D
             </a>
+            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
+            </a>
         </nav>
     </aside>
 
@@ -201,6 +204,7 @@
                 <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">คลังข้อมูลดิบ Dataset</a>
                 <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">คู่มือและเอกสารโครงงาน</a>
                 <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-emerald-500/10 text-emerald-600 text-xs">ออกแบบโรงเรือน 3D</a>
+                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ตลาดราคากลางสด</a>
             </nav>
         </div>
     </div>
@@ -969,6 +973,20 @@
                 `;
                 list.appendChild(card);
             });
+
+            // Save state to LocalStorage for market.html
+            localStorage.setItem('sandboxPlacedBags', placedBags.length);
+            localStorage.setItem('sandboxTotalCost', cost);
+            let speciesCounts = { 'เห็ดแครง': 0, 'เห็ดนางฟ้าภูฐาน': 0, 'เห็ดนางรมฮังการี': 0, 'เห็ดหูหนู': 0 };
+            placedBags.forEach(bag => {
+                let sp = bag.userData?.species;
+                if (!sp) return;
+                if (sp.includes('แครง')) speciesCounts['เห็ดแครง']++;
+                else if (sp.includes('นางฟ้า')) speciesCounts['เห็ดนางฟ้าภูฐาน']++;
+                else if (sp.includes('นางรม')) speciesCounts['เห็ดนางรมฮังการี']++;
+                else if (sp.includes('หูหนู')) speciesCounts['เห็ดหูหนู']++;
+            });
+            localStorage.setItem('sandboxSpeciesCounts', JSON.stringify(speciesCounts));
         }
 
         function setupMobileControls() {

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 ศูนย์กลางตลาดและราคากลางเห็ดสดเรียลไทม์ (Live Market Price Center)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', 'Prompt', sans-serif;
+            background-color: #0b1329;
+        }
+        .trading-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.45);
+        }
+        /* Live ticker animation */
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+        .ticker-wrap {
+            overflow: hidden;
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+        }
+        .ticker-content {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: ticker 40s linear infinite;
+        }
+        .ticker-item {
+            padding: 0 2rem;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="text-gray-150 min-h-screen flex overflow-x-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="fixed inset-y-0 left-0 w-64 bg-slate-950/80 border-r border-slate-800/80 z-50 transition-all duration-300 hidden lg:flex flex-col">
+        <div class="p-6 border-b border-slate-800/60 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-chart-line"></i></span>
+                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-400 to-emerald-500 bg-clip-text text-transparent">MSSM Market</span>
+            </div>
+            <button onclick="document.documentElement.classList.toggle('dark')" class="w-8 h-8 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer text-slate-400">
+                <i class="fas fa-sun"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-chart-pie text-sm text-slate-400"></i> แดชบอร์ดผลการทดลอง
+            </a>
+            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-flask text-sm text-slate-400"></i> ห้องปฏิบัติการวิจัย
+            </a>
+            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-robot text-sm text-slate-400"></i> ผู้ช่วยวิเคราะห์ AI
+            </a>
+            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-database text-sm text-slate-400"></i> คลังข้อมูลดิบ Dataset
+            </a>
+            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-file-invoice text-sm text-slate-400"></i> คู่มือและเอกสารโครงงาน
+            </a>
+            <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cubes text-sm text-slate-400"></i> ออกแบบโรงเรือน 3D
+            </a>
+            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-chart-line text-sm text-emerald-400"></i> ตลาดราคากลางสด (24h)
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-chart-line"></i></span>
+            <span class="font-extrabold text-sm text-white">Live Market</span>
+        </div>
+        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 text-white transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- MOBILE DRAWER -->
+    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-800">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
+                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="space-y-1.5 flex-grow">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แดชบอร์ดผลการทดลอง</a>
+                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ห้องปฏิบัติการวิจัย</a>
+                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
+                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
+                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
+                <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 3D</a>
+                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">ตลาดราคากลางสด (24h)</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN MAIN CONTAINER -->
+    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6 bg-slate-950">
+        
+        <!-- Live Price Ticker Header -->
+        <div class="ticker-wrap w-full py-2">
+            <div class="ticker-content" id="priceTicker">
+                <!-- Ticker items populated dynamically -->
+            </div>
+        </div>
+
+        <header class="text-left px-6 py-5 shrink-0 border-b border-slate-800/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div>
+                <h1 class="text-base md:text-xl font-black text-white flex items-center gap-2"><i class="fas fa-chart-line text-emerald-500 animate-pulse"></i> Financial Trading Center & Live Market</h1>
+                <p class="text-[10px] md:text-xs text-slate-400">ประเมินโอกาสสร้างรายได้ เชื่อมโยงสภาพแวดล้อมและราคากลางกระทรวงพาณิชย์ (DIT) ตลอด 24 ชั่วโมง</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-400 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>DIT Scraper: <strong class="text-emerald-400">Active</strong> (อัปเดต 06:00 น.)</span>
+            </div>
+        </header>
+
+        <!-- 3D Live Asset Alert Board -->
+        <div class="px-6 mt-4">
+            <div id="stopLossAlert" class="bg-red-950/40 border border-red-800/60 p-4 rounded-3xl hidden animate-pop-in mb-6">
+                <div class="flex items-start gap-3">
+                    <span class="w-9 h-9 rounded-2xl bg-red-900/60 text-red-400 flex items-center justify-center text-sm shadow-md shrink-0"><i class="fas fa-exclamation-triangle"></i></span>
+                    <div>
+                        <strong class="text-xs sm:text-sm font-extrabold text-red-200">🚨 แจ้งเตือนความเสี่ยงการลงทุน (Economic Stop-Loss Alert)</strong>
+                        <p class="text-[11px] sm:text-xs text-red-300 mt-1 leading-relaxed">
+                            ราคากลางเห็ดหูหนูลดลงต่ำกว่าจุดคุ้มทุน (<strong class="text-white">BCR < 1.00</strong>) แนะนำให้เกษตรกรปรับเปลี่ยนโหมดโรงเรือน 3D เพื่อเปลี่ยนไปเปิดดอกเห็ดแครงชั่วคราว เพื่อพยุงอัตราผลตอบแทนต่อต้นทุนให้กลับมาเสถียร
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRID PLATFORM -->
+        <div class="w-full px-6 flex flex-col xl:flex-row gap-6">
+
+            <!-- LEFT COL: Chart & Live Asset Valuation -->
+            <div class="flex-grow flex-1 flex flex-col gap-6">
+                
+                <!-- Live Asset Value Card -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-calculator text-blue-400"></i> Live Asset Value (มูลค่าฟาร์ม 3D ล่าสุด)</h2>
+                        <span class="text-[10px] text-slate-400">คำนวณจากก้อนเชื้อในหน้า 3D Sandbox</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">ก้อนเพาะเชื้อในฟาร์ม 3D</span>
+                            <strong id="lblSandboxBags" class="text-lg font-black text-emerald-400">0 ก้อน</strong>
+                        </div>
+                        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">มูลค่าผลผลิตรวมคาดการณ์</span>
+                            <strong id="lblLiveRevenue" class="text-lg font-black text-blue-400">0.00 บ.</strong>
+                        </div>
+                        <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl text-center">
+                            <span class="text-[10px] font-bold text-slate-500 uppercase block mb-1">กำไรสุทธิจำลอง (Net Live Profit)</span>
+                            <strong id="lblLiveProfit" class="text-lg font-black text-rose-400">0.00 บ.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Graph -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex-grow">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-chart-line text-amber-400"></i> Dynamic Pricing Index (ดัชนีราคาผันผวน 24 ชม.)</h2>
+                        <div class="flex gap-1.5">
+                            <span class="px-2 py-0.5 rounded bg-slate-850 text-slate-400 text-[9px] font-bold">ตลาดหัวอิฐ</span>
+                            <span class="px-2 py-0.5 rounded bg-slate-850 text-slate-400 text-[9px] font-bold">ตลาดพัทลุง</span>
+                        </div>
+                    </div>
+
+                    <div class="h-[280px] md:h-[350px] w-full relative">
+                        <canvas id="marketChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COL: AI Forecast & sentiment -->
+            <div class="w-full xl:w-[420px] shrink-0 flex flex-col gap-6">
+                
+                <!-- AI Forecast Panel -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-3 mb-4">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-brain text-purple-400"></i> AI Market Demand Forecast</h2>
+                        <span class="px-2.5 py-0.5 rounded-full bg-purple-900/40 border border-purple-800 text-purple-400 font-extrabold text-[8px]">PREDICTIVE AI</span>
+                    </div>
+
+                    <div class="space-y-3" id="forecastList">
+                        <!-- Forecast Cards -->
+                    </div>
+                </div>
+
+                <!-- Web Scraper explanation -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg">
+                    <h3 class="text-xs font-bold text-white flex items-center gap-2 mb-2"><i class="fas fa-spider text-amber-500"></i> dit.go.th Scraper Integration</h3>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">
+                        ระบบใช้ Puppeteer ดึงข้อมูลราคากลางขายส่งจากเว็บ กรมการค้าภายใน กระทรวงพาณิชย์ แบบออฟไลน์ฟอลแบ็ค สำหรับราคากลางเห็ดแครง ซึ่งเป็นเห็ดพื้นบ้านใต้ที่พึ่งได้รับการสนับสนุน จะอ้างอิงและประเมินร่วมตามดัชนี Sentiment ของโรงงานทางเลือกโปรตีน
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileMenu');
+            if (drawer) drawer.classList.toggle('hidden');
+        }
+
+        // Live prices
+        let currentPrices = {
+            'เห็ดแครง': 165.0,
+            'เห็ดนางฟ้าภูฐาน': 95.0,
+            'เห็ดนางรมฮังการี': 85.0,
+            'เห็ดหูหนู': 58.5 // Below 60 to trigger stop-loss warning!
+        };
+
+        let mushroomYields = {
+            'เห็ดแครง': 0.35,
+            'เห็ดนางฟ้าภูฐาน': 0.28,
+            'เห็ดนางรมฮังการี': 0.25,
+            'เห็ดหูหนู': 0.22
+        };
+
+        const demands = {
+            'เห็ดแครง': { score: 92, note: 'ความต้องการอาหาร Plant-based ท้องถิ่นสูงมาก', range: '150-180 บ.' },
+            'เห็ดนางฟ้าภูฐาน': { score: 70, note: 'ปริมาณผลผลิตคงที่ตลอดฤดูกาล', range: '90-100 บ.' },
+            'เห็ดนางรมฮังการี': { score: 60, note: 'ความต้องการมั่นคง ราคาทรงตัว', range: '80-90 บ.' },
+            'เห็ดหูหนู': { score: 45, note: 'มีภาวะสินค้าล้นตลาดในระยะสั้น', range: '55-65 บ.' }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            startTicker();
+            updateLiveValuation();
+            renderForecasts();
+            
+            // Loop updates every 3 seconds to simulate fluctuations
+            setInterval(() => {
+                simulateMarketTicks();
+                updateLiveValuation();
+            }, 3000);
+        });
+
+        // Initialize 24h dynamic chart
+        let marketChart;
+        function initChart() {
+            const ctx = document.getElementById('marketChart').getContext('2d');
+            
+            // Generate mock 24h data
+            const labels = [];
+            for (let i = 24; i >= 0; i--) {
+                const d = new Date();
+                d.setHours(d.getHours() - i);
+                labels.push(`${d.getHours()}:00`);
+            }
+
+            const genData = (basePrice, variance) => {
+                let current = basePrice;
+                return Array.from({ length: 25 }, () => {
+                    current += (Math.random() - 0.5) * variance;
+                    return Math.max(10, current);
+                });
+            };
+
+            marketChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'เห็ดแครง', data: genData(165, 8), borderColor: '#10b981', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                        { label: 'เห็ดนางฟ้าภูฐาน', data: genData(95, 4), borderColor: '#3b82f6', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                        { label: 'เห็ดนางรมฮังการี', data: genData(85, 3), borderColor: '#8b5cf6', borderWidth: 2, tension: 0.3, pointRadius: 0 },
+                        { label: 'เห็ดหูหนู', data: genData(58.5, 3), borderColor: '#ef4444', borderWidth: 2, tension: 0.3, pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 8 } } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 8 } } }
+                    }
+                }
+            });
+        }
+
+        function simulateMarketTicks() {
+            // Fluctuate prices slightly
+            for (let key in currentPrices) {
+                const variance = key === 'เห็ดแครง' ? 0.8 : 0.4;
+                currentPrices[key] += (Math.random() - 0.5) * variance;
+                currentPrices[key] = Math.max(10, currentPrices[key]);
+            }
+            
+            // Check stop loss alert for Hed Hoo Nu
+            const alertBox = document.getElementById('stopLossAlert');
+            if (currentPrices['เห็ดหูหนู'] < 60.0) {
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+
+            // Update ticker
+            startTicker();
+        }
+
+        function startTicker() {
+            const ticker = document.getElementById('priceTicker');
+            if (!ticker) return;
+
+            // Build double listing for infinite scroll effect
+            let items = '';
+            for (let i = 0; i < 2; i++) {
+                for (let key in currentPrices) {
+                    const price = currentPrices[key].toFixed(2);
+                    const change = (Math.random() - 0.5) * 2;
+                    const changeStr = change >= 0 ? `▲ +${change.toFixed(1)}%` : `▼ ${change.toFixed(1)}%`;
+                    const changeColor = change >= 0 ? 'text-emerald-400' : 'text-rose-400';
+                    items += `
+                        <div class="ticker-item inline-flex items-center gap-1.5">
+                            <span>${key}:</span>
+                            <span class="text-white">${price} บ.</span>
+                            <span class="${changeColor}">${changeStr}</span>
+                        </div>
+                    `;
+                }
+            }
+            ticker.innerHTML = items;
+        }
+
+        function updateLiveValuation() {
+            // Read 3D Sandbox State
+            const count = parseInt(localStorage.getItem('sandboxPlacedBags') || '0');
+            const totalCost = parseFloat(localStorage.getItem('sandboxTotalCost') || '3500');
+            const speciesCounts = JSON.parse(localStorage.getItem('sandboxSpeciesCounts') || '{"เห็ดแครง":0,"เห็ดนางฟ้าภูฐาน":0,"เห็ดนางรมฮังการี":0,"เห็ดหูหนู":0}');
+
+            document.getElementById('lblSandboxBags').textContent = `${count.toLocaleString()} ก้อน`;
+
+            // Revenue calculation
+            let totalRevenue = 0;
+            for (let species in speciesCounts) {
+                const bags = speciesCounts[species] || 0;
+                const yieldPerBag = mushroomYields[species] || 0.2;
+                const currentPrice = currentPrices[species] || 80;
+                totalRevenue += bags * yieldPerBag * currentPrice;
+            }
+
+            const netProfit = totalRevenue - totalCost;
+
+            document.getElementById('lblLiveRevenue').textContent = `${totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บ.`;
+            
+            const profitEl = document.getElementById('lblLiveProfit');
+            profitEl.textContent = `${netProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บ.`;
+            if (netProfit >= 0) {
+                profitEl.className = 'text-lg font-black text-emerald-400';
+            } else {
+                profitEl.className = 'text-lg font-black text-rose-400';
+            }
+        }
+
+        function renderForecasts() {
+            const list = document.getElementById('forecastList');
+            if (!list) return;
+
+            list.innerHTML = '';
+            for (let key in demands) {
+                const item = demands[key];
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between text-xs transition hover:scale-[1.01]';
+                card.innerHTML = `
+                    <div class="space-y-1 flex-1 pr-3">
+                        <strong class="font-bold text-white text-xs">${key}</strong>
+                        <p class="text-[10px] text-slate-400 leading-relaxed">${item.note}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-[9px] text-slate-500 block">ตลาดดีมานด์</span>
+                        <div class="flex items-center gap-1.5 justify-end mt-0.5">
+                            <div class="w-12 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-purple-500 h-1.5" style="width: ${item.score}%"></div>
+                            </div>
+                            <strong class="text-purple-400 font-extrabold text-[11px]">${item.score}%</strong>
+                        </div>
+                        <span class="text-[9px] text-slate-400 block mt-1">แนะนำ: ${item.range}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            }
+        }
+    </script>
+</body>
+</html>
