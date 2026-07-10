@@ -13,6 +13,8 @@ let chatCtx = [];
 let genAIClientPromise = null;
 let genAIClientKey = null;
 let lastUserText = '';
+let lastUserPrompt = '';
+let aiSavedLogs = [];
 const SYSTEM = `คุณคือ "AI MSSM" ผู้เชี่ยวชาญด้านเห็ดและการเพาะเห็ดเศรษฐกิจ 4 สายพันธุ์ (เห็ดหูหนู, เห็ดแครง, เห็ดนางฟ้าภูฐาน, เห็ดนางรมฮังการี) ภายใต้แบบจำลองคัดเลือกสายพันธุ์เห็ดอัจฉริยะ (Mush-Up Smart Selection Model: MSSM) ที่พัฒนาขึ้นโดยวิทยาลัยอาชีวศึกษานครศรีธรรมราช
 
 ข้อมูลและทฤษฎีอ้างอิงหลักที่คุณต้องใช้ในการตอบคำถาม:
@@ -131,6 +133,7 @@ async function send() {
     if (!msg && !file) return;
 
     lastUserText = msg;
+    lastUserPrompt = msg;
 
     if (!API_KEY) {
         addMsg('ai', `
@@ -220,7 +223,10 @@ function addMsg(sender, text) {
             : 'bg-gray-100 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-md'
     }">${text}${
         sender === 'ai'
-            ? `<div class="flex justify-end mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50"><button onclick="speak(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง</button></div>`
+            ? `<div class="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
+                  <button onclick="speak(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง</button>
+                  <button onclick="saveAICardToLog(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-save"></i> บันทึกลงตาราง</button>
+               </div>`
             : ''
     }</div>`;
     box.appendChild(row);
@@ -253,6 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (urlParams.get('openSettings') === 'true') {
         openSettings();
     }
+    loadAICache();
+    renderAIChatTable();
 });
 
 // === SETTINGS MODAL FUNCTIONS ===
@@ -333,6 +341,108 @@ function toggleKeyVisibility() {
         } else {
             input.type = 'password';
             icon.className = 'fas fa-eye';
+        }
+    }
+}
+
+// === AI CHAT INSIGHTS SIDEBAR LOGS ===
+function saveAICardToLog(btn) {
+    const text = btn.getAttribute('data-text');
+    aiSavedLogs.push({
+        prompt: lastUserPrompt || 'คำถามทั่วไป/แนบภาพ',
+        reply: text
+    });
+    saveAICache();
+    renderAIChatTable();
+    if (typeof playClick === 'function') playClick();
+
+    btn.innerHTML = '<i class="fas fa-check"></i> บันทึกแล้ว';
+    btn.className = 'text-[10px] px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 transition-all flex items-center gap-1 cursor-default';
+    btn.disabled = true;
+    btn.onclick = null;
+}
+
+function renderAIChatTable() {
+    const tbody = document.getElementById('aiLogBody');
+    if (!tbody) return;
+
+    if (aiSavedLogs.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="2" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก<br><span class="text-[9px] opacity-70">ถามตอบกับ AI แล้วกดปุ่มบันทึกในการ์ดข้อความเพื่อเก็บข้อมูล</span></td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = '';
+    aiSavedLogs.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-100 dark:border-gray-800/80 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 text-gray-700 dark:text-gray-300';
+        tr.innerHTML = `
+            <td class="p-2.5 text-center font-bold text-gray-400 dark:text-gray-500">${index + 1}</td>
+            <td class="p-2.5 leading-relaxed space-y-1">
+                <div class="font-extrabold text-emerald-600 dark:text-emerald-400 text-[10px] uppercase tracking-wider">❓ คำถาม:</div>
+                <div class="text-[11px] font-bold line-clamp-2 text-gray-600 dark:text-gray-400">${item.prompt}</div>
+                <div class="font-extrabold text-amber-600 dark:text-amber-400 text-[10px] uppercase tracking-wider mt-1.5">💡 คำตอบที่สรุป:</div>
+                <div class="text-[11px] line-clamp-3">${item.reply}</div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function exportAIChatCSV() {
+    if (aiSavedLogs.length === 0) {
+        alert('กรุณาบันทึกข้อมูลคำถาม-คำตอบลงตารางอย่างน้อย 1 รายการก่อนทำการส่งออกครับ');
+        return;
+    }
+
+    const headers = ['ลำดับ', 'หัวข้อคำถาม (Input)', 'สรุปคำตอบของ AI (Output)'];
+    const rows = [headers];
+
+    aiSavedLogs.forEach((item, index) => {
+        rows.push([
+            index + 1,
+            item.prompt,
+            item.reply
+        ]);
+    });
+
+    let csvContent = "\ufeff"; // BOM for UTF-8 Excel support in Thai
+    rows.forEach(row => {
+        csvContent += row.map(v => `"${v.replace(/"/g, '""')}"`).join(",") + "\r\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `mssm_ai_insights_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function clearAIChatTable() {
+    if (confirm('คุณต้องการลบข้อมูลทั้งหมดในตารางสะสมข้อมูลใช่หรือไม่?')) {
+        aiSavedLogs = [];
+        localStorage.removeItem('mssm_ai_saved_logs');
+        renderAIChatTable();
+    }
+}
+
+function saveAICache() {
+    localStorage.setItem('mssm_ai_saved_logs', JSON.stringify(aiSavedLogs));
+}
+
+function loadAICache() {
+    const saved = localStorage.getItem('mssm_ai_saved_logs');
+    if (saved) {
+        try {
+            aiSavedLogs = JSON.parse(saved);
+        } catch (e) {
+            console.error("Error loading AI log cache", e);
         }
     }
 }
