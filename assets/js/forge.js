@@ -26,6 +26,12 @@ function resetAll() {
         const el = document.getElementById(id);
         if (el) el.value = v;
     }
+    const defaultWeights = [15, 25, 25, 15, 10, 10];
+    for (let i = 1; i <= 6; i++) {
+        const el = document.getElementById('w' + i);
+        if (el) el.value = defaultWeights[i - 1];
+    }
+    localStorage.removeItem('mssm_lab_inputs');
     calc();
 }
 
@@ -57,6 +63,8 @@ function calc() {
 
     const weights = [];
     for (let i = 1; i <= 6; i++) weights.push((parseFloat(document.getElementById('w' + i)?.value) || 0) / 100);
+
+    saveInputs(gons, cpg, prices, weights);
 
     let results = DB.map(m => {
         const yKg = (m.yieldG * gons) / 1000;
@@ -202,4 +210,39 @@ function showEmptyState() {
     charts = {};
 }
 
-document.addEventListener('DOMContentLoaded', calc);
+function saveInputs(gons, cpg, prices, weights) {
+    const data = { gons, cpg, prices, weights };
+    localStorage.setItem('mssm_lab_inputs', JSON.stringify(data));
+}
+
+function loadSavedInputs() {
+    const saved = localStorage.getItem('mssm_lab_inputs');
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        if (data.gons !== undefined) document.getElementById('inGons').value = data.gons;
+        if (data.cpg !== undefined) document.getElementById('inCostPerGon').value = data.cpg;
+        if (data.prices) {
+            if (data.prices.hunu !== undefined) document.getElementById('inPriceHunu').value = data.prices.hunu;
+            if (data.prices.kraeng !== undefined) document.getElementById('inPriceKraeng').value = data.prices.kraeng;
+            if (data.prices.nfa !== undefined) document.getElementById('inPriceNangfa').value = data.prices.nfa;
+            if (data.prices.nrom !== undefined) document.getElementById('inPriceNangrom').value = data.prices.nrom;
+        }
+        if (data.weights) {
+            for (let i = 1; i <= 6; i++) {
+                const val = data.weights[i - 1];
+                if (val !== undefined) {
+                    const el = document.getElementById('w' + i);
+                    if (el) el.value = Math.round(val * 100);
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error loading saved inputs", e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSavedInputs();
+    calc();
+});

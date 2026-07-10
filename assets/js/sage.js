@@ -144,6 +144,8 @@ async function send() {
         return;
     }
 
+    toggleChatLoading(true);
+
     const parts = [];
     let userText = msg;
     if (!msg && file) userText = 'ช่วยวิเคราะห์ภาพเห็ดนี้หน่อยครับ';
@@ -191,6 +193,7 @@ async function send() {
         chatCtx.push(userMessage);
         chatCtx.push({ role: 'model', parts: [{ text: reply }] });
         addMsg('ai', fmt(reply));
+        toggleChatLoading(false);
     } catch (e) {
         if (typing) typing.classList.add('hidden');
         addMsg('ai', `
@@ -201,6 +204,7 @@ async function send() {
             <button onclick="retrySend()" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"><i class="fas fa-arrows-rotate"></i> ลองเชื่อมต่อใหม่อีกครั้ง</button>
         </div>
         `);
+        toggleChatLoading(false);
     }
 }
 
@@ -268,6 +272,31 @@ async function retrySend() {
     if (input) {
         input.value = lastUserText;
         send();
+    }
+}
+
+function toggleChatLoading(loading) {
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    if (userInput) userInput.disabled = loading;
+    if (sendBtn) {
+        sendBtn.disabled = loading;
+        if (loading) {
+            sendBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
+            sendBtn.classList.add('opacity-70', 'cursor-not-allowed');
+        } else {
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            sendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+    }
+    if (attachBtn) {
+        attachBtn.disabled = loading;
+        if (loading) {
+            attachBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            attachBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
     }
 }
 

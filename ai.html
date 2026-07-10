@@ -91,9 +91,9 @@
         </div>
     </header>
 
-    <div class="flex-1 max-w-3xl w-full mx-auto px-3 md:px-6 pb-4 flex flex-col">
+    <div class="flex-1 max-w-3xl w-full mx-auto px-4 md:px-8 pb-6 flex flex-col">
         <div class="flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md flex flex-col overflow-hidden">
-            <div id="chatHistory" class="flex-1 p-4 md:p-6 overflow-y-auto space-y-4">
+            <div id="chatHistory" class="flex-1 p-5 md:p-7 overflow-y-auto space-y-4">
                 <div class="flex justify-start animate-pop-in">
                     <div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed bg-gradient-to-br from-emerald-50 to-white dark:from-gray-800 dark:to-gray-800/60 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm">
                         <div class="flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs"><i class="fas fa-robot"></i></span><strong class="text-emerald-600 dark:text-emerald-400">AI MSSM</strong></div>
@@ -108,16 +108,16 @@
                 <span class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[8px]"><i class="fas fa-robot"></i></span> AI MSSM กำลังคิด<span class="dot-blink">.</span><span class="dot-blink">.</span><span class="dot-blink">.</span></span>
             </div>
 
-            <div class="p-3 md:p-5 bg-white/80 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+            <div class="p-4 md:p-6 bg-white/80 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
                 <div id="imagePreview" class="hidden mb-3 relative inline-block">
                     <img id="previewImg" class="h-16 w-16 md:h-20 md:w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                     <button onclick="clearImage()" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-bold shadow-md hover:bg-red-600 transition-all cursor-pointer">&times;</button>
                 </div>
                 <div class="flex gap-3 items-end">
-                    <button onclick="document.getElementById('imageInput').click()" class="w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:border-emerald-500 transition-all flex items-center justify-center cursor-pointer" title="แนบภาพเห็ด"><i class="fas fa-camera text-sm md:text-base"></i></button>
+                    <button id="attachBtn" onclick="document.getElementById('imageInput').click()" class="w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:border-emerald-500 transition-all flex items-center justify-center cursor-pointer" title="แนบภาพเห็ด"><i class="fas fa-camera text-sm md:text-base"></i></button>
                     <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(event)">
                     <textarea id="userInput" class="flex-1 rounded-2xl px-4 py-3 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none resize-none min-h-[48px] max-h-[120px] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="พิมพ์คำถามหรือแนบภาพเห็ด..." rows="1" onkeydown="handleEnter(event)"></textarea>
-                    <button onclick="send()" class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105 hover:rotate-12 transition-all flex items-center justify-center cursor-pointer"><i class="fas fa-paper-plane"></i></button>
+                    <button id="sendBtn" onclick="send()" class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105 hover:rotate-12 transition-all flex items-center justify-center cursor-pointer"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>

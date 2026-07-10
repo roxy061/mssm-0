@@ -121,10 +121,68 @@ function initTheme() {
     }
 }
 
+// === SMART SCROLL CONTROLS ===
+function initSmartHeader() {
+    let lastScrollY = window.scrollY;
+    const themeBtn = document.getElementById('themeToggle');
+    const hamBtn = document.getElementById('hamburgerBtn');
+    if (!themeBtn && !hamBtn) return;
+
+    window.addEventListener('scroll', () => {
+        const currentScrollY = window.scrollY;
+        if (currentScrollY > 150) {
+            if (currentScrollY > lastScrollY) {
+                // scrolling down -> hide
+                themeBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                hamBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
+            } else {
+                // scrolling up -> show
+                themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+            }
+        } else {
+            // near top -> show
+            themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+            hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+        }
+        lastScrollY = currentScrollY;
+    }, { passive: true });
+}
+
+// === NETWORK STATUS TOAST ===
+function initNetworkStatus() {
+    const toast = document.createElement('div');
+    toast.id = 'network-status-toast';
+    toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
+    document.body.appendChild(toast);
+
+    function showToast(isOnline) {
+        if (isOnline) {
+            toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-emerald-500/90 dark:bg-emerald-600/90 text-white border-emerald-400/30 flex items-center gap-2 animate-pop-in';
+            toast.innerHTML = '<i class="fas fa-bolt animate-pulse"></i> ออนไลน์แล้ว: ระบบพร้อมใช้งาน';
+            setTimeout(() => {
+                toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
+            }, 3000);
+        } else {
+            toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-red-500/90 dark:bg-red-600/90 text-white border-red-400/30 flex items-center gap-2 animate-pop-in';
+            toast.innerHTML = '<i class="fas fa-wifi-slash animate-bounce"></i> ออฟไลน์อยู่: ตรวจสอบสัญญาณเน็ต';
+        }
+    }
+
+    window.addEventListener('online', () => showToast(true));
+    window.addEventListener('offline', () => showToast(false));
+
+    if (!navigator.onLine) {
+        showToast(false);
+    }
+}
+
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
     initProgress();
     initBackToTop();
     initTheme();
+    initSmartHeader();
+    initNetworkStatus();
 });
