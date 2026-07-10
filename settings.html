@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ ศูนย์ตั้งค่าและปรับแต่งระบบอัจฉริยะ - MSSM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // Global Theme Color override injector script
+        (function() {
+            const themeColor = localStorage.getItem('themeColor') || 'emerald';
+            const colorMap = {
+                emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
+                blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
+                violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
+                amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+                rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+            };
+            const colors = colorMap[themeColor] || colorMap.emerald;
+            const style = document.createElement('style');
+            style.id = 'theme-color-override';
+            style.innerHTML = `
+                :root {
+                    --color-brand: ${colors.brand};
+                    --color-brand-hover: ${colors.hover};
+                    --color-brand-bg: ${colors.bg};
+                }
+                .text-emerald-400 { color: ${colors.brand} !important; }
+                .text-emerald-500 { color: ${colors.brand} !important; }
+                .text-emerald-600 { color: ${colors.hover} !important; }
+                .bg-emerald-500 { background-color: ${colors.brand} !important; }
+                .bg-emerald-600 { background-color: ${colors.hover} !important; }
+                .border-emerald-500 { border-color: ${colors.brand} !important; }
+                .border-emerald-500\\/20 { border-color: ${colors.bg} !important; }
+                .bg-emerald-500\\/10 { background-color: ${colors.bg} !important; }
+                .from-emerald-400 { --tw-gradient-from: ${colors.brand} !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
+                .to-emerald-600 { --tw-gradient-to: ${colors.hover} !important; }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', 'Prompt', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-slate-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cog"></i></span>
+                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">MSSM Config</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
+            </a>
+            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
+            </a>
+            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
+            </a>
+            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
+            </a>
+            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
+            </a>
+            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 2D
+            </a>
+            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
+            </a>
+            <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-trophy text-sm"></i> แข่งขันออนไลน์ PVP
+            </a>
+            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cube text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
+            </a>
+            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-cog text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 border-b border-slate-850 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cog"></i></span>
+            <span class="font-extrabold text-sm text-white">MSSM Settings</span>
+        </div>
+        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 text-white transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-855">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-855">
+                <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
+                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="space-y-1.5 flex-grow">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แดชบอร์ดผลการทดลอง</a>
+                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ห้องปฏิบัติการวิจัย</a>
+                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
+                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
+                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
+                <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
+                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
+                <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แข่งขันออนไลน์ PVP</a>
+                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
+                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">ศูนย์ตั้งค่าอัจฉริยะ</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6">
+        
+        <header class="px-6 py-6 border-b border-slate-800">
+            <h1 class="text-xl font-black text-white flex items-center gap-2"><i class="fas fa-sliders-h text-emerald-400"></i> ศูนย์ตั้งค่าและปรับแต่งระบบอัจฉริยะ</h1>
+            <p class="text-xs text-slate-400 mt-0.5">จัดการค่าพารามิเตอร์ภายในระบบ ประสิทธิภาพเครื่องคอมพิวเตอร์ และธีมการแสดงผลทั่วหน้าเว็บ</p>
+        </header>
+
+        <div class="p-4 md:p-6 max-w-4xl space-y-6">
+
+            <!-- PANEL 1: GLOBAL COLOR THEMES -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm"><i class="fas fa-palette"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">การปรับแต่งธีมสีระบบ (Global Color Theme)</h2>
+                        <p class="text-[10px] text-slate-400">คลิกเลือกธีมสีเพื่อเปลี่ยนระบบโทนสีหลักของทุกๆ หน้าเว็บแอปพลิเคชันโดยอัตโนมัติ</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2">
+                    <button onclick="selectThemeColor('emerald')" class="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-left hover:border-emerald-500 transition relative">
+                        <span class="w-4 h-4 rounded-full bg-[#10b981] block mb-2"></span>
+                        <strong class="text-xs font-bold text-white block">Emerald Green</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block">เขียวดั้งเดิม</span>
+                    </button>
+                    <button onclick="selectThemeColor('blue')" class="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-left hover:border-blue-500 transition relative">
+                        <span class="w-4 h-4 rounded-full bg-[#3b82f6] block mb-2"></span>
+                        <strong class="text-xs font-bold text-white block">Ocean Blue</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block">ฟ้าน้ำทะเล</span>
+                    </button>
+                    <button onclick="selectThemeColor('violet')" class="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-left hover:border-violet-500 transition relative">
+                        <span class="w-4 h-4 rounded-full bg-[#8b5cf6] block mb-2"></span>
+                        <strong class="text-xs font-bold text-white block">Royal Violet</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block">ม่วงหรูหรา</span>
+                    </button>
+                    <button onclick="selectThemeColor('amber')" class="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-left hover:border-amber-500 transition relative">
+                        <span class="w-4 h-4 rounded-full bg-[#f59e0b] block mb-2"></span>
+                        <strong class="text-xs font-bold text-white block">Amber Gold</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block">ทองอร่าม</span>
+                    </button>
+                    <button onclick="selectThemeColor('rose')" class="p-4 rounded-2xl border border-slate-800 bg-slate-950 text-left hover:border-rose-500 transition relative">
+                        <span class="w-4 h-4 rounded-full bg-[#f43f5e] block mb-2"></span>
+                        <strong class="text-xs font-bold text-white block">Ruby Rose</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block">แดงทับทิม</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- PANEL 2: PERFORMANCE OPTIMIZER -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-sm"><i class="fas fa-tachometer-alt"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">ปุ่มลดภาระเครื่องและป้องกันค้าง (Performance Optimizer)</h2>
+                        <p class="text-[10px] text-slate-400">ปิดการทำงานของเอฟเฟกต์แอนิเมชันหนักๆ ชิ้นงานกราฟิก และลดขอบมุมสิ่งก่อสร้างเพื่อช่วยป้องกันเครื่องค้างบนมือถือสเปกต่ำ</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-850 mt-2">
+                    <div>
+                        <strong class="text-xs font-bold text-slate-200 block">โหมดประสิทธิภาพสูงประหยัดทรัพยากร (Low-Graphics Mode)</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block mt-0.5">ปิดแอนิเมชันฝุ่นหมอก อนุภาคน้ำใน 3D และทรานซิชันลื่นไหลข้ามเพจเพื่อลดอุณหภูมิเครื่อง</span>
+                    </div>
+                    <button onclick="togglePerformanceMode()" id="btnPerfToggle" class="px-4 py-2 rounded-xl bg-slate-850 border border-slate-800 hover:border-emerald-500 font-extrabold text-xs transition cursor-pointer text-slate-400">
+                        ปิดอยู่ (Graphics สูง)
+                    </button>
+                </div>
+            </section>
+
+            <!-- PANEL 3: AI ETHICS & INTELLECTUAL SAFETY -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm"><i class="fas fa-balance-scale"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">กรอบความปลอดภัยและจริยธรรมของ AI (AI Ethics & Academic Safety)</h2>
+                        <p class="text-[10px] text-slate-400">การยืนยันหลักการทางวิชาการและวิจัย เพื่อความโปร่งใส ป้องกันอคติ (Algorithmic Bias) ในการพยากรณ์ผลตอบแทนการเกษตร</p>
+                    </div>
+                </div>
+
+                <!-- Ethics statement toggle checkbox / list -->
+                <div class="space-y-3 bg-slate-950/40 p-4 rounded-2xl border border-slate-850 mt-2">
+                    <div class="flex items-start gap-3">
+                        <input type="checkbox" id="chkEthics1" checked class="mt-1 accent-emerald-500 cursor-pointer">
+                        <div>
+                            <strong class="text-xs font-bold text-slate-200 block">จริยธรรมการประมวลผลปราศจากอคติ (Non-bias predictive modeling)</strong>
+                            <span class="text-[9px] text-slate-400 leading-relaxed block mt-0.5">AI มุ่งเน้นพยากรณ์ราคาและการเจริญเติบโตอิงจากสถิติข้อมูลแล็บจริงของโรงเรือนปิด ไม่นำข้อมูลชวนเชื่อภายนอกมาสร้างความแปรปรวนแก่ระบบ</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 border-t border-slate-850 pt-3">
+                        <input type="checkbox" id="chkEthics2" checked class="mt-1 accent-emerald-500 cursor-pointer">
+                        <div>
+                            <strong class="text-xs font-bold text-slate-200 block">ความปลอดภัยข้อมูลวิจัยของชุมชน (Data Privacy & Community ownership)</strong>
+                            <span class="text-[9px] text-slate-400 leading-relaxed block mt-0.5">ข้อมูลสูตรการผลิตขี้เลื่อยไม้ยางพาราผสมเศษชีวมวลเห็ดแครงของชุมชนน้ำหนัก 650 กรัม ถูกจัดเก็บเป็นความลับและเปิดเผยเฉพาะในทางวิชาการเพื่อป้องกันลิขสิทธิ์</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 border-t border-slate-850 pt-3">
+                        <input type="checkbox" id="chkEthics3" checked class="mt-1 accent-emerald-500 cursor-pointer">
+                        <div>
+                            <strong class="text-xs font-bold text-slate-200 block">ความโปร่งใสในข้อมูลผู้ช่วยวิเคราะห์ AI (Algorithmic Transparency)</strong>
+                            <span class="text-[9px] text-slate-400 leading-relaxed block mt-0.5">ผู้ใช้สามารถเรียกตรวจสอบค่าความแม่นยำทางคณิตศาสตร์และเอกสารวิจัยอ้างอิงผ่านหน้าต่างคู่มือและดาวน์โหลด Dataset ไปตรวจสอบสูตรทดสอบเองได้</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- Script Settings Management -->
+    <script>
+        function selectThemeColor(color) {
+            localStorage.setItem('themeColor', color);
+            alert('เปลี่ยนธีมสีหลักระบบเป็นโทนสี ' + color.toUpperCase() + ' แล้ว! ระบบจะส่งผลบังคับใช้ทุกๆ หน้าเพจในทันที');
+            location.reload();
+        }
+
+        function togglePerformanceMode() {
+            let activeMode = localStorage.getItem('performanceMode') || 'high';
+            if (activeMode === 'high') {
+                localStorage.setItem('performanceMode', 'low');
+            } else {
+                localStorage.setItem('performanceMode', 'high');
+            }
+            syncPerformanceUI();
+        }
+
+        function syncPerformanceUI() {
+            const btn = document.getElementById('btnPerfToggle');
+            let activeMode = localStorage.getItem('performanceMode') || 'high';
+
+            if (activeMode === 'low') {
+                btn.textContent = "🟢 เปิดอยู่ (Low-Graphics)";
+                btn.className = "px-4 py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-extrabold text-xs transition cursor-pointer";
+            } else {
+                btn.textContent = "ปิดอยู่ (Graphics สูง)";
+                btn.className = "px-4 py-2 rounded-xl bg-slate-800 text-slate-400 border border-slate-800 font-extrabold text-xs transition cursor-pointer";
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        window.onload = () => {
+            syncPerformanceUI();
+        };
+    </script>
+</body>
+</html>

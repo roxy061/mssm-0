@@ -11,6 +11,38 @@
                 document.documentElement.classList.add('dark');
             }
         })();
+        // Theme color script
+        (function() {
+            const themeColor = localStorage.getItem('themeColor') || 'emerald';
+            const colorMap = {
+                emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
+                blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
+                violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
+                amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+                rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+            };
+            const colors = colorMap[themeColor] || colorMap.emerald;
+            const style = document.createElement('style');
+            style.id = 'theme-color-override';
+            style.innerHTML = `
+                :root {
+                    --color-brand: ${colors.brand};
+                    --color-brand-hover: ${colors.hover};
+                    --color-brand-bg: ${colors.bg};
+                }
+                .text-emerald-400 { color: ${colors.brand} !important; }
+                .text-emerald-500 { color: ${colors.brand} !important; }
+                .text-emerald-600 { color: ${colors.hover} !important; }
+                .bg-emerald-500 { background-color: ${colors.brand} !important; }
+                .bg-emerald-600 { background-color: ${colors.hover} !important; }
+                .border-emerald-500 { border-color: ${colors.brand} !important; }
+                .border-emerald-500\\/20 { border-color: ${colors.bg} !important; }
+                .bg-emerald-500\\/10 { background-color: ${colors.bg} !important; }
+                .from-emerald-400 { --tw-gradient-from: ${colors.brand} !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
+                .to-emerald-600 { --tw-gradient-to: ${colors.hover} !important; }
+            `;
+            document.head.appendChild(style);
+        })();
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
@@ -258,6 +290,10 @@
                     class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
                         class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs"><i
                             class="fas fa-cube"></i></span> การออกแบบโรงเพาะเห็ด 3D</a>
+                <a href="settings.html"
+                    class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
+                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-gray-500 to-slate-700 text-white text-xs"><i
+                            class="fas fa-cog"></i></span> ศูนย์ตั้งค่าอัจฉริยะ</a>
                 <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform"
                     target="_blank"
                     class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
