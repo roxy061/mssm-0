@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍄 3D Mushroom Grow Kit Previewer - MSSM</title>
+    <title>🍄 การออกแบบโรงเพาะเห็ด 3D - MSSM</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -45,7 +45,7 @@
         .canvas-container {
             position: relative;
             width: 100%;
-            height: 400px;
+            height: 420px;
             background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
             border-radius: 24px;
             overflow: hidden;
@@ -90,7 +90,7 @@
                 <i class="fas fa-trophy text-sm"></i> แข่งขันออนไลน์ PVP
             </a>
             <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-cube text-sm"></i> กล่องเชื้อเห็ดจำลอง 3D
+                <i class="fas fa-cube text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
             </a>
         </nav>
     </aside>
@@ -99,9 +99,9 @@
     <header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 border-b border-slate-850 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
         <div class="flex items-center gap-2">
             <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cube"></i></span>
-            <span class="font-extrabold text-sm text-white">MSSM 3D Box</span>
+            <span class="font-extrabold text-sm text-white">MSSM 3D House</span>
         </div>
-        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 text-white transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
     </header>
 
     <!-- MOBILE MENU DRAWER -->
@@ -120,7 +120,7 @@
                 <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
                 <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
                 <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แข่งขันออนไลน์ PVP</a>
-                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">กล่องเชื้อเห็ดจำลอง 3D</a>
+                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
             </nav>
         </div>
     </div>
@@ -130,18 +130,8 @@
         
         <header class="px-6 py-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-                <h1 class="text-xl font-black text-white flex items-center gap-2"><i class="fas fa-cube text-emerald-400"></i> 3D Grow Kit Box Previewer</h1>
-                <p class="text-xs text-slate-400 mt-0.5">จำลองแบบร่างกล่องบรรจุภัณฑ์ก้อนเชื้อเห็ด 650 กรัม ในรูปแบบ 3 มิติเชิงโต้ตอบ</p>
-            </div>
-            
-            <div class="flex gap-2">
-                <!-- Dropdown selector -->
-                <select id="mushroomSelect" onchange="changeMushroomModel()" class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-500">
-                    <option value="hungarian">🍄 เห็ดนางรมฮังการี (Hungarian Oyster)</option>
-                    <option value="woodear">🍄 เห็ดหูหนู (Wood Ear)</option>
-                    <option value="splitgill">🍄 เห็ดแครง (Split Gill)</option>
-                    <option value="bhutan">🍄 เห็ดนางฟ้าภูฐาน (Bhutan Oyster)</option>
-                </select>
+                <h1 class="text-xl font-black text-white flex items-center gap-2"><i class="fas fa-cube text-emerald-400"></i> การออกแบบโรงเพาะเห็ด 3D</h1>
+                <p class="text-xs text-slate-400 mt-0.5">จำลองแบบโครงสร้างโรงเรือนจัดเรียงก้อนเชื้อเห็ดอัจฉริยะ 3 มิติ เพื่อวิเคราะห์งบประมาณและปริมาณรองรับ</p>
             </div>
         </header>
 
@@ -155,25 +145,26 @@
                     <!-- Overlay hints -->
                     <div class="absolute bottom-4 left-4 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] text-slate-400 pointer-events-none flex items-center gap-1.5">
                         <i class="fas fa-mouse text-emerald-400"></i>
-                        <span>คลิกค้างแล้วลากเพื่อหมุนกล่อง | เลื่อนลูกกลิ้งเพื่อย่อ-ขยาย</span>
+                        <span>หมุนกล้อง: คลิกเมาส์ลาก | เลื่อนเข้าออก: ซูม | สัญลักษ์: พัดลมระบาย / หัวหมอกพ่น</span>
                     </div>
                 </div>
 
                 <!-- 3D Controls Panel -->
-                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความเร็วการหมุนอัตโนมัติ</label>
-                        <input type="range" id="rotSpeedSlider" min="0" max="0.05" step="0.002" value="0.005" oninput="updateAutoRotation()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความกว้างโรงเรือน (เมตร)</label>
+                        <input type="range" id="widthSlider" min="2" max="6" step="0.5" value="3.5" oninput="updateHouseGeometry()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                        <span class="text-[10px] text-emerald-400 font-bold block mt-1" id="lblWidthVal">3.5 ม.</span>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความสว่างของแสง (Ambient Light)</label>
-                        <input type="range" id="lightSlider" min="0.2" max="2.0" step="0.1" value="1.0" oninput="updateLightIntensity()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความยาวโรงเรือน (เมตร)</label>
+                        <input type="range" id="lengthSlider" min="3" max="8" step="0.5" value="5.0" oninput="updateHouseGeometry()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                        <span class="text-[10px] text-emerald-400 font-bold block mt-1" id="lblLengthVal">5.0 ม.</span>
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">หมุนแกนแนวตั้ง (Auto-Pitch)</label>
-                        <button onclick="togglePitchRotation()" id="btnPitch" class="w-full py-1.5 bg-slate-950 border border-slate-800 hover:border-emerald-500 rounded-xl text-[9px] text-slate-300 font-extrabold transition">
-                            🚫 ปิดอยู่
-                        </button>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความสูงโรงเรือน (เมตร)</label>
+                        <input type="range" id="heightSlider" min="2" max="4" step="0.2" value="2.5" oninput="updateHouseGeometry()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                        <span class="text-[10px] text-emerald-400 font-bold block mt-1" id="lblHeightVal">2.5 ม.</span>
                     </div>
                 </div>
             </div>
@@ -181,39 +172,47 @@
             <!-- RIGHT: Packaging Details & Metadata -->
             <div class="space-y-4">
                 <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
-                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-black uppercase tracking-wider block w-fit" id="lblCategory">Oyster Mushrooms</span>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-black uppercase tracking-wider block w-fit">3D Estimator</span>
                     
-                    <h2 class="text-lg font-black text-white" id="lblMushroomTitle">The Hungarian Oyster Mushroom</h2>
-                    <p class="text-xs text-slate-400 leading-relaxed" id="lblDescription">ก้อนเชื้อเห็ดนางรมฮังการีพร้อมเพาะสำเร็จรูป ขนาดมาตรฐาน 650 กรัม ออกดอกง่าย ได้ผลผลิตคุ้มทุน เหมาะสำหรับกลุ่มผู้เริ่มต้นศึกษาเพาะชำ</p>
+                    <h2 class="text-lg font-black text-white">ผลประเมินโครงสร้างโรงเรือน 3D</h2>
+                    <p class="text-xs text-slate-400 leading-relaxed">คำนวณจากขนาดกว้างxยาวxสูงจริงของวัสดุเสาไม้และระบบออโตเมชันในระบบปิด</p>
                     
                     <div class="border-t border-slate-800 my-4 pt-4 space-y-3">
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400"><i class="fas fa-thermometer-half text-red-400 mr-1"></i> อุณหภูมิที่เหมาะสม</span>
-                            <strong class="text-white" id="lblOptTemp">25 - 30 °C</strong>
+                            <span class="text-slate-400"><i class="fas fa-cubes text-emerald-400 mr-1"></i> ปริมาณก้อนเชื้อสูงสุด</span>
+                            <strong class="text-white text-sm" id="lblCapacity">1,200 ก้อน</strong>
                         </div>
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400"><i class="fas fa-tint text-blue-400 mr-1"></i> ความชื้นสัมพัทธ์</span>
-                            <strong class="text-white" id="lblOptHum">70 - 85 % RH</strong>
+                            <span class="text-slate-400"><i class="fas fa-coins text-amber-400 mr-1"></i> ค่าวัสดุโครงสร้างประมาณ</span>
+                            <strong class="text-white text-sm" id="lblCost">7,500 บ.</strong>
                         </div>
                         <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400"><i class="fas fa-seedling text-emerald-400 mr-1"></i> ระยะการเก็บดอกแรก</span>
-                            <strong class="text-white" id="lblHarvestTime">10 - 15 วัน</strong>
-                        </div>
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400"><i class="fas fa-coins text-amber-400 mr-1"></i> ยอดจำหน่ายต่อน้ำหนัก</span>
-                            <strong class="text-white" id="lblMarketPrice">95 บาท / กก.</strong>
+                            <span class="text-slate-400"><i class="fas fa-warehouse text-purple-400 mr-1"></i> ประเภทวัสดุหลังคา</span>
+                            <select id="roofSelect" onchange="changeRoofMaterial()" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-slate-300 text-xs">
+                                <option value="thatch">มุงจาก / หญ้าคา</option>
+                                <option value="zinc">หลังกาสังกะสี</option>
+                            </select>
                         </div>
                     </div>
                 </div>
 
-                <!-- Grow instruction tips card -->
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-3xl space-y-3">
-                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block"><i class="fas fa-info-circle text-emerald-400"></i> ขั้นตอนการเปิดดอกจำลอง</span>
-                    <ol class="text-[11px] text-slate-300 space-y-2 list-decimal list-inside pl-1">
-                        <li>กรีดข้างถุงเป็นรอยแผลกว้าง 2-3 นิ้ว เพื่อเปิดช่องระบายลม</li>
-                        <li>ฉีดพ่นละอองหมอกห่างจากจุดเปิด 30 ซม. วันละ 2 ครั้ง</li>
-                        <li>หลีกเลี่ยงแดดจัดปะทะโดยตรง ควรวางในที่อากาศถ่ายเทดี</li>
-                    </ol>
+                <!-- Actuator interactive toggles -->
+                <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-cog text-cyan-400"></i>
+                        <span>เครื่องมือควบคุมโรงเรือนอัจฉริยะ</span>
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center bg-slate-950/40 p-3 rounded-2xl border border-slate-850">
+                            <span class="text-xs text-slate-300"><i class="fas fa-wind text-cyan-400 mr-1"></i> พัดลมระบายอากาศ</span>
+                            <button onclick="toggleFan3D()" id="btnFan" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 hover:border-emerald-500 border border-slate-800 font-extrabold text-[10px] transition cursor-pointer">ปิดอยู่</button>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-950/40 p-3 rounded-2xl border border-slate-850">
+                            <span class="text-xs text-slate-300"><i class="fas fa-tint text-blue-400 mr-1"></i> หัวพ่นหมอกความชื้น</span>
+                            <button onclick="toggleMist3D()" id="btnMist" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 hover:border-emerald-500 border border-slate-800 font-extrabold text-[10px] transition cursor-pointer">ปิดอยู่</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -223,62 +222,17 @@
 
     <!-- Script 3D Render Engine -->
     <script>
-        let scene, camera, renderer, boxMesh, controls;
-        let ambientLight;
-        let autoRotSpeed = 0.005;
-        let pitchRotEnabled = false;
+        let scene, camera, renderer, controls;
+        let houseGroup, roofMesh, pillars = [], racks = [];
+        let fan1, fan2, mistParticles = [];
+        let isFanActive = false;
+        let isMistActive = false;
 
-        const textureLoader = new THREE.TextureLoader();
+        let houseWidth = 3.5;
+        let houseLength = 5.0;
+        let houseHeight = 2.5;
+        let roofType = 'thatch';
 
-        // 4 grow kits data
-        const mushroomData = {
-            hungarian: {
-                title: "The Hungarian Oyster Mushroom",
-                category: "Oyster Mushrooms",
-                desc: "ก้อนเชื้อเห็ดนางรมฮังการีพร้อมเพาะสำเร็จรูป ขนาดมาตรฐาน 650 กรัม ผลิตภัณฑ์สูตรพิเศษ ผสมเศษวัสดุชีวมวลยางพารา ออกดอกหนานุ่ม น้ำหนักดี สำหรับคนเริ่มต้นดูแลได้ง่าย",
-                temp: "25 - 30 °C",
-                hum: "70 - 85 % RH",
-                harvest: "10 - 15 วัน",
-                price: "95 บาท / กก.",
-                texturePath: "assets/images/box_hungarian.jpg",
-                boxColor: 0xa7f3d0 // Light green tinted backing
-            },
-            woodear: {
-                title: "The Wood Ear Mushroom",
-                category: "Auricularia Family",
-                desc: "กล่องเพาะสำเร็จรูปเห็ดหูหนู ปราศจากสารเคมี อุดมไปด้วยแร่ธาตุเหล็กและเบต้ากลูแคน ทนความชื้นได้ยอดเยี่ยม ทนฤดูฝนมรสุมภาคใต้ เหมาะสำหรับการสร้างรายได้เสริมในชุมชน",
-                temp: "25 - 33 °C",
-                hum: "80 - 90 % RH",
-                harvest: "15 - 20 วัน",
-                price: "60 บาท / กก.",
-                texturePath: "assets/images/box_woodear.jpg",
-                boxColor: 0xfef3c7 // Beige/yellow
-            },
-            splitgill: {
-                title: "The Split Gill Mushroom",
-                category: "Premium Biological",
-                desc: "เห็ดแครงทรงคุณค่าทางวิทยาศาสตร์การแพทย์ (Schizophyllum commune) เนื้อสัมผัสเด้งกรอบทดแทนเนื้อสัตว์ เพาะง่าย อัตราเก็บเกี่ยวไวที่สุดใน 10 วัน ทนความชื้นและฝนชุกสูง",
-                temp: "28 - 35 °C",
-                hum: "75 - 90 % RH",
-                harvest: "8 - 12 วัน",
-                price: "120 บาท / กก.",
-                texturePath: "assets/images/box_splitgill.jpg",
-                boxColor: 0xdbeafe // Blue
-            },
-            bhutan: {
-                title: "The Bhutan Oyster Mushroom",
-                category: "Commercial Best-Seller",
-                desc: "เห็ดนางฟ้าภูฐาน ยอดนิยมตลอดกาลในตลาดราคากลางสด คัดสรรสปอร์และเชื้อบริสุทธิ์จากสูตรแล็บทดลอง MSSM ให้ผลตอบแทนทางสถิติการเงิน (BCR) คุ้มค่าสูงสุดแก่โรงเรือน",
-                temp: "24 - 28 °C",
-                hum: "75 - 85 % RH",
-                harvest: "10 - 15 วัน",
-                price: "80 บาท / กก.",
-                texturePath: "assets/images/box_bhutan.jpg",
-                boxColor: 0xfce7f3 // Pink
-            }
-        };
-
-        // Initialize 3D Viewport
         function init3D() {
             const container = document.getElementById('canvas3d');
             const width = container.clientWidth;
@@ -288,7 +242,7 @@
             scene.background = new THREE.Color(0x0f172a);
 
             camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-            camera.position.set(0, 1.5, 4.5);
+            camera.position.set(6, 4, 8);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(width, height);
@@ -296,119 +250,210 @@
             renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            // Orbit controls
+            // Orbit Controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't go too far under ground
-            controls.minDistance = 2;
-            controls.maxDistance = 8;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't go below ground
+            controls.minDistance = 4;
+            controls.maxDistance = 15;
 
-            // Lights
-            ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
-            scene.add(ambientLight);
+            // Ambient & Spot Lights
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambient);
 
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(5, 10, 7);
+            dirLight.position.set(10, 15, 10);
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            // Create Box mesh representation of grow kit
-            createBoxMesh('hungarian');
+            // Base ground grid
+            const gridHelper = new THREE.GridHelper(16, 16, 0x334155, 0x1e293b);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
 
-            // Resize handler
+            houseGroup = new THREE.Group();
+            scene.add(houseGroup);
+
+            // Draw initial house components
+            buildMushroomHouse();
+
             window.addEventListener('resize', onWindowResize);
-
-            // Animation Loop
             animate();
         }
 
-        function createBoxMesh(mKey) {
-            // Remove previous mesh if exists
-            if (boxMesh) {
-                scene.remove(boxMesh);
+        function buildMushroomHouse() {
+            // Clear previous meshes inside group
+            while(houseGroup.children.length > 0) {
+                houseGroup.remove(houseGroup.children[0]);
             }
+            pillars = [];
+            racks = [];
 
-            const mInfo = mushroomData[mKey];
-            
-            // Box dimensions: Width=1.5, Height=2.5, Depth=1.2 (representing grow kit packaging)
-            const geometry = new THREE.BoxGeometry(1.4, 2.4, 1.0);
+            // 1. Pillars Wood Material Tint
+            const pillarMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+            const pillarGeo = new THREE.CylinderGeometry(0.08, 0.08, houseHeight);
 
-            // Load front texture image dynamically
-            const frontTex = textureLoader.load(mInfo.texturePath);
-            frontTex.minFilter = THREE.LinearFilter;
-
-            // Box Materials (Front face has the full package design; other faces are matching tints)
-            const sideMat = new THREE.MeshStandardMaterial({ color: mInfo.boxColor, roughness: 0.6 });
-            const frontMat = new THREE.MeshStandardMaterial({ map: frontTex, roughness: 0.4 });
-
-            // Materials array: Right, Left, Top, Bottom, Front, Back
-            const materials = [
-                sideMat, // Right
-                sideMat, // Left
-                sideMat, // Top
-                sideMat, // Bottom
-                frontMat, // Front
-                sideMat  // Back
+            // Create 4 corner pillars
+            const xOffset = houseWidth / 2;
+            const zOffset = houseLength / 2;
+            const positions = [
+                [-xOffset, houseHeight/2, -zOffset],
+                [xOffset, houseHeight/2, -zOffset],
+                [-xOffset, houseHeight/2, zOffset],
+                [xOffset, houseHeight/2, zOffset]
             ];
 
-            boxMesh = new THREE.Mesh(geometry, materials);
-            boxMesh.position.y = 0.2;
-            boxMesh.castShadow = true;
-            boxMesh.receiveShadow = true;
-            scene.add(boxMesh);
+            positions.forEach(pos => {
+                const pil = new THREE.Mesh(pillarGeo, pillarMat);
+                pil.position.set(pos[0], pos[1], pos[2]);
+                houseGroup.add(pil);
+                pillars.push(pil);
+            });
+
+            // 2. Base Concrete Floor Slab
+            const floorGeo = new THREE.BoxGeometry(houseWidth + 0.4, 0.1, houseLength + 0.4);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.9 });
+            const floorMesh = new THREE.Mesh(floorGeo, floorMat);
+            floorMesh.position.y = 0.05;
+            houseGroup.add(floorMesh);
+
+            // 3. Roof Triangular prism
+            const roofColor = (roofType === 'thatch') ? 0xb45309 : 0x64748b; // brown straw vs metallic zinc
+            const roofGeo = new THREE.ConeGeometry(houseWidth * 0.7, 1.0, 4);
+            const roofMat = new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.8 });
+            roofMesh = new THREE.Mesh(roofGeo, roofMat);
+            roofMesh.position.set(0, houseHeight + 0.5, 0);
+            roofMesh.rotation.y = Math.PI / 4; // Align to square orientation
+            roofMesh.scale.set(1.1, 1.0, houseLength / houseWidth * 0.9);
+            houseGroup.add(roofMesh);
+
+            // 4. Shelf Racks holding mushroom bags inside
+            const shelfMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.7 });
+            // Left shelf
+            const shelfGeo = new THREE.BoxGeometry(0.3, houseHeight * 0.7, houseLength * 0.8);
+            const leftShelf = new THREE.Mesh(shelfGeo, shelfMat);
+            leftShelf.position.set(-houseWidth/3, houseHeight*0.35, 0);
+            houseGroup.add(leftShelf);
+            racks.push(leftShelf);
+
+            // Right shelf
+            const rightShelf = new THREE.Mesh(shelfGeo, shelfMat);
+            rightShelf.position.set(houseWidth/3, houseHeight*0.35, 0);
+            houseGroup.add(rightShelf);
+            racks.push(rightShelf);
+
+            // 5. Add 2 Smart Fans on back wall
+            const fanGeo = new THREE.BoxGeometry(0.4, 0.4, 0.08);
+            const fanMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+            fan1 = new THREE.Mesh(fanGeo, fanMat);
+            fan1.position.set(-houseWidth/4, houseHeight*0.8, -houseLength/2);
+            houseGroup.add(fan1);
+
+            fan2 = new THREE.Mesh(fanGeo, fanMat);
+            fan2.position.set(houseWidth/4, houseHeight*0.8, -houseLength/2);
+            houseGroup.add(fan2);
+
+            // Recalculate capacity and building budgets
+            recalculateEstimates();
         }
 
-        function changeMushroomModel() {
-            const mKey = document.getElementById('mushroomSelect').value;
-            const mInfo = mushroomData[mKey];
+        function updateHouseGeometry() {
+            houseWidth = parseFloat(document.getElementById('widthSlider').value);
+            houseLength = parseFloat(document.getElementById('lengthSlider').value);
+            houseHeight = parseFloat(document.getElementById('heightSlider').value);
 
-            // Recreate mesh textures
-            createBoxMesh(mKey);
+            document.getElementById('lblWidthVal').textContent = houseWidth + ' ม.';
+            document.getElementById('lblLengthVal').textContent = houseLength + ' ม.';
+            document.getElementById('lblHeightVal').textContent = houseHeight + ' ม.';
 
-            // Update details UI panels
-            document.getElementById('lblMushroomTitle').textContent = mInfo.title;
-            document.getElementById('lblCategory').textContent = mInfo.category;
-            document.getElementById('lblDescription').textContent = mInfo.desc;
-            document.getElementById('lblOptTemp').textContent = mInfo.temp;
-            document.getElementById('lblOptHum').textContent = mInfo.hum;
-            document.getElementById('lblHarvestTime').textContent = mInfo.harvest;
-            document.getElementById('lblMarketPrice').textContent = mInfo.price;
+            buildMushroomHouse();
         }
 
-        // Live parameter updates
-        function updateAutoRotation() {
-            autoRotSpeed = parseFloat(document.getElementById('rotSpeedSlider').value);
+        function changeRoofMaterial() {
+            roofType = document.getElementById('roofSelect').value;
+            buildMushroomHouse();
         }
 
-        function updateLightIntensity() {
-            const val = parseFloat(document.getElementById('lightSlider').value);
-            ambientLight.intensity = val;
+        function recalculateEstimates() {
+            // Capacity based on volume
+            const capacity = Math.round(houseWidth * houseLength * houseHeight * 68);
+            document.getElementById('lblCapacity').textContent = capacity.toLocaleString() + ' ก้อน';
+
+            // Cost estimation based on materials
+            let baseCost = houseWidth * houseLength * 350 + houseHeight * 250;
+            if (roofType === 'zinc') baseCost += 1800; // Premium metallic zinc roofing extra cost
+            document.getElementById('lblCost').textContent = Math.round(baseCost).toLocaleString() + ' บ.';
         }
 
-        function togglePitchRotation() {
-            pitchRotEnabled = !pitchRotEnabled;
-            const btn = document.getElementById('btnPitch');
-            if (pitchRotEnabled) {
+        // Toggles for active devices
+        function toggleFan3D() {
+            isFanActive = !isFanActive;
+            const btn = document.getElementById('btnFan');
+            if (isFanActive) {
                 btn.textContent = "🟢 เปิดอยู่";
-                btn.className = "w-full py-1.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-extrabold rounded-xl text-[9px] transition";
+                btn.className = "px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-extrabold text-[10px] transition cursor-pointer";
             } else {
-                btn.textContent = "🚫 ปิดอยู่";
-                btn.className = "w-full py-1.5 bg-slate-950 border border-slate-800 hover:border-emerald-500 rounded-xl text-[9px] text-slate-300 font-extrabold transition";
+                btn.textContent = "ปิดอยู่";
+                btn.className = "px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 border border-slate-800 font-extrabold text-[10px] transition cursor-pointer";
             }
+        }
+
+        function toggleMist3D() {
+            isMistActive = !isMistActive;
+            const btn = document.getElementById('btnMist');
+            if (isMistActive) {
+                btn.textContent = "🟢 เปิดอยู่";
+                btn.className = "px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-extrabold text-[10px] transition cursor-pointer";
+                createMistParticles();
+            } else {
+                btn.textContent = "ปิดอยู่";
+                btn.className = "px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-400 border border-slate-800 font-extrabold text-[10px] transition cursor-pointer";
+                removeMistParticles();
+            }
+        }
+
+        function createMistParticles() {
+            removeMistParticles();
+            const particleGeo = new THREE.SphereGeometry(0.02, 4, 4);
+            const particleMat = new THREE.MeshBasicMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.5 });
+            
+            for(let i=0; i<100; i++) {
+                const particle = new THREE.Mesh(particleGeo, particleMat);
+                // random spawn inside house limits
+                particle.position.set(
+                    (Math.random() - 0.5) * houseWidth,
+                    houseHeight * 0.8,
+                    (Math.random() - 0.5) * houseLength
+                );
+                scene.add(particle);
+                mistParticles.push(particle);
+            }
+        }
+
+        function removeMistParticles() {
+            mistParticles.forEach(p => scene.remove(p));
+            mistParticles = [];
         }
 
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotate Box mesh mesh dynamically
-            if (boxMesh) {
-                boxMesh.rotation.y += autoRotSpeed;
-                if (pitchRotEnabled) {
-                    boxMesh.rotation.x = Math.sin(Date.now() * 0.001) * 0.15;
-                } else {
-                    boxMesh.rotation.x = 0;
-                }
+            // Animate active fan rotation
+            if (isFanActive && fan1 && fan2) {
+                fan1.rotation.z += 0.25;
+                fan2.rotation.z += 0.25;
+            }
+
+            // Animate mist droplets falling down
+            if (isMistActive && mistParticles.length > 0) {
+                mistParticles.forEach(p => {
+                    p.position.y -= 0.015;
+                    // Reset to ceiling when hitting ground
+                    if (p.position.y <= 0.2) {
+                        p.position.y = houseHeight * 0.8;
+                    }
+                });
             }
 
             controls.update();
@@ -425,7 +470,6 @@
             renderer.setSize(width, height);
         }
 
-        // Initialize on load
         window.onload = () => {
             init3D();
         };
