@@ -133,11 +133,6 @@
             border: 2px solid #22c55e !important;
             box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
         }
-        @media (orientation: portrait) and (max-width: 1024px) {
-            #orientationOverlay {
-                display: flex !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen text-gray-800 dark:text-gray-100 flex overflow-x-hidden">
@@ -232,10 +227,10 @@
             </div>
             
             <!-- Quick mode buttons -->
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center flex-wrap">
                 <button onclick="openInstructionsModal()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white shadow hover:bg-amber-600 transition cursor-pointer flex items-center gap-1.5"><i class="fas fa-question-circle"></i> วิธีเล่นและใช้งาน</button>
-                <button onclick="setCameraView('orbit')" id="btnViewOrbit" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5"><i class="fas fa-globe"></i> Orbit View</button>
-                <button onclick="setCameraView('fps')" id="btnViewFPS" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-150 text-gray-700 dark:bg-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5"><i class="fas fa-street-view"></i> First-Person</button>
+                <span id="btnViewOrbit" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5"><i class="fas fa-eye"></i> โหมดพรีวิวภาพนิ่ง (Preview Mode)</span>
+                <button onclick="setCameraView('fps')" id="btnViewFPS" class="px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-emerald-500 to-emerald-700 text-white shadow hover:scale-103 hover:shadow-lg transition cursor-pointer flex items-center gap-1.5"><i class="fas fa-street-view"></i> 🚶‍♂️ เปิดโหมดลุยฟาร์มเสมือนจริง (Enter First-Person Simulator)</button>
             </div>
         </header>
 
@@ -543,9 +538,7 @@
 
             const canvasContainer = document.getElementById('canvasContainer');
             canvasContainer.addEventListener('mousedown', (e) => {
-                if (cameraView === 'orbit') {
-                    if (e.button === 0) tryPlaceSandboxItem(e);
-                } else if (cameraView === 'fps') {
+                if (cameraView === 'fps') {
                     if (e.button === 0) triggerPlaceAtCrosshair();
                     else if (e.button === 2) triggerDestroyAtCrosshair();
                 }
@@ -778,8 +771,6 @@
 
         function setCameraView(view) {
             cameraView = view;
-            document.getElementById('btnViewOrbit').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-150 text-gray-700 dark:bg-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
-            document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-150 text-gray-700 dark:bg-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
             
             const crosshair = document.getElementById('fpsCrosshair');
             const joystick = document.getElementById('virtualJoystick');
@@ -792,13 +783,12 @@
             const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
             if (view === 'orbit') {
-                document.getElementById('btnViewOrbit').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
                 if (controls) {
-                    controls.enabled = true;
-                    camera.position.set(10, 8, 12);
-                    controls.target.set(0, 1.5, 0);
-                    controls.update();
+                    controls.enabled = false;
                 }
+                camera.position.set(6.5, 4.5, 7.5);
+                camera.lookAt(0, 1.2, 0);
+
                 if (placementCursor) placementCursor.visible = false;
                 if (crosshair) crosshair.style.display = 'none';
                 if (joystick) joystick.style.display = 'none';
@@ -816,7 +806,6 @@
                     if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
                 }
             } else {
-                document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
                 if (controls) controls.enabled = false;
                 camera.position.set(0, eyeHeight, 4.5);
                 yaw = -Math.PI / 2; pitch = 0;
@@ -864,6 +853,23 @@
                     document.getElementById('mobileControlsInfo').classList.add('hidden');
                 }
             }
+            checkOrientationOverlay();
+        }
+
+        function checkOrientationOverlay() {
+            const overlay = document.getElementById('orientationOverlay');
+            if (!overlay) return;
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (cameraView === 'fps' && isPortrait && isTouch && window.innerWidth <= 1024) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientationOverlay);
+        window.addEventListener('orientationchange', checkOrientationOverlay);
         }
 
         function selectSandboxTool(tool) {
