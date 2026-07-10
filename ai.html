@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="th" class="dark">
 <head>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
 <title>AI MSSM - Mush-Up NVC</title>
@@ -32,6 +42,10 @@
 </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
+
+<button id="themeToggle" class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none" aria-label="Toggle Dark/Light Mode">
+    <i id="themeToggleIcon" class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
+</button>
 
 <canvas id="particleCanvas"></canvas>
 

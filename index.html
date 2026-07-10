@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="th" class="dark">
 <head>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
 <title>Mush-Up NVC | MSSM</title>
@@ -53,6 +63,10 @@
 </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
+
+<button id="themeToggle" class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none" aria-label="Toggle Dark/Light Mode">
+    <i id="themeToggleIcon" class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
+</button>
 
 <div id="reading-progress" class="bg-gradient-to-b from-emerald-400 to-emerald-700 dark:from-emerald-300 dark:to-emerald-600"></div>
 <a href="#top" id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 md:w-14 md:h-14 z-50 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-gray-300 text-white dark:text-gray-900 shadow-lg hover:shadow-xl hover:scale-110 hover:rotate-[360deg] transition-all duration-500" style="opacity:0;pointer-events:none"><i class="fas fa-arrow-up text-lg"></i></a>
