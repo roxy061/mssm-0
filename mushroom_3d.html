@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍄 3D Mushroom Grow Kit Previewer - MSSM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', 'Prompt', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(51, 65, 85, 0.4);
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-slate-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
+        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cube"></i></span>
+                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">MSSM 3D</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
+            </a>
+            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
+            </a>
+            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
+            </a>
+            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
+            </a>
+            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
+            </a>
+            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 2D
+            </a>
+            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
+            </a>
+            <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-trophy text-sm"></i> แข่งขันออนไลน์ PVP
+            </a>
+            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-cube text-sm"></i> กล่องเชื้อเห็ดจำลอง 3D
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 border-b border-slate-850 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cube"></i></span>
+            <span class="font-extrabold text-sm text-white">MSSM 3D Box</span>
+        </div>
+        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+    </header>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-855">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-855">
+                <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
+                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="space-y-1.5 flex-grow">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แดชบอร์ดผลการทดลอง</a>
+                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ห้องปฏิบัติการวิจัย</a>
+                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
+                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
+                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
+                <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
+                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
+                <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แข่งขันออนไลน์ PVP</a>
+                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">กล่องเชื้อเห็ดจำลอง 3D</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6">
+        
+        <header class="px-6 py-6 border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-xl font-black text-white flex items-center gap-2"><i class="fas fa-cube text-emerald-400"></i> 3D Grow Kit Box Previewer</h1>
+                <p class="text-xs text-slate-400 mt-0.5">จำลองแบบร่างกล่องบรรจุภัณฑ์ก้อนเชื้อเห็ด 650 กรัม ในรูปแบบ 3 มิติเชิงโต้ตอบ</p>
+            </div>
+            
+            <div class="flex gap-2">
+                <!-- Dropdown selector -->
+                <select id="mushroomSelect" onchange="changeMushroomModel()" class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl text-xs font-bold text-slate-200 focus:outline-none focus:border-emerald-500">
+                    <option value="hungarian">🍄 เห็ดนางรมฮังการี (Hungarian Oyster)</option>
+                    <option value="woodear">🍄 เห็ดหูหนู (Wood Ear)</option>
+                    <option value="splitgill">🍄 เห็ดแครง (Split Gill)</option>
+                    <option value="bhutan">🍄 เห็ดนางฟ้าภูฐาน (Bhutan Oyster)</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- LEFT & CENTER: 3D Viewport -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="canvas-container relative">
+                    <div id="canvas3d" class="w-full h-full"></div>
+                    
+                    <!-- Overlay hints -->
+                    <div class="absolute bottom-4 left-4 bg-slate-950/80 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] text-slate-400 pointer-events-none flex items-center gap-1.5">
+                        <i class="fas fa-mouse text-emerald-400"></i>
+                        <span>คลิกค้างแล้วลากเพื่อหมุนกล่อง | เลื่อนลูกกลิ้งเพื่อย่อ-ขยาย</span>
+                    </div>
+                </div>
+
+                <!-- 3D Controls Panel -->
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความเร็วการหมุนอัตโนมัติ</label>
+                        <input type="range" id="rotSpeedSlider" min="0" max="0.05" step="0.002" value="0.005" oninput="updateAutoRotation()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ความสว่างของแสง (Ambient Light)</label>
+                        <input type="range" id="lightSlider" min="0.2" max="2.0" step="0.1" value="1.0" oninput="updateLightIntensity()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">หมุนแกนแนวตั้ง (Auto-Pitch)</label>
+                        <button onclick="togglePitchRotation()" id="btnPitch" class="w-full py-1.5 bg-slate-950 border border-slate-800 hover:border-emerald-500 rounded-xl text-[9px] text-slate-300 font-extrabold transition">
+                            🚫 ปิดอยู่
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Packaging Details & Metadata -->
+            <div class="space-y-4">
+                <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl space-y-4">
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full font-black uppercase tracking-wider block w-fit" id="lblCategory">Oyster Mushrooms</span>
+                    
+                    <h2 class="text-lg font-black text-white" id="lblMushroomTitle">The Hungarian Oyster Mushroom</h2>
+                    <p class="text-xs text-slate-400 leading-relaxed" id="lblDescription">ก้อนเชื้อเห็ดนางรมฮังการีพร้อมเพาะสำเร็จรูป ขนาดมาตรฐาน 650 กรัม ออกดอกง่าย ได้ผลผลิตคุ้มทุน เหมาะสำหรับกลุ่มผู้เริ่มต้นศึกษาเพาะชำ</p>
+                    
+                    <div class="border-t border-slate-800 my-4 pt-4 space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400"><i class="fas fa-thermometer-half text-red-400 mr-1"></i> อุณหภูมิที่เหมาะสม</span>
+                            <strong class="text-white" id="lblOptTemp">25 - 30 °C</strong>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400"><i class="fas fa-tint text-blue-400 mr-1"></i> ความชื้นสัมพัทธ์</span>
+                            <strong class="text-white" id="lblOptHum">70 - 85 % RH</strong>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400"><i class="fas fa-seedling text-emerald-400 mr-1"></i> ระยะการเก็บดอกแรก</span>
+                            <strong class="text-white" id="lblHarvestTime">10 - 15 วัน</strong>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400"><i class="fas fa-coins text-amber-400 mr-1"></i> ยอดจำหน่ายต่อน้ำหนัก</span>
+                            <strong class="text-white" id="lblMarketPrice">95 บาท / กก.</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grow instruction tips card -->
+                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-3xl space-y-3">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block"><i class="fas fa-info-circle text-emerald-400"></i> ขั้นตอนการเปิดดอกจำลอง</span>
+                    <ol class="text-[11px] text-slate-300 space-y-2 list-decimal list-inside pl-1">
+                        <li>กรีดข้างถุงเป็นรอยแผลกว้าง 2-3 นิ้ว เพื่อเปิดช่องระบายลม</li>
+                        <li>ฉีดพ่นละอองหมอกห่างจากจุดเปิด 30 ซม. วันละ 2 ครั้ง</li>
+                        <li>หลีกเลี่ยงแดดจัดปะทะโดยตรง ควรวางในที่อากาศถ่ายเทดี</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Script 3D Render Engine -->
+    <script>
+        let scene, camera, renderer, boxMesh, controls;
+        let ambientLight;
+        let autoRotSpeed = 0.005;
+        let pitchRotEnabled = false;
+
+        const textureLoader = new THREE.TextureLoader();
+
+        // 4 grow kits data
+        const mushroomData = {
+            hungarian: {
+                title: "The Hungarian Oyster Mushroom",
+                category: "Oyster Mushrooms",
+                desc: "ก้อนเชื้อเห็ดนางรมฮังการีพร้อมเพาะสำเร็จรูป ขนาดมาตรฐาน 650 กรัม ผลิตภัณฑ์สูตรพิเศษ ผสมเศษวัสดุชีวมวลยางพารา ออกดอกหนานุ่ม น้ำหนักดี สำหรับคนเริ่มต้นดูแลได้ง่าย",
+                temp: "25 - 30 °C",
+                hum: "70 - 85 % RH",
+                harvest: "10 - 15 วัน",
+                price: "95 บาท / กก.",
+                texturePath: "assets/images/box_hungarian.jpg",
+                boxColor: 0xa7f3d0 // Light green tinted backing
+            },
+            woodear: {
+                title: "The Wood Ear Mushroom",
+                category: "Auricularia Family",
+                desc: "กล่องเพาะสำเร็จรูปเห็ดหูหนู ปราศจากสารเคมี อุดมไปด้วยแร่ธาตุเหล็กและเบต้ากลูแคน ทนความชื้นได้ยอดเยี่ยม ทนฤดูฝนมรสุมภาคใต้ เหมาะสำหรับการสร้างรายได้เสริมในชุมชน",
+                temp: "25 - 33 °C",
+                hum: "80 - 90 % RH",
+                harvest: "15 - 20 วัน",
+                price: "60 บาท / กก.",
+                texturePath: "assets/images/box_woodear.jpg",
+                boxColor: 0xfef3c7 // Beige/yellow
+            },
+            splitgill: {
+                title: "The Split Gill Mushroom",
+                category: "Premium Biological",
+                desc: "เห็ดแครงทรงคุณค่าทางวิทยาศาสตร์การแพทย์ (Schizophyllum commune) เนื้อสัมผัสเด้งกรอบทดแทนเนื้อสัตว์ เพาะง่าย อัตราเก็บเกี่ยวไวที่สุดใน 10 วัน ทนความชื้นและฝนชุกสูง",
+                temp: "28 - 35 °C",
+                hum: "75 - 90 % RH",
+                harvest: "8 - 12 วัน",
+                price: "120 บาท / กก.",
+                texturePath: "assets/images/box_splitgill.jpg",
+                boxColor: 0xdbeafe // Blue
+            },
+            bhutan: {
+                title: "The Bhutan Oyster Mushroom",
+                category: "Commercial Best-Seller",
+                desc: "เห็ดนางฟ้าภูฐาน ยอดนิยมตลอดกาลในตลาดราคากลางสด คัดสรรสปอร์และเชื้อบริสุทธิ์จากสูตรแล็บทดลอง MSSM ให้ผลตอบแทนทางสถิติการเงิน (BCR) คุ้มค่าสูงสุดแก่โรงเรือน",
+                temp: "24 - 28 °C",
+                hum: "75 - 85 % RH",
+                harvest: "10 - 15 วัน",
+                price: "80 บาท / กก.",
+                texturePath: "assets/images/box_bhutan.jpg",
+                boxColor: 0xfce7f3 // Pink
+            }
+        };
+
+        // Initialize 3D Viewport
+        function init3D() {
+            const container = document.getElementById('canvas3d');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(0, 1.5, 4.5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+            // Orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 + 0.1; // Don't go too far under ground
+            controls.minDistance = 2;
+            controls.maxDistance = 8;
+
+            // Lights
+            ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 7);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            // Create Box mesh representation of grow kit
+            createBoxMesh('hungarian');
+
+            // Resize handler
+            window.addEventListener('resize', onWindowResize);
+
+            // Animation Loop
+            animate();
+        }
+
+        function createBoxMesh(mKey) {
+            // Remove previous mesh if exists
+            if (boxMesh) {
+                scene.remove(boxMesh);
+            }
+
+            const mInfo = mushroomData[mKey];
+            
+            // Box dimensions: Width=1.5, Height=2.5, Depth=1.2 (representing grow kit packaging)
+            const geometry = new THREE.BoxGeometry(1.4, 2.4, 1.0);
+
+            // Load front texture image dynamically
+            const frontTex = textureLoader.load(mInfo.texturePath);
+            frontTex.minFilter = THREE.LinearFilter;
+
+            // Box Materials (Front face has the full package design; other faces are matching tints)
+            const sideMat = new THREE.MeshStandardMaterial({ color: mInfo.boxColor, roughness: 0.6 });
+            const frontMat = new THREE.MeshStandardMaterial({ map: frontTex, roughness: 0.4 });
+
+            // Materials array: Right, Left, Top, Bottom, Front, Back
+            const materials = [
+                sideMat, // Right
+                sideMat, // Left
+                sideMat, // Top
+                sideMat, // Bottom
+                frontMat, // Front
+                sideMat  // Back
+            ];
+
+            boxMesh = new THREE.Mesh(geometry, materials);
+            boxMesh.position.y = 0.2;
+            boxMesh.castShadow = true;
+            boxMesh.receiveShadow = true;
+            scene.add(boxMesh);
+        }
+
+        function changeMushroomModel() {
+            const mKey = document.getElementById('mushroomSelect').value;
+            const mInfo = mushroomData[mKey];
+
+            // Recreate mesh textures
+            createBoxMesh(mKey);
+
+            // Update details UI panels
+            document.getElementById('lblMushroomTitle').textContent = mInfo.title;
+            document.getElementById('lblCategory').textContent = mInfo.category;
+            document.getElementById('lblDescription').textContent = mInfo.desc;
+            document.getElementById('lblOptTemp').textContent = mInfo.temp;
+            document.getElementById('lblOptHum').textContent = mInfo.hum;
+            document.getElementById('lblHarvestTime').textContent = mInfo.harvest;
+            document.getElementById('lblMarketPrice').textContent = mInfo.price;
+        }
+
+        // Live parameter updates
+        function updateAutoRotation() {
+            autoRotSpeed = parseFloat(document.getElementById('rotSpeedSlider').value);
+        }
+
+        function updateLightIntensity() {
+            const val = parseFloat(document.getElementById('lightSlider').value);
+            ambientLight.intensity = val;
+        }
+
+        function togglePitchRotation() {
+            pitchRotEnabled = !pitchRotEnabled;
+            const btn = document.getElementById('btnPitch');
+            if (pitchRotEnabled) {
+                btn.textContent = "🟢 เปิดอยู่";
+                btn.className = "w-full py-1.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-extrabold rounded-xl text-[9px] transition";
+            } else {
+                btn.textContent = "🚫 ปิดอยู่";
+                btn.className = "w-full py-1.5 bg-slate-950 border border-slate-800 hover:border-emerald-500 rounded-xl text-[9px] text-slate-300 font-extrabold transition";
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Box mesh mesh dynamically
+            if (boxMesh) {
+                boxMesh.rotation.y += autoRotSpeed;
+                if (pitchRotEnabled) {
+                    boxMesh.rotation.x = Math.sin(Date.now() * 0.001) * 0.15;
+                } else {
+                    boxMesh.rotation.x = 0;
+                }
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('canvas3d');
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            init3D();
+        };
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

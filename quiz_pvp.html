@@ -48,11 +48,6 @@
         .gaming-btn:active {
             transform: scale(0.97);
         }
-        /* Custom Progress Animations */
-        @keyframes countdown {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
     </style>
 </head>
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
@@ -91,6 +86,9 @@
             <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
                 <i class="fas fa-trophy text-sm"></i> แข่งขันออนไลน์ PVP
             </a>
+            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cube text-slate-400 text-sm"></i> กล่องเชื้อเห็ดจำลอง 3D
+            </a>
         </nav>
     </aside>
 
@@ -119,6 +117,7 @@
                 <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
                 <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
                 <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">แข่งขันออนไลน์ PVP</a>
+                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">กล่องเชื้อเห็ดจำลอง 3D</a>
             </nav>
         </div>
     </div>
@@ -131,49 +130,60 @@
             <div>
                 <span class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xl mx-auto shadow-lg mb-3"><i class="fas fa-bolt"></i></span>
                 <h1 class="text-base sm:text-lg font-black text-white uppercase tracking-wider">Quiz Matchmaking</h1>
-                <p class="text-[10px] text-slate-400 mt-1">ตอบคำถามถูกและเร็วที่สุด เพื่อชิงเงินรางวัลเข้าสู่กระเป๋าฟาร์มหลัก</p>
+                <p class="text-[10px] text-slate-400 mt-1">ตอบคำถามถูกต้องอย่างแม่นยำด้วยรหัสห้อง PIN เชื่อมต่อเรียลไทม์</p>
             </div>
 
-            <!-- PIN codes creation & entry -->
-            <div class="space-y-3.5">
+            <!-- PIN codes creation & nickname input -->
+            <div class="space-y-3.5 text-left">
+                <div>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ชื่อเล่นของคุณ</label>
+                    <input type="text" id="txtNickname" value="Feel" placeholder="พิมพ์ชื่อเล่น..." class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-500">
+                </div>
+
                 <div class="flex gap-2">
-                    <input type="text" id="txtRoomCode" placeholder="ใส่รหัสห้อง (เช่น 7732)" class="flex-grow bg-slate-950 border border-slate-800 p-3 rounded-2xl text-xs font-bold text-center uppercase text-slate-200 focus:outline-none focus:border-amber-500">
+                    <input type="text" id="txtRoomCode" placeholder="ใส่รหัสห้อง PIN 4 หลัก" class="flex-grow bg-slate-950 border border-slate-800 p-3 rounded-2xl text-xs font-bold text-center uppercase text-slate-200 focus:outline-none focus:border-amber-500">
                     <button onclick="joinRoom()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 rounded-2xl transition cursor-pointer">เข้าร่วม</button>
                 </div>
-                <button onclick="createRoom()" class="w-full py-3 rounded-2xl border border-dashed border-slate-700 text-xs font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400 transition cursor-pointer">➕ สร้างห้องแข่งขันใหม่ (Random PIN)</button>
+                <button onclick="createRoom()" class="w-full py-3 rounded-2xl border border-dashed border-slate-700 text-xs font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400 transition cursor-pointer">➕ สร้างห้องเชื่อมต่อใหม่ (Generate PIN)</button>
             </div>
 
             <!-- Players inside Lobby drawer -->
             <div id="lobbyContainer" class="hidden space-y-3 pt-3 border-t border-slate-850">
                 <div class="flex items-center justify-between">
-                    <span class="text-[9px] text-slate-400 font-bold">รหัสห้อง: <span class="text-amber-400 font-extrabold" id="lblRoomCode">--</span></span>
+                    <span class="text-[9px] text-slate-400 font-bold">รหัสห้อง PIN: <span class="text-amber-400 font-extrabold" id="lblRoomCode">--</span></span>
                     <span class="text-[9px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-black">พร้อมแข่ง: <span id="lblLobbyCount">1 / 2</span></span>
                 </div>
                 <div class="space-y-2 text-left" id="lobbyPlayersList">
                     <!-- JS generated player cards -->
                 </div>
-                <button onclick="startQuiz()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-102 text-slate-950 font-black text-xs rounded-2xl shadow-xl transition cursor-pointer">🚶‍♂️ เริ่มการแข่งขันเลย (Start Match!)</button>
+                
+                <div id="hostControls" class="hidden">
+                    <button onclick="startQuiz()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-102 text-slate-950 font-black text-xs rounded-2xl shadow-xl transition cursor-pointer">🚶‍♂️ เริ่มการแข่งขัน (Start Match)</button>
+                </div>
+                <div id="joinerControls" class="hidden text-xs text-amber-400 font-bold animate-pulse text-center">
+                    ⏳ รอหัวหน้าห้องกดเริ่มเกม...
+                </div>
             </div>
         </div>
 
         <!-- PHASE 2: LIVE QUIZ AREA -->
-        <div id="phaseQuiz" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-2xl space-y-4 hidden flex-col justify-between">
+        <div id="phaseQuiz" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-2xl space-y-4 hidden flex-col justify-between animate-fadeIn">
             
-            <!-- Dynamic HP & Score indicators -->
+            <!-- Dynamic Score indicators -->
             <div class="grid grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-2xl border border-slate-850 relative">
                 <div class="text-left border-r border-slate-850 pr-2">
-                    <span class="text-[9px] text-slate-400 font-bold block">Feel (คุณ)</span>
+                    <span class="text-[9px] text-slate-400 font-bold block" id="lblMyName">คุณ (Feel)</span>
                     <strong class="text-sm font-black text-emerald-400" id="lblPlayerScore">0 บ.</strong>
                 </div>
                 <div class="text-right pl-2">
-                    <span class="text-[9px] text-slate-400 font-bold block" id="lblOpponentName">Mean</span>
+                    <span class="text-[9px] text-slate-400 font-bold block" id="lblOpponentName">รอผู้เล่น...</span>
                     <strong class="text-sm font-black text-amber-400" id="lblOpponentScore">0 บ.</strong>
                 </div>
             </div>
 
             <!-- Quiz Timer -->
             <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 px-1">
-                <span>คำถามที่ <span id="lblQuestionIdx">1</span> / 4</span>
+                <span>คำถามที่ <span id="lblQuestionIdx">1</span> / 5</span>
                 <span class="bg-red-500/20 text-red-400 px-2.5 py-0.5 rounded-full font-black"><i class="fas fa-clock mr-1"></i> <span id="lblQuizTimer">15</span> วินาที</span>
             </div>
 
@@ -183,65 +193,66 @@
 
             <!-- Quiz details card -->
             <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
-                <h3 class="text-xs sm:text-sm font-bold text-slate-200 text-center leading-relaxed" id="lblQuestionText">โจทย์ตัวอย่างจะแสดงในจุดนี้...</h3>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-200 text-center leading-relaxed" id="lblQuestionText">โจทย์ประเมินผลจะอยู่ตรงนี้...</h3>
             </div>
 
             <!-- Choice buttons (thumb-friendly layout) -->
             <div class="grid grid-cols-1 gap-2" id="choicesList">
-                <!-- JS generated giant choice buttons -->
+                <!-- JS choices -->
             </div>
             
             <!-- Result banner alert inside card -->
-            <div id="quizStatusAlert" class="p-2 rounded-xl text-center font-bold text-[10px] hidden"></div>
+            <div id="quizStatusAlert" class="p-2.5 rounded-xl text-center font-bold text-[10px] hidden"></div>
         </div>
 
         <!-- PHASE 3: WINNER PODIUMS -->
         <div id="phasePodium" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl text-center space-y-6 hidden flex-col justify-between">
             <div>
                 <span class="text-5xl animate-bounce block">🏆</span>
-                <h2 class="text-lg font-black text-white mt-2">ประกาศผลผู้ชนะแมตช์!</h2>
+                <h2 class="text-lg font-black text-white mt-2">ประกาศผลผู้ชนะ!</h2>
                 <p class="text-xs text-slate-400 mt-1">สรุปรางวัลการประชันความเร็วและความถูกต้อง</p>
             </div>
 
-            <!-- Winner podium layout block -->
             <div class="space-y-3" id="podiumList">
                 <!-- JS generated final podium entries -->
             </div>
 
-            <button onclick="location.reload()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-xs rounded-2xl shadow transition cursor-pointer">🔄 แข่งขันใหม่อีกครั้ง</button>
+            <button onclick="location.reload()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-xs rounded-2xl shadow transition cursor-pointer">🔄 กลับสู่หน้าหลัก</button>
         </div>
     </div>
 
     <!-- Script Game Logic -->
     <script>
-        // Game Phases: 'lobby', 'quiz', 'podium'
-        let currentPhase = 'lobby';
-        let roomCode = '';
-        let lobbyPlayers = [
-            { name: 'คุณ (Feel)', score: 0, isReady: true },
-            { name: 'มีน (Mean)', score: 0, isReady: false }
-        ];
+        let myName = 'Feel';
+        let isHost = false;
+        let activeRoomPIN = '';
+        let pollerInterval = null;
 
-        // 4 academic questions
+        // Custom local questions specific to the mushrooms in the project
         const quizList = [
             {
-                q: "1. เห็ดแครง (Split Gill Mushroom) ใช้เวลาบ่มเส้นใยในอุณหภูมิปกติประมาณกี่วัน ก่อนเปิดดอก?",
-                choices: ["ก. 10 - 15 วัน", "ข. 30 - 45 วัน", "ค. 60 - 90 วัน", "ง. 120 วันขึ้นไป"],
+                q: "1. เห็ดแครง (Schizophyllum commune) เจริญเติบโตได้ดีที่สุดในวัสดุเพาะที่ใช้ส่วนผสมหลักจากชีวมวลประเภทใด?",
+                choices: ["ก. ขี้เลื่อยไม้ยางพาราผสมรำละเอียด", "ข. ชานอ้อยตากแห้งต้มเกลือ", "ค. ฟางข้าวย่อยสลายผสมทรายแม่น้ำ", "ง. ซากเปลือกมะพร้าวสับแห้ง"],
                 correct: 0
             },
             {
-                q: "2. สภาพแวดล้อมที่กระตุ้นให้เห็ดนางฟ้าและเห็ดแครงฟอร์มดอกได้ดีที่สุดคือข้อใด?",
-                choices: ["ก. การลดอุณหภูมิลงและรักษาความชื้น 75-90% RH", "ข. การฉีดพ่นสารเคมีเร่งเต่งตึง", "ค. การวางไว้ที่มืดอับและร้อนอบอ้าว 45 °C", "ง. การลดปริมาณอากาศอ๊อกซิเจนจนสุด"],
+                q: "2. อุณหภูมิและความชื้นสัมพัทธ์ที่เหมาะสมที่สุดในการเปิดดอกเห็ดนางฟ้าภูฐานคือข้อใด?",
+                choices: ["ก. อุณหภูมิ 25-28°C และความชื้น 75-85% RH", "ข. อุณหภูมิ 35-40°C และความชื้น 50-60% RH", "ค. อุณหภูมิ 15-18°C และความชื้น 90-95% RH", "ง. อุณหภูมิ 20-22°C และความชื้น 60-70% RH"],
                 correct: 0
             },
             {
-                q: "3. ในการวิเคราะห์ทางชีววิทยา เห็ดแครงมีสารสำคัญใดที่ช่วยต้านอนุมูลอิสระและเสริมภูมิคุ้มกัน?",
-                choices: ["ก. สารซิลิกาบริสุทธิ์", "ข. เบต้ากลูแคน (Schizophyllan)", "ค. แคลเซียมคาร์บอเนต", "ง. กรดสเตียริกเข้มข้น"],
-                correct: 1
+                q: "3. เห็ดนางรมฮังการีมีรอบระยะเวลาเฉลี่ยกี่วันในการเจริญเติบโตจนพร้อมเก็บเกี่ยวรอบแรกหลังจากเปิดก้อน?",
+                choices: ["ก. 3 - 5 วัน", "ข. 12 - 15 วัน", "ค. 20 - 25 วัน", "ง. 40 วันขึ้นไป"],
+                correct: 0
             },
             {
-                q: "4. ค่าประสิทธิภาพการใช้น้ำของโรงเรือนจำลองจะขึ้นอยู่กับองค์ประกอบใด?",
-                choices: ["ก. ขนาดตาราง 10x10 และหัวพ่นหมอกอัจฉริยะ", "ข. ชนิดหลังคาสังกะสีแผ่นเดียว", "ค. ยอดเงินคงเหลือในพอร์ตกลาง", "ง. จำนวนผู้เล่นที่ลงทะเบียนเข้ามา"],
+                q: "4. ข้อดีของการเพาะเห็ดหูหนูในเชิงเศรษฐศาสตร์และลักษณะทางกายภาพคือข้อใด?",
+                choices: ["ก. ทนความชื้นสูงได้ดีมากและต้านทานสภาพฝนตกชุกชื้นภาคใต้ได้ดี", "ข. เติบโตได้ดีโดยไม่ต้องรดน้ำหรือดูแลเลย", "ค. ราคาตลาดคงที่เท่ากันทุกสายพันธุ์ตลอดทั้งปี", "ง. มีระยะเวลาเก็บเกี่ยวสั้นกว่าเห็ดแครง 5 เท่า"],
+                correct: 0
+            },
+            {
+                q: "5. จากสถิติห้องปฏิบัติการของกลุ่ม MSSM สูตรผสมก้อนเชื้อเห็ดชุมชนน้ำหนัก 650 กรัม มีต้นทุนการผลิตจริงเฉลี่ยต่อก้อนประมาณกี่บาท?",
+                choices: ["ก. 8 - 12 บาท", "ข. 25 - 30 บาท", "ค. 45 - 50 บาท", "ง. 60 บาทขึ้นไป"],
                 correct: 0
             }
         ];
@@ -249,83 +260,163 @@
         let activeQuizIdx = 0;
         let quizTimer = 15;
         let quizTimerInterval = null;
-        let pScore = 0;
-        let oScore = 0;
+
+        // Initialize empty database if not present
+        if(!localStorage.getItem('mssm_pvp_rooms')) {
+            localStorage.setItem('mssm_pvp_rooms', JSON.stringify({}));
+        }
+
+        function getRoom(pin) {
+            let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms')) || {};
+            return rooms[pin] || null;
+        }
+
+        function saveRoom(pin, roomObj) {
+            let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms')) || {};
+            rooms[pin] = roomObj;
+            localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
+        }
 
         function createRoom() {
-            roomCode = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('lblRoomCode').textContent = roomCode;
+            myName = document.getElementById('txtNickname').value.trim() || 'Feel';
+            isHost = true;
+            activeRoomPIN = Math.floor(1000 + Math.random() * 9000).toString();
+
+            let roomObj = {
+                pin: activeRoomPIN,
+                status: 'waiting', // waiting, playing, finished
+                currentQuestion: 0,
+                players: [
+                    { name: myName, score: 0, activeAnswer: null, lastUpdate: Date.now() }
+                ]
+            };
+
+            saveRoom(activeRoomPIN, roomObj);
+            
+            document.getElementById('lblRoomCode').textContent = activeRoomPIN;
             document.getElementById('lobbyContainer').classList.remove('hidden');
-            renderLobby();
-            simulateOpponentJoin();
+            document.getElementById('hostControls').classList.remove('hidden');
+            document.getElementById('joinerControls').classList.add('hidden');
+
+            renderLobbyPlayers(roomObj);
+            startLobbyPolling();
         }
 
         function joinRoom() {
-            const pin = document.getElementById('txtRoomCode').value.trim();
-            if (!pin || pin.length !== 4) {
+            myName = document.getElementById('txtNickname').value.trim() || 'Mean';
+            isHost = false;
+            let pin = document.getElementById('txtRoomCode').value.trim();
+            if(!pin || pin.length !== 4) {
                 alert('กรุณากรอกรหัส PIN 4 หลัก!');
                 return;
             }
-            roomCode = pin;
-            document.getElementById('lblRoomCode').textContent = roomCode;
+            activeRoomPIN = pin;
+
+            let roomObj = getRoom(pin);
+            if(!roomObj) {
+                alert('ไม่พบห้องแข่งขันรหัส PIN นี้ในระบบ!');
+                return;
+            }
+
+            if(roomObj.players.length >= 2) {
+                alert('ขออภัย! ห้องแข่งขันนี้เต็มแล้ว');
+                return;
+            }
+
+            roomObj.players.push({
+                name: myName,
+                score: 0,
+                activeAnswer: null,
+                lastUpdate: Date.now()
+            });
+
+            saveRoom(activeRoomPIN, roomObj);
+
+            document.getElementById('lblRoomCode').textContent = activeRoomPIN;
             document.getElementById('lobbyContainer').classList.remove('hidden');
-            renderLobby();
-            simulateOpponentJoin();
+            document.getElementById('hostControls').classList.add('hidden');
+            document.getElementById('joinerControls').classList.remove('hidden');
+
+            renderLobbyPlayers(roomObj);
+            startLobbyPolling();
         }
 
-        function renderLobby() {
+        function renderLobbyPlayers(roomObj) {
             const container = document.getElementById('lobbyPlayersList');
             container.innerHTML = '';
-            lobbyPlayers.forEach(p => {
+            roomObj.players.forEach((p, idx) => {
                 const card = document.createElement('div');
                 card.className = 'p-3 bg-slate-950/50 rounded-2xl flex items-center justify-between border border-slate-850';
                 card.innerHTML = `
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-full bg-slate-800 text-[10px] text-emerald-400 font-bold flex items-center justify-center">
+                        <div class="w-6 h-6 rounded-full bg-slate-800 text-[10px] text-amber-400 font-bold flex justify-center items-center">
                             ${p.name.charAt(0)}
                         </div>
                         <span class="text-xs font-bold text-white">${p.name}</span>
                     </div>
-                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${p.isReady ? 'bg-emerald-500/10 text-emerald-400' : 'bg-slate-800 text-slate-400'}">
-                        ${p.isReady ? 'READY' : 'WAITING'}
-                    </span>
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">READY</span>
                 `;
                 container.appendChild(card);
             });
-            document.getElementById('lblLobbyCount').textContent = `${lobbyPlayers.filter(x=>x.isReady).length} / 2`;
+            document.getElementById('lblLobbyCount').textContent = `${roomObj.players.length} / 2`;
         }
 
-        function simulateOpponentJoin() {
-            setTimeout(() => {
-                lobbyPlayers[1].isReady = true;
-                renderLobby();
-            }, 1500);
+        function startLobbyPolling() {
+            clearInterval(pollerInterval);
+            pollerInterval = setInterval(() => {
+                let roomObj = getRoom(activeRoomPIN);
+                if(!roomObj) return;
+
+                renderLobbyPlayers(roomObj);
+
+                // If status changes to playing (triggered by host)
+                if(roomObj.status === 'playing' && currentPhase === 'lobby') {
+                    clearInterval(pollerInterval);
+                    enterQuizPhase();
+                }
+            }, 600);
         }
 
-        // Phase 2: Live Quiz Action
         function startQuiz() {
-            document.getElementById('phaseLobby').classList.add('hidden');
-            document.getElementById('phaseQuiz').classList.remove('hidden');
-            document.getElementById('phaseQuiz').classList.add('flex');
-            
-            pScore = 0;
-            oScore = 0;
-            activeQuizIdx = 0;
-            loadQuestion();
-        }
+            let roomObj = getRoom(activeRoomPIN);
+            if(!roomObj) return;
 
-        function loadQuestion() {
-            if (activeQuizIdx >= quizList.length) {
-                endQuizMatch();
+            if(roomObj.players.length < 2) {
+                alert('ต้องมีผู้เล่นเข้าร่วมอย่างน้อย 2 คนจึงจะเริ่มได้!');
                 return;
             }
 
-            // Reset UI states
-            document.getElementById('quizStatusAlert').classList.add('hidden');
-            document.getElementById('lblQuestionIdx').textContent = activeQuizIdx + 1;
-            
+            roomObj.status = 'playing';
+            roomObj.currentQuestion = 0;
+            saveRoom(activeRoomPIN, roomObj);
+
+            enterQuizPhase();
+        }
+
+        function enterQuizPhase() {
+            currentPhase = 'quiz';
+            document.getElementById('phaseLobby').classList.add('hidden');
+            document.getElementById('phaseQuiz').classList.remove('hidden');
+            document.getElementById('phaseQuiz').classList.add('flex');
+
+            // Setup nickname labels
+            let roomObj = getRoom(activeRoomPIN);
+            let oppPlayer = roomObj.players.find(p => p.name !== myName);
+            document.getElementById('lblMyName').textContent = `${myName} (คุณ)`;
+            if(oppPlayer) {
+                document.getElementById('lblOpponentName').textContent = oppPlayer.name;
+            }
+
+            activeQuizIdx = 0;
+            loadQuestion();
+            startQuizSyncPolling();
+        }
+
+        function loadQuestion() {
             const qItem = quizList[activeQuizIdx];
+            document.getElementById('lblQuestionIdx').textContent = activeQuizIdx + 1;
             document.getElementById('lblQuestionText').textContent = qItem.q;
+            document.getElementById('quizStatusAlert').classList.add('hidden');
 
             const choicesContainer = document.getElementById('choicesList');
             choicesContainer.innerHTML = '';
@@ -338,7 +429,7 @@
                 choicesContainer.appendChild(btn);
             });
 
-            // Start countdown timer (15 seconds)
+            // Timer setup
             quizTimer = 15;
             document.getElementById('lblQuizTimer').textContent = quizTimer;
             document.getElementById('quizProgressBar').style.width = '100%';
@@ -360,7 +451,7 @@
         function submitAnswer(idx, correctIndex) {
             clearInterval(quizTimerInterval);
 
-            // Disable other buttons
+            // Disable all buttons
             const btns = document.getElementById('choicesList').getElementsByTagName('button');
             for(let i=0; i<btns.length; i++) {
                 btns[i].disabled = true;
@@ -369,63 +460,113 @@
             const alertBox = document.getElementById('quizStatusAlert');
             alertBox.classList.remove('hidden');
 
-            if (idx === correctIndex) {
-                // Correct answer! Earn +10,000 Baht simulated cash
-                pScore += 10000;
+            let scoreChange = 0;
+            if(idx === correctIndex) {
+                scoreChange = 10000;
                 alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-emerald-500/10 text-emerald-400';
-                alertBox.textContent = '🟢 คำตอบถูกต้อง! คุณได้รับเงินโบนัสฟาร์มเพิ่ม +10,000 บาท';
+                alertBox.textContent = '🟢 คำตอบถูกต้อง! ได้รับเงินทุน +10,000 บาท';
             } else {
-                // Incorrect answer: lose -3,000 Baht
-                pScore = Math.max(0, pScore - 3000);
+                scoreChange = -3000;
                 alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-red-500/10 text-red-400';
-                alertBox.textContent = '🔴 คำตอบผิด! โดนหักพอร์ต -3,000 บาท';
+                alertBox.textContent = '🔴 คำตอบผิด! โดนหักเงินพอร์ต -3,000 บาท';
             }
 
-            // Simulate opponent score randomly (between 0 and 12,000 Baht per question)
-            const oCorrect = Math.random() > 0.4;
-            if (oCorrect) {
-                oScore += 10000;
-            } else {
-                oScore = Math.max(0, oScore - 3000);
-            }
+            // Update localStorage room state
+            let roomObj = getRoom(activeRoomPIN);
+            let myPlayer = roomObj.players.find(p => p.name === myName);
+            myPlayer.score = Math.max(0, myPlayer.score + scoreChange);
+            myPlayer.activeAnswer = idx;
+            myPlayer.lastUpdate = Date.now();
+            saveRoom(activeRoomPIN, roomObj);
 
-            // Update live HUD score counters
-            document.getElementById('lblPlayerScore').textContent = `${pScore.toLocaleString()} บ.`;
-            document.getElementById('lblOpponentScore').textContent = `${oScore.toLocaleString()} บ.`;
-
-            // Wait 2.5 seconds before moving to next question
-            setTimeout(() => {
-                activeQuizIdx++;
-                loadQuestion();
-            }, 2500);
+            updateScoresUI(roomObj);
         }
 
-        // Phase 3: Winner Podium
-        function endQuizMatch() {
+        function updateScoresUI(roomObj) {
+            let myPlayer = roomObj.players.find(p => p.name === myName);
+            let oppPlayer = roomObj.players.find(p => p.name !== myName);
+
+            document.getElementById('lblPlayerScore').textContent = `${myPlayer.score.toLocaleString()} บ.`;
+            if(oppPlayer) {
+                document.getElementById('lblOpponentScore').textContent = `${oppPlayer.score.toLocaleString()} บ.`;
+            }
+        }
+
+        function startQuizSyncPolling() {
+            clearInterval(pollerInterval);
+            pollerInterval = setInterval(() => {
+                let roomObj = getRoom(activeRoomPIN);
+                if(!roomObj) return;
+
+                updateScoresUI(roomObj);
+
+                // Host controls progression when both players have submitted an answer
+                let allAnswered = roomObj.players.every(p => p.activeAnswer !== null);
+                if(allAnswered) {
+                    if(isHost) {
+                        // Delay 2.5 seconds to read answers then advance currentQuestion
+                        setTimeout(() => {
+                            let freshRoom = getRoom(activeRoomPIN);
+                            if(freshRoom && freshRoom.currentQuestion === activeQuizIdx) {
+                                freshRoom.currentQuestion++;
+                                freshRoom.players.forEach(p => p.activeAnswer = null); // Reset
+                                
+                                if(freshRoom.currentQuestion >= quizList.length) {
+                                    freshRoom.status = 'finished';
+                                }
+                                saveRoom(activeRoomPIN, freshRoom);
+                            }
+                        }, 2500);
+                    }
+                }
+
+                // Both players follow room's currentQuestion
+                if(roomObj.currentQuestion !== activeQuizIdx) {
+                    activeQuizIdx = roomObj.currentQuestion;
+                    if(activeQuizIdx < quizList.length) {
+                        loadQuestion();
+                    }
+                }
+
+                // If status is finished, enter final podium phase
+                if(roomObj.status === 'finished') {
+                    clearInterval(pollerInterval);
+                    enterPodiumPhase(roomObj);
+                }
+            }, 600);
+        }
+
+        function enterPodiumPhase(roomObj) {
+            currentPhase = 'podium';
             document.getElementById('phaseQuiz').classList.add('hidden');
             document.getElementById('phaseQuiz').classList.remove('flex');
             document.getElementById('phasePodium').classList.remove('hidden');
             document.getElementById('phasePodium').classList.add('flex');
 
-            const isPlayerWinner = pScore >= oScore;
-            
-            // Sync winner cash back to virtual wallet cash
-            let storedCash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
-            localStorage.setItem('virtualWalletCash', storedCash + pScore);
+            // Sort players
+            let sorted = [...roomObj.players].sort((a, b) => b.score - a.score);
+
+            // Add score to central virtual budget for Feel (You)
+            let myFinalScoreObj = roomObj.players.find(p => p.name === myName);
+            let myPrize = myFinalScoreObj ? myFinalScoreObj.score : 0;
+            let currentWallet = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+            localStorage.setItem('virtualWalletCash', currentWallet + myPrize);
 
             const podiumContainer = document.getElementById('podiumList');
             podiumContainer.innerHTML = `
                 <div class="p-4 bg-slate-950/60 border border-amber-500/30 rounded-2xl text-center space-y-2">
                     <span class="text-xs font-black text-amber-400 uppercase tracking-widest block">อันดับ 1 (WINNER)</span>
-                    <strong class="text-sm text-white block">${isPlayerWinner ? 'คุณ (Feel)' : 'มีน (Mean)'}</strong>
-                    <span class="text-xs text-emerald-400 font-extrabold">${isPlayerWinner ? pScore.toLocaleString() : oScore.toLocaleString()} บาท</span>
+                    <strong class="text-sm text-white block">${sorted[0].name}</strong>
+                    <span class="text-xs text-emerald-400 font-extrabold">${sorted[0].score.toLocaleString()} บาท</span>
                 </div>
+                ${sorted[1] ? `
                 <div class="p-3 bg-slate-950/40 border border-slate-850 rounded-xl flex items-center justify-between text-xs text-slate-400">
-                    <span>${isPlayerWinner ? 'มีน (Mean)' : 'คุณ (Feel)'}</span>
-                    <strong class="text-white">${isPlayerWinner ? oScore.toLocaleString() : pScore.toLocaleString()} บ.</strong>
+                    <span>อันดับ 2: ${sorted[1].name}</span>
+                    <strong class="text-white">${sorted[1].score.toLocaleString()} บ.</strong>
                 </div>
+                ` : ''}
                 <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 py-2 rounded-xl mt-3">
-                    💰 สะสมเงินรางวัลรวมเข้าบัญชี Wallet แล้ว: +${pScore.toLocaleString()} บาท
+                    💰 แข่งขันเสร็จสิ้น! คุณได้รับเงินรางวัลสะสม +${myPrize.toLocaleString()} บาท เข้าบัญชีหลักเรียบร้อย
                 </div>
             `;
         }
