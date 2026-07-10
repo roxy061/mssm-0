@@ -108,8 +108,8 @@
 
     <!-- MOBILE MENU DRAWER -->
     <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
-        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-850">
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-850">
+        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-855">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-855">
                 <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
                 <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
             </div>
@@ -129,13 +129,21 @@
     <!-- MAIN CONTAINER -->
     <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6 relative" id="gameViewport">
         
+        <!-- Thick Fog Blindness Overlay -->
+        <div id="fogOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-xl flex flex-col items-center justify-center z-[100] hidden p-4 text-center">
+            <span class="text-6xl mb-3 animate-pulse">🌫️</span>
+            <h2 class="text-xl font-black text-slate-200">หมอกกบดบังสายตาฟาร์มของคุณ!</h2>
+            <p class="text-xs text-red-400 mt-2 font-bold">คุณตอบคำถามผิดพลาด! โดนระงับสิทธิ์ควบคุมฟาร์มและซื้อขายชั่วคราว 5 วินาที</p>
+            <div class="mt-4 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-[10px] text-slate-400">หักเงินพอร์ตโฟลิโอ -3,000 บาท</div>
+        </div>
+
         <!-- LOBBY SCREEN (Initial Screen) -->
         <div id="lobbyScreen" class="flex-grow flex items-center justify-center p-4">
             <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl text-center space-y-6">
                 <div>
                     <span class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xl mx-auto shadow-lg mb-3"><i class="fas fa-chess-queen"></i></span>
                     <h1 class="text-lg sm:text-xl font-black text-white">Mushroom Trading Speedrun</h1>
-                    <p class="text-xs text-slate-400 mt-1">แข่งขันบริหารฟาร์มและซื้อขายหุ้นด่วนในเวลา 5 นาที</p>
+                    <p class="text-xs text-slate-400 mt-1">ตอบคำถามด่วน Pop-up Flash Quiz แข่งกันทำความเร็วใน 5 นาที</p>
                 </div>
 
                 <!-- Input code to join -->
@@ -267,6 +275,31 @@
         </div>
     </div>
 
+    <!-- Pop-up Flash Quiz Modal Overlay -->
+    <div id="quizModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm hidden p-4">
+        <div class="bg-slate-900 border border-emerald-500/30 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <i class="fas fa-bolt text-amber-500 animate-pulse"></i> FLASH QUIZ!
+                </span>
+                <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">เวลา: <span id="quizTimer" class="text-orange-400 font-extrabold">15</span> วินาที</span>
+            </div>
+
+            <!-- Quiz progress countdown bar -->
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div id="quizProgressBar" class="h-full bg-amber-500 transition-all duration-1000" style="width: 100%;"></div>
+            </div>
+
+            <div class="space-y-3 text-center">
+                <h4 class="text-xs sm:text-sm font-bold text-white leading-relaxed" id="quizQuestionText">คำถามจะปรากฏตรงนี้...</h4>
+                
+                <div class="grid grid-cols-1 gap-2 pt-2 text-left" id="quizAnswersContainer">
+                    <!-- Choice buttons will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Match End Summary Overlay Modal -->
     <div id="summaryModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 backdrop-blur-md hidden p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl text-center space-y-4">
@@ -312,6 +345,34 @@
         let selectedTool = 'bag';
         let remainingSeconds = 300; // 5 minutes Speedrun
         let gameTickerInterval = null;
+        let isBlinded = false;
+
+        // Quiz items pool
+        const quizzes = [
+            {
+                q: "อุณหภูมิที่เหมาะสมที่สุดในการเจริญเติบโตของเส้นใยเห็ดนางฟ้าภูฐานคือข้อใด?",
+                choices: ["A. 25-32 °C", "B. 10-15 °C", "C. 40-45 °C", "D. 50-60 °C"],
+                correct: 0
+            },
+            {
+                q: "เห็ดแครง (Split Gill Mushroom) มีชื่อวิทยาศาสตร์ว่าอย่างไร?",
+                choices: ["A. Schizophyllum commune", "B. Pleurotus ostreatus", "C. Lentinus edodes", "D. Auricularia auricula-judae"],
+                correct: 0
+            },
+            {
+                q: "วัสดุชีวมวลชนิดใดที่นิยมนำมาทำก้อนเชื้อเห็ด 650 กรัม เพื่อลดขยะวิสาหกิจชุมชน (Zero Waste)?",
+                choices: ["A. ขี้เลื่อยไม้ยางพาราผสมรำละเอียด", "B. พลาสติกบดละเอียด", "C. ปูนซีเมนต์แห้ง", "D. กากใยแก้วอัด"],
+                correct: 0
+            },
+            {
+                q: "ในการประเมินผลการลงทุน ค่า BCR (Benefit-Cost Ratio) ควรมีค่าเท่าใดจึงควรดำเนินการทำโรงเรือน?",
+                choices: ["A. มากกว่า 1.0", "B. น้อยกว่า 0.5", "C. เท่ากับ 0", "D. ติดลบ"],
+                correct: 0
+            }
+        ];
+        let currentQuizIndex = 0;
+        let quizRemainingSeconds = 15;
+        let quizCountdownInterval = null;
 
         // Custom simulated event messages
         const eventMessages = [
@@ -344,7 +405,6 @@
             document.getElementById('lblRoomCode').textContent = roomCode;
             document.getElementById('lobbyPlayersContainer').classList.remove('hidden');
             renderLobbyPlayers();
-            // Start simulation of lobby arrivals
             simulateLobbyArrivals();
         }
 
@@ -366,7 +426,7 @@
             container.innerHTML = '';
             lobbyPlayers.forEach(p => {
                 const item = document.createElement('div');
-                item.className = 'p-3 bg-slate-950/60 rounded-2xl flex items-center justify-between border border-slate-850';
+                item.className = 'p-3 bg-slate-950/60 rounded-2xl flex items-center justify-between border border-slate-855';
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs text-emerald-400">
@@ -398,7 +458,6 @@
 
         // Start Match & Initialize Sandbox Layout
         function startMatch() {
-            // Hide lobby screen & show gameplay HUD screen
             document.getElementById('lobbyScreen').classList.add('hidden');
             document.getElementById('gameplayScreen').classList.remove('hidden');
             
@@ -419,13 +478,12 @@
         }
 
         function handleCellClick(index) {
+            if (isBlinded) return;
             if (gridData[index]) {
-                // Remove structure and refund cash
                 const item = gridData[index];
                 playerCash += toolPrices[item];
                 gridData[index] = null;
             } else {
-                // Place active tool structure
                 const price = toolPrices[selectedTool];
                 if (playerCash < price) {
                     alert('เงินสดไม่เพียงพอในการสร้างอุปกรณ์!');
@@ -486,6 +544,7 @@
         }
 
         function tradeStock(name, action) {
+            if (isBlinded) return;
             const st = stocks.find(x => x.name === name);
             if (!st) return;
 
@@ -509,7 +568,6 @@
         }
 
         function recalculateNetWorth() {
-            // Net worth = cash + value of structures + value of stock holdings
             let structuresValue = 0;
             gridData.forEach(item => {
                 if (item) structuresValue += toolPrices[item];
@@ -524,7 +582,6 @@
             document.getElementById('lblPlayerCash').textContent = `${playerCash.toLocaleString()} บ.`;
             document.getElementById('lblPlayerNet').textContent = `${playerNet.toLocaleString()} บ.`;
 
-            // Update user's score in lobby data
             lobbyPlayers[0].netWorth = playerNet;
             lobbyPlayers[0].cash = playerCash;
         }
@@ -538,14 +595,14 @@
                     
                     // 1. Accumulate passive income from placed bags
                     const placedBags = gridData.filter(x => x === 'bag').length;
-                    if (placedBags > 0) {
+                    if (placedBags > 0 && !isBlinded) {
                         playerCash += (placedBags * 2.5); // 2.5 Baht per bag per tick
                         recalculateNetWorth();
                     }
 
                     // 2. Fluctuuate stock prices randomly
                     stocks.forEach(st => {
-                        const changePercent = (Math.random() * 8 - 4) / 100; // -4% to +4%
+                        const changePercent = (Math.random() * 8 - 4) / 100;
                         st.price = Math.round(st.price * (1 + changePercent));
                         st.price = Math.max(10, st.price);
                         st.trend = changePercent >= 0 ? 'up' : 'down';
@@ -554,22 +611,22 @@
 
                     // 3. Update competitors artificial networths
                     lobbyPlayers.forEach((p, idx) => {
-                        if (idx === 0) return; // Skip you (Player)
-                        
-                        // Simulated trading decisions
+                        if (idx === 0) return;
                         const tradeDecision = Math.random();
                         if (tradeDecision > 0.75) {
-                            // AI buys or sells mock assets
                             p.netWorth += Math.round(Math.random() * 800 - 300);
                         }
-                        // Add some passive growth
                         p.netWorth += Math.round(Math.random() * 12);
                     });
 
-                    // Update dynamic leaderboards
                     updateLiveLeaderboard();
 
-                    // 4. Randomly trigger breaking news event alerts
+                    // Trigger Quiz Popup every 60 seconds (when remaining time is 240, 180, 120, 60)
+                    if (remainingSeconds > 0 && remainingSeconds % 60 === 0) {
+                        triggerFlashQuiz();
+                    }
+
+                    // Randomly trigger breaking news event alerts
                     if (Math.random() > 0.94) {
                         triggerRandomNews();
                     }
@@ -587,7 +644,6 @@
         }
 
         function updateLiveLeaderboard() {
-            // Sort players by netWorth descending
             const sorted = [...lobbyPlayers].sort((a,b) => b.netWorth - a.netWorth);
             const container = document.getElementById('rankingRow');
             container.innerHTML = '';
@@ -595,7 +651,6 @@
             sorted.forEach((p, idx) => {
                 const rankCard = document.createElement('div');
                 rankCard.className = 'flex-shrink-0 bg-slate-950/80 border border-slate-800 px-3 py-1 rounded-xl flex items-center gap-2 text-[10px] font-black text-white';
-                // highlight user
                 if (p.name.includes('คุณ')) {
                     rankCard.className += ' border-emerald-500 bg-emerald-500/10';
                 }
@@ -612,7 +667,6 @@
             const randMsg = eventMessages[Math.floor(Math.random() * eventMessages.length)];
             document.getElementById('newsTicker').textContent = `ข่าวด่วน: ${randMsg}`;
             
-            // Impact stock pricing sharply based on news
             if (randMsg.includes('เห็ดแครง')) {
                 stocks.find(x => x.name === 'เห็ดแครง').price += 25;
             } else if (randMsg.includes('เห็ดนางฟ้า')) {
@@ -624,26 +678,91 @@
             recalculateNetWorth();
         }
 
-        // Taunts & Emote triggers (creates floating animated emoji overlays)
+        // Quiz Mechanics: Pop-up Flash Quiz every 1 minute
+        function triggerFlashQuiz() {
+            // Get current quiz item
+            const quizItem = quizzes[currentQuizIndex % quizzes.length];
+            currentQuizIndex++;
+
+            document.getElementById('quizQuestionText').textContent = quizItem.q;
+            const answersContainer = document.getElementById('quizAnswersContainer');
+            answersContainer.innerHTML = '';
+
+            quizItem.choices.forEach((choice, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full p-3 bg-slate-950 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/50 rounded-2xl text-xs font-bold text-slate-200 text-left transition cursor-pointer';
+                btn.onclick = () => submitQuizAnswer(idx, quizItem.correct);
+                btn.textContent = choice;
+                answersContainer.appendChild(btn);
+            });
+
+            // Reset quiz timer
+            quizRemainingSeconds = 15;
+            document.getElementById('quizTimer').textContent = quizRemainingSeconds;
+            document.getElementById('quizProgressBar').style.width = '100%';
+            document.getElementById('quizModal').classList.remove('hidden');
+
+            clearInterval(quizCountdownInterval);
+            quizCountdownInterval = setInterval(() => {
+                quizRemainingSeconds--;
+                document.getElementById('quizTimer').textContent = quizRemainingSeconds;
+                const widthPercent = (quizRemainingSeconds / 15) * 100;
+                document.getElementById('quizProgressBar').style.width = widthPercent + '%';
+
+                if (quizRemainingSeconds <= 0) {
+                    clearInterval(quizCountdownInterval);
+                    // Timeout penalty
+                    submitQuizAnswer(-1, quizItem.correct);
+                }
+            }, 1000);
+        }
+
+        function submitQuizAnswer(selectedIndex, correctIndex) {
+            clearInterval(quizCountdownInterval);
+            document.getElementById('quizModal').classList.add('hidden');
+
+            if (selectedIndex === correctIndex) {
+                // Success: fastest response gets +10000
+                playerCash += 10000;
+                recalculateNetWorth();
+                alert('🌟 ยอดเยี่ยม! คุณตอบคำถามถูกต้องอย่างรวดเร็ว ได้รับโบนัสเงินทุน +10,000 บาท!');
+                sendEmote('🚀');
+            } else {
+                // Failure: deduct -3000 and trigger fog blindness for 5 seconds
+                playerCash = Math.max(0, playerCash - 3000);
+                recalculateNetWorth();
+                triggerFogBlindness();
+            }
+        }
+
+        function triggerFogBlindness() {
+            isBlinded = true;
+            document.getElementById('fogOverlay').classList.remove('hidden');
+            sendEmote('😭');
+            
+            setTimeout(() => {
+                isBlinded = false;
+                document.getElementById('fogOverlay').classList.add('hidden');
+            }, 5000);
+        }
+
+        // Taunts & Emote triggers
         function sendEmote(emoji) {
             const container = document.getElementById('gameViewport');
             const element = document.createElement('div');
             element.className = 'floating-emoji text-5xl';
             element.textContent = emoji;
             
-            // Random horizontal offset placement
             const randomX = Math.floor(Math.random() * (container.clientWidth - 100)) + 50;
             element.style.left = `${randomX}px`;
             element.style.bottom = '100px';
 
             container.appendChild(element);
 
-            // Remove element after animation ends
             setTimeout(() => {
                 element.remove();
             }, 2500);
 
-            // Simulated AI peer reaction taunts back!
             if (Math.random() > 0.5) {
                 setTimeout(() => {
                     triggerAIEmoteResponse();
@@ -657,7 +776,6 @@
             const aiEmojis = ['🔥', '😭', '💸', '😜'];
             const chosenEmoji = aiEmojis[Math.floor(Math.random() * aiEmojis.length)];
             
-            // Create a small chat bubble or banner alert
             const alertBox = document.createElement('div');
             alertBox.className = 'absolute bottom-16 left-1/2 transform -translate-x-1/2 bg-slate-900 border border-slate-800 text-white font-extrabold text-[10px] px-3 py-1.5 rounded-full shadow-2xl z-[90] animate-bounce';
             alertBox.innerHTML = `💬 <strong>${aiName}</strong>: ส่งสติกเกอร์ ${chosenEmoji} ท้าทายคุณ!`;
@@ -666,7 +784,6 @@
             viewport.appendChild(alertBox);
             setTimeout(() => alertBox.remove(), 2500);
 
-            // Trigger floating emoji as well
             sendEmote(chosenEmoji);
         }
 
