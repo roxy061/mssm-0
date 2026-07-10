@@ -12,6 +12,7 @@ let API_KEY = localStorage.getItem('gemini_api_key') || DEFAULT_KEY;
 let chatCtx = [];
 let genAIClientPromise = null;
 let genAIClientKey = null;
+let lastUserText = '';
 const SYSTEM = `คุณคือ "AI MSSM" ผู้เชี่ยวชาญด้านเห็ดและการเพาะเห็ดเศรษฐกิจ 4 สายพันธุ์ (เห็ดหูหนู, เห็ดแครง, เห็ดนางฟ้าภูฐาน, เห็ดนางรมฮังการี) ภายใต้แบบจำลองคัดเลือกสายพันธุ์เห็ดอัจฉริยะ (Mush-Up Smart Selection Model: MSSM) ที่พัฒนาขึ้นโดยวิทยาลัยอาชีวศึกษานครศรีธรรมราช
 
 ข้อมูลและทฤษฎีอ้างอิงหลักที่คุณต้องใช้ในการตอบคำถาม:
@@ -129,8 +130,17 @@ async function send() {
     const file = fileInput?.files?.[0];
     if (!msg && !file) return;
 
+    lastUserText = msg;
+
     if (!API_KEY) {
-        addMsg('ai', '⚠️ <strong>ยังไม่ได้ตั้งค่า API Key:</strong> กรุณาเปิดการตั้งค่าและบันทึกคีย์ก่อนใช้งาน<br><br><button onclick="openSettings()" class="px-4 py-2 text-xs font-bold rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-emerald-100 dark:hover:bg-emerald-800 transition cursor-pointer"><i class="fas fa-cog"></i> ตั้งค่า Key</button>');
+        addMsg('ai', `
+        <div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-center my-2 max-w-sm mx-auto animate-pop-in">
+            <div class="text-4xl mb-2 text-amber-500 animate-pulse">🔑</div>
+            <h4 class="font-extrabold text-amber-600 dark:text-amber-400 text-sm mb-1">ยังไม่ได้ตั้งค่า API Key</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">กรุณากรอกและบันทึก API Key ของ Gemini ในเมนูตั้งค่าก่อนเริ่มต้นการแชทครับ</p>
+            <button onclick="openSettings()" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 rounded-full hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"><i class="fas fa-cog"></i> ตั้งค่า API Key</button>
+        </div>
+        `);
         return;
     }
 
@@ -183,7 +193,14 @@ async function send() {
         addMsg('ai', fmt(reply));
     } catch (e) {
         if (typing) typing.classList.add('hidden');
-        addMsg('ai', `⚠️ <strong>เชื่อมต่อล้มเหลว:</strong> ${e.message || e}`);
+        addMsg('ai', `
+        <div class="p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 text-center my-2 max-w-sm mx-auto animate-pop-in">
+            <div class="text-4xl mb-2 text-red-500 animate-bounce">📡</div>
+            <h4 class="font-extrabold text-red-600 dark:text-red-400 text-sm mb-1">ไม่สามารถเชื่อมต่อ AI ได้</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 leading-relaxed">กรุณาตรวจสอบความเสถียรของอินเทอร์เน็ต คีย์ API ในส่วนการตั้งค่า หรือเครือข่ายของคุณ</p>
+            <button onclick="retrySend()" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"><i class="fas fa-arrows-rotate"></i> ลองเชื่อมต่อใหม่อีกครั้ง</button>
+        </div>
+        `);
     }
 }
 
@@ -243,6 +260,14 @@ function closeSettings() {
     const modal = document.getElementById('settingsModal');
     if (modal) {
         modal.classList.add('hidden');
+    }
+}
+
+async function retrySend() {
+    const input = document.getElementById('userInput');
+    if (input) {
+        input.value = lastUserText;
+        send();
     }
 }
 

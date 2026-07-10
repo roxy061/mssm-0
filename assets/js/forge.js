@@ -4,10 +4,10 @@
    ----------------------------------------------- */
 
 const DB = [
-    { id: 'hunu', name: 'เห็ดหูหนูดำ', growth: 0.42, yieldG: 247.3, flowerDay: 14.1, walkDay: 30, img: 'https://api2.krua.co/wp-content/uploads/2020/06/ImageBannerMobile_960x633-327-scaled.jpg' },
-    { id: 'kraeng', name: 'เห็ดแครง', growth: 0.85, yieldG: 322.5, flowerDay: 8.2, walkDay: 30, img: 'https://f.ptcdn.info/545/083/000/sag26j103z5KPZfHnkB57-o.jpg' },
-    { id: 'nfa', name: 'นางฟ้าภูฐาน', growth: 0.61, yieldG: 428.6, flowerDay: 9.6, walkDay: 7, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRI5FrL5kwXLGrK9759BcISfpelswyyN_LxkHWBl0S2cg&s=10' },
-    { id: 'nrom', name: 'นางรมฮังการี', growth: 0.58, yieldG: 401.8, flowerDay: 10.4, walkDay: 7, img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0msmUXbDnvff6WfO7ATPvlMVxpJ1Uvy3wvDrlrpkBXA&s=10' }
+    { id: 'hunu', name: 'เห็ดหูหนูดำ', growth: 0.42, yieldG: 247.3, flowerDay: 14.1, walkDay: 30, img: 'assets/images/hunu.webp' },
+    { id: 'kraeng', name: 'เห็ดแครง', growth: 0.85, yieldG: 322.5, flowerDay: 8.2, walkDay: 30, img: 'assets/images/kraeng.webp' },
+    { id: 'nfa', name: 'นางฟ้าภูฐาน', growth: 0.61, yieldG: 428.6, flowerDay: 9.6, walkDay: 7, img: 'assets/images/nangfa.webp' },
+    { id: 'nrom', name: 'นางรมฮังการี', growth: 0.58, yieldG: 401.8, flowerDay: 10.4, walkDay: 7, img: 'assets/images/nangrom.webp' }
 ];
 let charts = {};
 
@@ -31,15 +31,30 @@ function resetAll() {
 
 function calc() {
     validateWeights();
-    const gons = parseFloat(document.getElementById('inGons')?.value) || 0;
-    const cpg = parseFloat(document.getElementById('inCostPerGon')?.value) || 0;
+    const gonsVal = document.getElementById('inGons')?.value;
+    const cpgVal = document.getElementById('inCostPerGon')?.value;
+    const gons = parseFloat(gonsVal);
+    const cpg = parseFloat(cpgVal);
     const tc = gons * cpg;
+
     const prices = {
-        hunu: parseFloat(document.getElementById('inPriceHunu')?.value) || 0,
-        kraeng: parseFloat(document.getElementById('inPriceKraeng')?.value) || 0,
-        nfa: parseFloat(document.getElementById('inPriceNangfa')?.value) || 0,
-        nrom: parseFloat(document.getElementById('inPriceNangrom')?.value) || 0
+        hunu: parseFloat(document.getElementById('inPriceHunu')?.value),
+        kraeng: parseFloat(document.getElementById('inPriceKraeng')?.value),
+        nfa: parseFloat(document.getElementById('inPriceNangfa')?.value),
+        nrom: parseFloat(document.getElementById('inPriceNangrom')?.value)
     };
+
+    const isInvalid = isNaN(gons) || gons <= 0 || isNaN(cpg) || cpg < 0 ||
+                      isNaN(prices.hunu) || prices.hunu < 0 ||
+                      isNaN(prices.kraeng) || prices.kraeng < 0 ||
+                      isNaN(prices.nfa) || prices.nfa < 0 ||
+                      isNaN(prices.nrom) || prices.nrom < 0;
+
+    if (isInvalid) {
+        showEmptyState();
+        return;
+    }
+
     const weights = [];
     for (let i = 1; i <= 6; i++) weights.push((parseFloat(document.getElementById('w' + i)?.value) || 0) / 100);
 
@@ -158,5 +173,33 @@ function renderCharts(data) {
 }
 
 // Re-calc on theme change
+
+function showEmptyState() {
+    const podium = document.getElementById('podiumList');
+    if (podium) {
+        podium.innerHTML = `
+        <div class="p-6 md:p-8 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 text-center my-2 animate-pop-in">
+            <div class="text-5xl mb-3 text-amber-500 animate-pulse">📊</div>
+            <h3 class="font-extrabold text-gray-800 dark:text-gray-100 text-base mb-1">ข้อมูลนำเข้าไม่ถูกต้อง</h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 max-w-sm mx-auto leading-relaxed">
+                กรุณาตรวจสอบว่ากรอกข้อมูลถูกต้อง (จำนวนก้อนต้องมากกว่า 0 และราคา/ต้นทุนต้องไม่ติดลบหรือเว้นว่าง)
+            </p>
+            <button onclick="resetAll()" class="px-5 py-2 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold text-xs shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer"><i class="fas fa-undo"></i> คืนค่าเริ่มต้น</button>
+        </div>
+        `;
+    }
+
+    const ecoTable = document.getElementById('ecoResultsBody');
+    if (ecoTable) {
+        ecoTable.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-xs text-gray-400 dark:text-gray-500 italic"><i class="fas fa-calculator-slash"></i> ไม่สามารถคำนวณผลได้เนื่องจากมีข้อผิดพลาดข้อมูลนำเข้า</td></tr>`;
+    }
+    const scoreTable = document.getElementById('scoreTableBody');
+    if (scoreTable) {
+        scoreTable.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-xs text-gray-400 dark:text-gray-500 italic"><i class="fas fa-calculator-slash"></i> ไม่สามารถแสดงคะแนนได้</td></tr>`;
+    }
+
+    Object.values(charts).forEach(c => { try { c.destroy(); } catch (e) { } });
+    charts = {};
+}
 
 document.addEventListener('DOMContentLoaded', calc);
