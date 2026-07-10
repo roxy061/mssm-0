@@ -475,15 +475,15 @@ function filterLogs() {
         
         tr.innerHTML = `
             <td class="p-2 text-center font-bold text-gray-400 dark:text-gray-500">${index + 1}</td>
-            <td class="p-2 text-center">
+            <td class="p-2 text-center hidden sm:table-cell">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${badgeClass}">${item.mode || 'General'}</span>
             </td>
             <td class="p-2 leading-relaxed space-y-0.5 min-w-0">
                 <div class="font-bold text-gray-600 dark:text-gray-400 truncate text-[10px]" title="${item.prompt}">${item.prompt}</div>
                 <div class="line-clamp-2 text-[10px] opacity-80" title="${item.reply}">${item.reply}</div>
             </td>
-            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400">${item.latency ? item.latency.toLocaleString() : '0'} ms</td>
-            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400">${item.tokens || 0}</td>
+            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400 hidden md:table-cell">${item.latency ? item.latency.toLocaleString() : '0'} ms</td>
+            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400 hidden md:table-cell">${item.tokens || 0}</td>
             <td class="p-2 text-center">
                 <button onclick="deleteLog(${item.originalIndex})" class="w-6 h-6 rounded-lg bg-red-50 hover:bg-red-500 text-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto">
                     <i class="fas fa-trash text-[10px]"></i>
