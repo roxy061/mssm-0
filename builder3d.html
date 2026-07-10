@@ -802,6 +802,11 @@
                 if (destroyBtn) destroyBtn.style.display = 'none';
                 if (hotbar) hotbar.classList.add('hidden');
                 document.exitPointerLock();
+
+                // Exit fullscreen if active
+                if (document.fullscreenElement) {
+                    if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+                }
             } else {
                 document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
                 if (controls) controls.enabled = false;
@@ -811,7 +816,15 @@
                 if (placementCursor) placementCursor.visible = true;
                 if (crosshair) crosshair.style.display = 'block';
                 if (hotbar) hotbar.classList.remove('hidden');
-                
+
+                // Enter fullscreen mode for immersive experience
+                const doc = document.documentElement;
+                if (doc.requestFullscreen) {
+                    doc.requestFullscreen().catch(() => {});
+                } else if (doc.webkitRequestFullscreen) {
+                    doc.webkitRequestFullscreen().catch(() => {});
+                }
+
                 // Show Roblox-style mobile controls on mobile devices
                 if (isTouch) {
                     if (joystick) joystick.style.display = 'block';
