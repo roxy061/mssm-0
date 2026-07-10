@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
+<title>Mush-Up NVC | MSSM</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    @theme { --font-prompt: 'Prompt', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Prompt', sans-serif; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; cursor: pointer; }
+    input[type=range]:focus { outline: none; }
+    input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #e2e8f0; border-radius: 8px; }
+    .dark input[type=range]::-webkit-slider-runnable-track { background: rgba(255,255,255,0.1); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: #10b981; margin-top: -6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform .2s; }
+    .dark input[type=range]::-webkit-slider-thumb { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,.4); }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+    input[type=range]::-moz-range-track { width: 100%; height: 6px; background: #e2e8f0; border-radius: 8px; border: none; }
+    .dark input[type=range]::-moz-range-track { background: rgba(255,255,255,0.1); }
+    input[type=range]::-moz-range-thumb { height: 18px; width: 18px; border-radius: 50%; background: #10b981; border: none; }
+    .dark input[type=range]::-moz-range-thumb { background: #34d399; }
+    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    #reading-progress { position: fixed; top: 0; left: 0; width: 4px; height: 0%; z-index: 9999; transition: height .1s ease-out; background: linear-gradient(to bottom,#10b981,#047857); }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes particleFall { 0% { top: -60px; opacity: .8; transform: translateX(0) rotate(0deg); } 100% { top: 100vh; opacity: 0; transform: translateX(20px) rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+    .animate-pop-in { animation: popIn .3s ease-out forwards; }
+    .animate-slide-in { animation: slideIn .3s ease-out forwards; }
+    .mushroom-particle { position: fixed; top: -60px; pointer-events: none; z-index: 1; animation: particleFall linear infinite; }
+    .podium-1 { background: linear-gradient(135deg,#10b981,#047857); } .podium-2 { background: linear-gradient(135deg,#34d399,#10b981); } .podium-3 { background: linear-gradient(135deg,#6ee7b7,#34d399); } .podium-4 { background: linear-gradient(135deg,#cbd5e1,#94a3b8); }
+    .dark .podium-1 { background: linear-gradient(135deg,#e2e8f0,#94a3b8); } .dark .podium-2 { background: linear-gradient(135deg,#34d399,#059669); } .dark .podium-3 { background: linear-gradient(135deg,#6ee7b7,#10b981); } .dark .podium-4 { background: linear-gradient(135deg,#334155,#1e293b); }
+    .no-spinner::-webkit-inner-spin-button,.no-spinner::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .no-spinner[type=number] { -moz-appearance: textfield; }
+    .nav-item { position: relative; overflow: hidden; }
+    .nav-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #10b981; transform: scaleY(0); transition: transform .25s ease; border-radius: 0 3px 3px 0; }
+    .dark .nav-item::before { background: #34d399; }
+    .nav-item:hover::before, .nav-item.active::before { transform: scaleY(1); }
+    .nav-item.active { background: rgba(16,185,129,0.1); }
+    .dark .nav-item.active { background: rgba(52,211,153,0.1); }
+    .hero-glow { position: absolute; width: 400px; height: 400px; border-radius: 50%; filter: blur(80px); opacity: .15; pointer-events: none; }
+    .card-shine { position: relative; overflow: hidden; }
+    .card-shine::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%); transition: transform .6s; transform: translateX(-100%); }
+    .card-shine:hover::after { transform: translateX(100%); }
+</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
+
+<div id="reading-progress" class="bg-gradient-to-b from-emerald-400 to-emerald-700 dark:from-emerald-300 dark:to-emerald-600"></div>
+<a href="#top" id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 md:w-14 md:h-14 z-50 flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-gray-300 text-white dark:text-gray-900 shadow-lg hover:shadow-xl hover:scale-110 hover:rotate-[360deg] transition-all duration-500" style="opacity:0;pointer-events:none"><i class="fas fa-arrow-up text-lg"></i></a>
+<canvas id="particleCanvas"></canvas>
+
+<div class="mushroom-particle" style="left:8%;animation-duration:10s;font-size:1.8rem">🍄</div>
+<div class="mushroom-particle" style="left:25%;animation-duration:13s;animation-delay:3s;font-size:1.4rem">♻️</div>
+<div class="mushroom-particle" style="left:45%;animation-duration:11s;animation-delay:1.5s;font-size:1.6rem">🍄</div>
+<div class="mushroom-particle" style="left:70%;animation-duration:12s;animation-delay:4s;font-size:1.5rem">♻️</div>
+<div class="mushroom-particle" style="left:88%;animation-duration:10.5s;animation-delay:2s;font-size:1.8rem">🍄</div>
+
+<!-- Hamburger Button (Mobile) -->
+<button onclick="toggleMenu()" id="hamburgerBtn" class="lg:hidden fixed top-3 left-3 z-[100] w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer">
+    <i class="fas fa-bars text-lg"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    <!-- Brand Header -->
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+        <div class="text-2xl mb-1">🍄</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">Mush-Up NVC</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">MSSM Intelligence Platform</div>
+    </div>
+
+    <!-- Close Button (Mobile) -->
+    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+
+    <!-- Nav Items -->
+    <nav class="flex-1 px-3 py-4 space-y-1">
+        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+        <a href="#top" onclick="closeMenu()" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i class="fas fa-home"></i></span> หน้าแรก</a>
+        <a href="#products" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs"><i class="fas fa-seedling"></i></span> สายพันธุ์เห็ด</a>
+        <a href="#charts" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs"><i class="fas fa-chart-bar"></i></span> ประเมินผล</a>
+        <a href="#zerowaste" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 text-xs"><i class="fas fa-recycle"></i></span> Zero Waste</a>
+        <a href="#contact" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs"><i class="fas fa-envelope"></i></span> ติดต่อ</a>
+
+        <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
+            <a href="lab.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
+            <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform" target="_blank" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i class="fas fa-poll"></i></span> แบบสอบถาม</a>
+        </div>
+    </nav>
+
+</aside>
+
+<div class="lg:pl-[260px] transition-all duration-300">
+
+<!-- Hero -->
+<header id="top" class="relative overflow-hidden bg-gradient-to-br from-gray-200 via-gray-100 to-gray-300 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 text-center px-6 py-20 md:py-28 border-b border-gray-200 dark:border-gray-800 rounded-b-3xl md:rounded-b-[40px] max-lg:pt-[70px]">
+    <div class="hero-glow bg-emerald-400 dark:bg-emerald-500 -top-20 -left-20"></div>
+    <div class="hero-glow bg-amber-400 dark:bg-amber-500 -bottom-20 -right-20"></div>
+    <div class="max-w-4xl mx-auto relative z-10">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-5">🍄 Mush-Up Smart Selection Model v2.0</div>
+        <h1 class="text-3xl md:text-5xl font-black text-gray-800 dark:text-white mb-4 dark:bg-gradient-to-r dark:from-white dark:via-emerald-200 dark:to-emerald-400 dark:bg-clip-text dark:text-transparent leading-tight">Mush-Up<br class="md:hidden"> Smart Selection Model</h1>
+        <p class="text-base md:text-xl text-gray-600 dark:text-gray-400 font-medium">แบบจำลองเพื่อการเลือกสายพันธุ์เห็ดที่เหมาะสมกับวัตถุประสงค์การผลิต</p>
+        <div class="flex flex-wrap justify-center gap-3 mt-8">
+            <a href="#products" class="px-6 py-3 rounded-full bg-emerald-500 text-white font-bold text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"><i class="fas fa-seedling"></i> เริ่มสำรวจ</a>
+            <a href="lab.html" class="px-6 py-3 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-bold text-sm border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"><i class="fas fa-flask"></i> ทดลอง MSSM</a>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 md:px-8">
+
+<!-- Intro -->
+<section class="py-8 md:py-14">
+    <div class="max-w-4xl mx-auto p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/50 dark:from-gray-800/60 dark:via-gray-800/40 dark:to-emerald-900/20 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+        <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-lg"><i class="fas fa-atom"></i></div><h2 class="text-xl md:text-2xl font-extrabold text-gray-800 dark:text-gray-100">ที่มาของแบบจำลอง MSSM</h2></div>
+        <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">แบบจำลอง MSSM สามารถจัดอันดับความเหมาะสมของสายพันธุ์เห็ดตามวัตถุประสงค์การผลิต ช่วยเพิ่มประสิทธิภาพการใช้ทรัพยากร ลดความเสี่ยงในการผลิต และเพิ่มผลตอบแทนทางเศรษฐกิจแก่เกษตรกรและชุมชน อีกทั้งยังสามารถประยุกต์ใช้ในการเรียนการสอนและพัฒนาต่อยอดด้านเกษตรอัจฉริยะ ซึ่งสอดคล้องกับเป้าหมายการพัฒนาที่ยั่งยืน (SDGs) ได้แก่ เป้าหมายที่ 2 ขจัดความหิวโหย เป้าหมายที่ 8 งานที่มีคุณค่าและการเติบโตทางเศรษฐกิจ และเป้าหมายที่ 12 การผลิตและการบริโภคที่ยั่งยืน</p>
+        <div class="flex gap-4 mt-4">
+            <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">SDG 2</span>
+            <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">SDG 8</span>
+            <span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold">SDG 12</span>
+        </div>
+    </div>
+</section>
+
+<!-- Products -->
+<section id="products" class="py-8 md:py-14">
+    <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-black text-gray-800 dark:text-gray-100 flex items-center justify-center gap-3"><span>🍄</span> ข้อมูลสายพันธุ์เห็ด</h2>
+        <div class="w-16 h-1 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full mx-auto mt-3"></div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="card-shine group bg-white dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border-t-[3px] border-t-emerald-500">
+            <div class="relative overflow-hidden rounded-xl mb-4">
+                <img onclick="openModal('modal1')" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0msmUXbDnvff6WfO7ATPvlMVxpJ1Uvy3wvDrlrpkBXA&s=10" alt="เห็ดนางรมฮังการี" class="w-full h-40 md:h-44 object-cover cursor-pointer transition-transform group-hover:scale-105 duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">นางรมฮังการี</div>
+            </div>
+            <ul class="space-y-1.5 text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>จุดเด่น:</strong> ดอกใหญ่ เนื้อแน่น</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>โภชนาการ:</strong> 30-47 kcal</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>เพาะง่าย</strong> ใน 7 วัน</li>
+            </ul>
+            <button onclick="openModal('modal1')" class="w-full py-2.5 rounded-full font-bold text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer">ดูข้อมูลเชิงลึก</button>
+        </div>
+        <div class="card-shine group bg-white dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border-t-[3px] border-t-emerald-500">
+            <div class="relative overflow-hidden rounded-xl mb-4">
+                <img onclick="openModal('modal2')" src="https://image.makewebeasy.net/makeweb/m_1920x0/VpofhVYKS/Farm/messageImage_1618034207531.jpg" alt="เห็ดนางฟ้าภูฐาน" class="w-full h-40 md:h-44 object-cover cursor-pointer transition-transform group-hover:scale-105 duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">นางฟ้าภูฐาน</div>
+            </div>
+            <ul class="space-y-1.5 text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>จุดเด่น:</strong> หวานนุ่ม ละมุนลิ้น</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>แคลอรี่ต่ำ</strong> เหมาะควบคุมน้ำหนัก</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>โตไว</strong> เลี้ยงง่ายที่สุด</li>
+            </ul>
+            <button onclick="openModal('modal2')" class="w-full py-2.5 rounded-full font-bold text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer">ดูข้อมูลเชิงลึก</button>
+        </div>
+        <div class="card-shine group bg-white dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border-t-[3px] border-t-emerald-500">
+            <div class="relative overflow-hidden rounded-xl mb-4">
+                <img onclick="openModal('modal3')" src="https://f.ptcdn.info/545/083/000/sag26j103z5KPZfHnkB57-o.jpg" alt="เห็ดแครง" class="w-full h-40 md:h-44 object-cover cursor-pointer transition-transform group-hover:scale-105 duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">เห็ดแครง</div>
+            </div>
+            <ul class="space-y-1.5 text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>จุดเด่น:</strong> เนื้อนุ่มหนึบหนับ</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>โปรตีนสูง</strong> 17g / 100g</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>Superfood</strong> ระดับพรีเมียม</li>
+            </ul>
+            <button onclick="openModal('modal3')" class="w-full py-2.5 rounded-full font-bold text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer">ดูข้อมูลเชิงลึก</button>
+        </div>
+        <div class="card-shine group bg-white dark:bg-gray-800/50 rounded-2xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 border-t-[3px] border-t-emerald-500">
+            <div class="relative overflow-hidden rounded-xl mb-4">
+                <img onclick="openModal('modal4')" src="https://api2.krua.co/wp-content/uploads/2020/06/ImageBannerMobile_960x633-327-scaled.jpg" alt="เห็ดหูหนูดำ" class="w-full h-40 md:h-44 object-cover cursor-pointer transition-transform group-hover:scale-105 duration-500">
+                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold">เห็ดหูหนูดำ</div>
+            </div>
+            <ul class="space-y-1.5 text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>จุดเด่น:</strong> กรุบกรอบ ไฟเบอร์สูง</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>ธาตุเหล็ก</strong> 6.1 mg</li>
+                <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span><strong>เก็บได้นาน</strong> ในตู้เย็น</li>
+            </ul>
+            <button onclick="openModal('modal4')" class="w-full py-2.5 rounded-full font-bold text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer">ดูข้อมูลเชิงลึก</button>
+        </div>
+    </div>
+</section>
+
+<!-- Charts -->
+<section id="charts" class="py-8 md:py-14">
+    <div class="text-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-black text-gray-800 dark:text-gray-100 flex items-center justify-center gap-3"><span>📊</span> ผลการประเมิน MSSM</h2>
+        <div class="w-16 h-1 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full mx-auto mt-3"></div>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-3">คลิกปุ่มด้านล่างเพื่อสลับดูกราฟแต่ละปัจจัย</p>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-2 md:gap-2.5 mb-8">
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-emerald-500 text-white border-transparent shadow-md" onclick="switchTab(1)"><span>🍃</span> เจริญเติบโต</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(2)"><span>🍃</span> ผลผลิต</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(3)"><span>💵</span> กำไร</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(4)"><span>💵</span> BCR</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(5)"><span>⏰</span> ออกดอก</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(6)"><span>⏰</span> คืนทุน</button>
+        <button class="chart-tab-btn px-3.5 py-2.5 text-xs md:text-sm font-bold rounded-full transition-all cursor-pointer bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 hover:text-emerald-600" onclick="switchTab(7)">MPI</button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+        <div class="p-5 md:p-7 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm border-t-[3px] border-t-emerald-500 hover:shadow-md transition-all">
+            <div class="flex items-center gap-2 mb-1"><div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm"><i class="fas fa-chart-simple"></i></div><h3 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">มาตรฐาน</h3></div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 ml-10">อ้างอิงค่าน้ำหนัก MSSM</p>
+            <div id="static-chart-wrapper" class="h-[220px] md:h-[260px] w-full"><canvas id="staticChart"></canvas></div>
+            <div id="static-podium-wrapper" class="hidden h-[140px]"><div id="static-podium"></div></div>
+            <div id="static-desc" class="mt-4 p-3 rounded-xl text-xs font-semibold bg-gradient-to-r from-emerald-50 to-transparent dark:from-emerald-900/20 dark:to-transparent border-l-[3px] border-emerald-500 text-gray-600 dark:text-gray-300"></div>
+        </div>
+        <div class="p-5 md:p-7 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm border-t-[3px] border-t-amber-500 hover:shadow-md transition-all">
+            <div class="flex items-center gap-2 mb-1"><div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm"><i class="fas fa-sliders"></i></div><h3 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">กำหนดเอง</h3></div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 ml-10">ปรับน้ำหนักตามต้องการ</p>
+            <div id="dynamic-chart-wrapper" class="h-[220px] md:h-[260px] w-full"><canvas id="dynamicChart"></canvas></div>
+            <div id="dynamic-podium-wrapper" class="hidden h-[140px]"><div id="dynamic-podium"></div></div>
+            <div id="dynamic-desc" class="mt-4 p-3 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-900/20 dark:to-transparent border-l-[3px] border-amber-500 text-gray-600 dark:text-gray-300"></div>
+        </div>
+    </div>
+
+    <!-- Quick Profile -->
+    <div class="p-5 md:p-6 rounded-2xl bg-gradient-to-br from-white to-emerald-50/50 dark:from-gray-800/50 dark:to-emerald-900/10 border border-gray-200 dark:border-gray-700 shadow-sm text-center mb-6">
+        <div class="flex items-center justify-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm"><i class="fas fa-bolt"></i></div><span class="font-extrabold text-sm md:text-base text-gray-700 dark:text-gray-200">เลือกความต้องการด่วน</span></div>
+        <div class="flex flex-wrap justify-center gap-2.5">
+            <button onclick="applyQuickProfile('standard')" class="px-4 py-2 text-xs font-bold rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer shadow-sm">📋 มาตรฐาน</button>
+            <button onclick="applyQuickProfile('fast-rich')" class="px-4 py-2 text-xs font-bold rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer shadow-sm">💰 รวยเร็ว</button>
+            <button onclick="applyQuickProfile('impatient')" class="px-4 py-2 text-xs font-bold rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer shadow-sm">🔥 ใจร้อน</button>
+            <button onclick="applyQuickProfile('balanced')" class="px-4 py-2 text-xs font-bold rounded-full bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all cursor-pointer shadow-sm">⚖️ สมดุล</button>
+        </div>
+    </div>
+
+    <!-- Weights -->
+    <div class="p-5 md:p-7 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm mb-6">
+        <div class="flex items-center gap-2 mb-1"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm"><i class="fas fa-weight-scale"></i></div><h3 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ปรับแต่งค่าน้ำหนัก</h3></div>
+        <p class="text-xs text-gray-500 dark:text-gray-400 ml-10 mb-6">เลื่อนแถบปรับน้ำหนักแต่ละปัจจัย (ผลรวมไม่เกิน 1.0)</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" oninput="updateWeights(event)">
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>🍃 อัตราเจริญเติบโต</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val1">0.15</span></div><input type="range" id="w1" min="0" max="1" step="0.01" value="0.15"></div>
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>🍃 ปริมาณผลผลิต</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val2">0.25</span></div><input type="range" id="w2" min="0" max="1" step="0.01" value="0.25"></div>
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>💵 กำไรสุทธิ</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val3">0.25</span></div><input type="range" id="w3" min="0" max="1" step="0.01" value="0.25"></div>
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>💵 BCR</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val4">0.15</span></div><input type="range" id="w4" min="0" max="1" step="0.01" value="0.15"></div>
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>⏰ ออกดอกแรก</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val5">0.10</span></div><input type="range" id="w5" min="0" max="1" step="0.01" value="0.10"></div>
+            <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-700/50"><div class="flex justify-between items-center mb-2 text-xs font-bold"><span>⏰ คืนทุน</span><span class="text-emerald-600 dark:text-emerald-400 text-base font-black" id="val6">0.10</span></div><input type="range" id="w6" min="0" max="1" step="0.01" value="0.10"></div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center py-8 md:py-12">
+        <a href="lab.html" class="inline-flex items-center gap-3 px-8 py-4 md:px-10 md:py-4 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white font-extrabold text-sm md:text-base shadow-lg hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all"><span class="text-lg">🚀</span> ทดลองแต่งแบบจำลอง MSSM</a>
+    </div>
+</section>
+
+<!-- Zero Waste -->
+<section id="zerowaste" class="py-8 md:py-14">
+    <div class="max-w-4xl mx-auto p-6 md:p-10 rounded-3xl bg-gradient-to-br from-white via-white to-emerald-50/50 dark:from-gray-800/60 dark:via-gray-800/40 dark:to-emerald-900/20 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold mb-3"><i class="fas fa-leaf"></i> ECO FRIENDLY</div>
+            <h2 class="text-xl md:text-2xl font-black text-gray-800 dark:text-gray-100">Zero Waste Life</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">ชุบชีวิตก้อนเห็ดเก่าสู่ปุ๋ยอินทรีย์</p>
+        </div>
+        <div class="space-y-3">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:shadow-md hover:translate-x-1 transition-all"><div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm font-black shrink-0">1</div><div><strong class="text-emerald-600 dark:text-emerald-400">ลอกพลาสติกออก</strong><p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-0.5">แยกพลาสติกและจุกทิ้งลงถังรีไซเคิล</p></div></div>
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:shadow-md hover:translate-x-1 transition-all"><div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm font-black shrink-0">2</div><div><strong class="text-emerald-600 dark:text-emerald-400">ทุบก้อนขี้เลื่อยให้ร่วน</strong><p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-0.5">แกะขี้เลื่อยด้านในออกมาทุบให้แตก</p></div></div>
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:shadow-md hover:translate-x-1 transition-all"><div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm font-black shrink-0">3</div><div><strong class="text-emerald-600 dark:text-emerald-400">ผสมดินและเศษใบไม้</strong><p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-0.5">ผสมปุ๋ยคอก พรมน้ำพอหมาด</p></div></div>
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 hover:shadow-md hover:translate-x-1 transition-all"><div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm font-black shrink-0">4</div><div><strong class="text-emerald-600 dark:text-emerald-400">หมัก 3 สัปดาห์</strong><p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-0.5">ได้ปุ๋ยอินทรีย์ชั้นดีพร้อมใช้บำรุงต้นไม้</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section id="contact" class="py-8 md:py-14">
+    <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-black text-gray-800 dark:text-gray-100 flex items-center justify-center gap-3"><span>📞</span> ติดต่อเรา</h2>
+        <div class="w-16 h-1 bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full mx-auto mt-3"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="p-6 md:p-8 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm border-t-[3px] border-t-emerald-500">
+            <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white"><i class="fas fa-chalkboard-user"></i></div><h3 class="text-lg font-extrabold text-gray-800 dark:text-gray-100">ครูที่ปรึกษา</h3></div>
+            <ul class="space-y-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><div>นายวิระศักดิ์ พูนพนัง <span class="font-normal text-xs block opacity-70">083-5356865</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><div>นางสาวกนกนาถ จันทรโชตะ <span class="font-normal text-xs block opacity-70">062-6683443</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><div>นางสาวสุรัตนี เสนีชัย <span class="font-normal text-xs block opacity-70">085-2276413</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><div>นางสาวอังคณา ชูสุวรรณ <span class="font-normal text-xs block opacity-70">085-7959291</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span><div>นางสาวศิรภัสสร สิทธิพิทักษ์ <span class="font-normal text-xs block opacity-70">081-1880835</span></div></li>
+            </ul>
+        </div>
+        <div class="p-6 md:p-8 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm border-t-[3px] border-t-amber-500">
+            <div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white"><i class="fas fa-user-graduate"></i></div><h3 class="text-lg font-extrabold text-gray-800 dark:text-gray-100">นักศึกษา</h3></div>
+            <ul class="space-y-3 text-sm font-semibold text-gray-600 dark:text-gray-300">
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span><div>นายทานุฑัต ทิพย์เสภา <span class="font-normal text-xs block opacity-70">092-3685270</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span><div>นางสาวกวินธิดา คชรัตน์ <span class="font-normal text-xs block opacity-70">083-5092468</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span><div>นายสัณห์ สังขพงศ์ <span class="font-normal text-xs block opacity-70">094-1973159</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span><div>นายวุฒิภัทร มากด้วง <span class="font-normal text-xs block opacity-70">083-4317907</span></div></li>
+                <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0"></span><div>นายภคพล สมัยแก้ว <span class="font-normal text-xs block opacity-70">061-2166244</span></div></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-950 text-center px-6 py-12 md:py-16 border-t border-gray-200 dark:border-gray-800">
+    <div class="max-w-4xl mx-auto space-y-4">
+        <div class="flex justify-center gap-2 text-xs"><a href="https://www.nvc.ac.th" target="_blank" class="px-4 py-2 rounded-full bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 font-semibold border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all">NVC</a><a href="https://www.facebook.com" target="_blank" class="px-4 py-2 rounded-full bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-400 font-semibold border border-gray-200 dark:border-gray-700 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all">ฟาร์มเห็ดแม่สุนีย์</a></div>
+        <p class="text-sm font-bold text-gray-500 dark:text-gray-400">ติดตามพวกเรา</p>
+        <div class="flex justify-center gap-3">
+            <a href="https://www.tiktok.com/@mushup.smart.sele" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold text-xs border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-black hover:text-white hover:border-black dark:hover:bg-white dark:hover:text-black transition-all"><i class="fa-brands fa-tiktok"></i> TikTok</a>
+            <a href="https://www.instagram.com/mssm_nvc.official" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 font-semibold text-xs border border-gray-200 dark:border-gray-700 shadow-sm hover:bg-gradient-to-r hover:from-pink-500 hover:via-purple-500 hover:to-orange-500 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i> Instagram</a>
+        </div>
+        <p class="text-xs opacity-50 text-gray-500 dark:text-gray-400">&copy; 2026 Mush-up NVC. วิทยาลัยอาชีวศึกษานครศรีธรรมราช</p>
+    </div>
+</footer>
+
+</div>
+
+<!-- Modals -->
+<div id="modal1" class="hidden fixed inset-0 z-[9999] bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModal('modal1')">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-700" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-start mb-5"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-lg"><i class="fas fa-mushroom"></i></div><h2 class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100">เห็ดนางรมฮังการี</h2></div><button onclick="closeModal('modal1')" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all cursor-pointer">&times;</button></div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><strong>จุดเด่น:</strong> ดอกใหญ่ เนื้อแน่น เหนียวนุ่ม เพาะง่ายใน 7 วัน</p>
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-900/20 dark:to-transparent border border-emerald-100 dark:border-emerald-800/30 mb-4"><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-3 text-sm">📊 โภชนาการ / 100g</h4><div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300"><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>พลังงาน</span><strong class="text-emerald-600 dark:text-emerald-400">30-47 kcal</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>โปรตีน</span><strong class="text-emerald-600 dark:text-emerald-400">3-4 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>คาร์โบไฮเดรต</span><strong class="text-emerald-600 dark:text-emerald-400">5-9 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ใยอาหาร</span><strong class="text-emerald-600 dark:text-emerald-400">2-4.3 g</strong></div></div></div>
+        <div><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-2 text-sm">💧 การดูแล</h4><ul class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300"><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>สถานที่ร่ม อากาศถ่ายเท</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>พ่นละอองน้ำวันละ 2-4 ครั้ง</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>เก็บเมื่อหมวกคลี่บานเต็มที่</li></ul></div>
+    </div>
+</div>
+<div id="modal2" class="hidden fixed inset-0 z-[9999] bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModal('modal2')">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-700" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-start mb-5"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-lg"><i class="fas fa-mushroom"></i></div><h2 class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100">เห็ดนางฟ้าภูฐาน</h2></div><button onclick="closeModal('modal2')" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all cursor-pointer">&times;</button></div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><strong>จุดเด่น:</strong> หวานนุ่มละมุนลิ้น โตไว เลี้ยงง่ายที่สุด</p>
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-900/20 dark:to-transparent border border-emerald-100 dark:border-emerald-800/30 mb-4"><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-3 text-sm">📊 โภชนาการ</h4><div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300"><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>โปรตีน</span><strong class="text-emerald-600 dark:text-emerald-400">2.9-3.3 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>คาร์โบไฮเดรต</span><strong class="text-emerald-600 dark:text-emerald-400">5.2-6.1 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ใยอาหาร</span><strong class="text-emerald-600 dark:text-emerald-400">2 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>โพแทสเซียม</span><strong class="text-emerald-600 dark:text-emerald-400">361 mg</strong></div></div></div>
+        <div><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-2 text-sm">💧 การดูแล</h4><ul class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300"><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>อุณหภูมิ 20-25°C</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>พ่นละอองเช้า-เย็น-ก่อนนอน</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>เก็บ 7-10 วัน บิดเบาๆ ที่โคน</li></ul></div>
+    </div>
+</div>
+<div id="modal3" class="hidden fixed inset-0 z-[9999] bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModal('modal3')">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-700" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-start mb-5"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-lg"><i class="fas fa-mushroom"></i></div><h2 class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100">เห็ดแครง</h2></div><button onclick="closeModal('modal3')" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all cursor-pointer">&times;</button></div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><strong>จุดเด่น:</strong> เนื้อนุ่มหนึบ โปรตีนสูง Superfood</p>
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-900/20 dark:to-transparent border border-emerald-100 dark:border-emerald-800/30 mb-4"><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-3 text-sm">📊 โภชนาการ</h4><div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300"><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>โปรตีน</span><strong class="text-amber-600">17 g ⚡</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ฟอสฟอรัส</span><strong class="text-emerald-600 dark:text-emerald-400">640-646 mg</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ธาตุเหล็ก</span><strong class="text-emerald-600 dark:text-emerald-400">280 mg</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>แคลเซียม</span><strong class="text-emerald-600 dark:text-emerald-400">90 mg</strong></div></div></div>
+        <div><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-2 text-sm">💧 การดูแล</h4><ul class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300"><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>โรงเรือนทึบแสง อบอ้าว</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>รดน้ำ 1-3 วัน/ครั้ง 30-35°C</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>ใช้มีดกรีดโคนดอก</li></ul></div>
+    </div>
+</div>
+<div id="modal4" class="hidden fixed inset-0 z-[9999] bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModal('modal4')">
+    <div class="bg-white dark:bg-gray-900 rounded-3xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 md:p-8 shadow-2xl border border-gray-200 dark:border-gray-700" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-start mb-5"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-lg"><i class="fas fa-mushroom"></i></div><h2 class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100">เห็ดหูหนูดำ</h2></div><button onclick="closeModal('modal4')" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all cursor-pointer">&times;</button></div>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4"><strong>จุดเด่น:</strong> กรุบกรอบ ไฟเบอร์สูง แคลอรีต่ำ</p>
+        <div class="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-transparent dark:from-emerald-900/20 dark:to-transparent border border-emerald-100 dark:border-emerald-800/30 mb-4"><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-3 text-sm">📊 โภชนาการ</h4><div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-300"><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>พลังงาน</span><strong class="text-emerald-600 dark:text-emerald-400">43 kcal</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>โปรตีน</span><strong class="text-emerald-600 dark:text-emerald-400">1.4 g</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ใยอาหาร</span><strong class="text-amber-600">7 g ⚡</strong></div><div class="flex justify-between p-2 rounded-lg bg-white dark:bg-gray-800/50"><span>ธาตุเหล็ก</span><strong class="text-emerald-600 dark:text-emerald-400">6.1 mg</strong></div></div></div>
+        <div><h4 class="font-extrabold text-gray-800 dark:text-gray-100 mb-2 text-sm">💧 การดูแล</h4><ul class="space-y-1.5 text-xs text-gray-600 dark:text-gray-300"><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>อุณหภูมิ 25-30°C แสงรำไร</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>พ่นน้ำวันละ 3-4 ครั้ง</li><li class="flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-emerald-500"></span>ตัดชิดโคนเมื่อดอกบาน</li></ul></div>
+    </div>
+</div>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/surge.js"></script>
+</body>
+</html>
