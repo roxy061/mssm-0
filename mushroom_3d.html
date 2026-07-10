@@ -45,6 +45,13 @@
             color: #34d399;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
+        .cad-sidebar-right {
+            background-color: #1e293b;
+            border-left: 1px solid #334155;
+            transition: transform 0.3s ease;
+        }
+        .drag-cursor { cursor: grab !important; }
+        .drag-cursor:active { cursor: grabbing !important; }
         /* Fullscreen Landscape Warning Overlay */
         #orientationOverlay {
             display: none;
@@ -187,67 +194,90 @@
                 </div>
             </div>
 
-            <!-- ─── VIEW MODE ─────────────────────────────────────── -->
-            <div class="p-3 border-b border-slate-700">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-eye text-emerald-400"></i> มุมมอง (View Mode)</span>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <button onclick="setCameraViewMode('3d')" id="btnView3D"
-                        class="tool-btn active flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span class="text-base"><i class="fas fa-cube text-emerald-400"></i></span>
-                        <span>3D View</span>
-                    </button>
-                    <button onclick="setCameraViewMode('2d')" id="btnView2D"
-                        class="tool-btn flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span class="text-base"><i class="fas fa-map text-blue-400"></i></span>
-                        <span>2D Plan</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- ─── CONTROL MODE ──────────────────────────────────── -->
-            <div class="p-3 border-b border-slate-700">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-gamepad text-emerald-400"></i> โหมดควบคุม</span>
-                <div class="grid grid-cols-2 gap-1.5">
-                    <button onclick="setControlMode('build')" id="btnCtrlBuild"
-                        class="tool-btn active flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span class="text-base">🔨</span>
-                        <span>วางวัสดุ</span>
-                    </button>
-                    <button onclick="setControlMode('orbit')" id="btnCtrlOrbit"
-                        class="tool-btn flex flex-col items-center justify-center gap-1 p-2.5 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span class="text-base">🔍</span>
-                        <span>หมุนกล้อง</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- ─── HEIGHT OFFSET ─────────────────────────────────── -->
-            <div class="p-3">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-arrows-alt-v text-emerald-400"></i> ระดับความสูงวัสดุ</span>
-                <input type="range" id="heightOffsetSlider" min="0" max="3" step="0.2" value="0.0"
-                    oninput="updateHeightOffset()"
-                    class="w-full accent-emerald-500 h-1.5 rounded-lg appearance-none cursor-pointer">
-                <div class="flex items-center justify-between mt-1.5">
-                    <span class="text-[8px] text-slate-500">0 เมตร</span>
-                    <span class="text-[9px] text-emerald-400 font-black" id="lblHeightOffsetVal">0.0 ม. (ติดพื้น)</span>
-                    <span class="text-[8px] text-slate-500">3 เมตร</span>
-                </div>
-            </div>
         </aside>
 
-        <!-- VIEWPORT: The core 3D Canvas -->
+        <!-- ═══ VIEWPORT ═══════════════════════════════════════════════════════ -->
         <main class="flex-grow flex flex-col relative h-full">
-            
-            <!-- Three.js viewport wrapper -->
             <div id="canvas3d" class="w-full h-full"></div>
 
-            <!-- Hamburger Button for mobile landscape slide sidebar -->
+            <!-- Mobile hamburger -->
             <button onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 left-4 w-9 h-9 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl flex items-center justify-center z-30 cursor-pointer">
                 <i class="fas fa-bars"></i>
             </button>
 
-
+            <!-- Drag-mode hint overlay (shows briefly when dragging) -->
+            <div id="dragHint" class="hidden absolute bottom-3 left-1/2 -translate-x-1/2 bg-slate-900/90 border border-emerald-500/30 text-emerald-400 text-[10px] font-black px-4 py-2 rounded-full z-20 pointer-events-none">
+                📌 ลากเพื่อย้ายวัสดุ — ปล่อยมือเพื่อวาง
+            </div>
         </main>
+
+        <!-- ═══ RIGHT SIDEBAR ════════════════════════════════════════════════ -->
+        <aside class="w-44 cad-sidebar-right flex flex-col shrink-0 overflow-y-auto max-md:hidden">
+
+            <!-- View Mode -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-eye text-emerald-400"></i> มุมมอง</span>
+                <div class="grid grid-cols-1 gap-1.5">
+                    <button onclick="setCameraViewMode('3d')" id="btnView3D"
+                        class="tool-btn active flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <i class="fas fa-cube text-emerald-400"></i> <span>3D View</span>
+                    </button>
+                    <button onclick="setCameraViewMode('2d')" id="btnView2D"
+                        class="tool-btn flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <i class="fas fa-map text-blue-400"></i> <span>2D Plan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Control Mode -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-gamepad text-emerald-400"></i> โหมด</span>
+                <div class="grid grid-cols-1 gap-1.5">
+                    <button onclick="setControlMode('build')" id="btnCtrlBuild"
+                        class="tool-btn active flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>🔨</span> <span>วางวัสดุ</span>
+                    </button>
+                    <button onclick="setControlMode('drag')" id="btnCtrlDrag"
+                        class="tool-btn flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>✋</span> <span>ลากย้าย</span>
+                    </button>
+                    <button onclick="setControlMode('orbit')" id="btnCtrlOrbit"
+                        class="tool-btn flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>🔍</span> <span>หมุนกล้อง</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Height Offset -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-arrows-alt-v text-emerald-400"></i> ความสูง</span>
+                <input type="range" id="heightOffsetSlider" min="0" max="3" step="0.2" value="0.0"
+                    oninput="updateHeightOffset()"
+                    class="w-full accent-emerald-500 h-1.5 rounded-lg appearance-none cursor-pointer">
+                <span class="text-[9px] text-emerald-400 font-black block mt-1 text-center" id="lblHeightOffsetVal">0.0 ม.</span>
+            </div>
+
+            <!-- Selected Object Info -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-info-circle text-amber-400"></i> วัสดุที่เลือก</span>
+                <div id="selectedInfo" class="text-[9px] text-slate-500 text-center leading-relaxed">คลิกเลือกวัสดุ...</div>
+            </div>
+
+            <!-- Stats -->
+            <div class="p-3">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-chart-bar text-purple-400"></i> สถิติ</span>
+                <div class="space-y-1.5">
+                    <div class="flex justify-between text-[9px]">
+                        <span class="text-slate-500">ชิ้นวาง</span>
+                        <span class="text-emerald-400 font-black" id="lblObjCount">0</span>
+                    </div>
+                    <div class="flex justify-between text-[9px]">
+                        <span class="text-slate-500">งบคงเหลือ</span>
+                        <span class="text-amber-400 font-black" id="lblBudgetLeft">50,000 บ.</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 
     <!-- Script CAD Engine -->
@@ -255,7 +285,7 @@
         let scene, camera, renderer, controls;
         let gridHelper, planeMesh;
         let activeTool = 'pillar';
-        let controlMode = 'build';
+        let controlMode = 'build';  // build | drag | orbit
         let viewMode = '3d';
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
@@ -264,6 +294,13 @@
         let mobileSidebarOpen = false;
         let activeHeightOffset = 0.0;
         let selectedObject = null;
+
+        // Drag-to-move state
+        let isDragging = false;
+        let dragObject = null;
+        let dragStartPos = new THREE.Vector3();
+        let dragOffsetY = 0;  // keep the original Y during drag
+        const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
         const toolPrices = {
             'pillar': 150,
@@ -351,8 +388,10 @@
             syncWalletUI();
             checkOrientation();
 
-            // Event Listeners
-            renderer.domElement.addEventListener('pointerdown', onCanvasClick);
+            // Event Listeners — split into pointer down/move/up for drag support
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+            renderer.domElement.addEventListener('pointermove', onPointerMove);
+            renderer.domElement.addEventListener('pointerup',   onPointerUp);
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
 
@@ -406,17 +445,20 @@
 
         function setControlMode(mode) {
             controlMode = mode;
-            const btnBuild = document.getElementById('btnCtrlBuild');
-            const btnOrbit = document.getElementById('btnCtrlOrbit');
+            const ids = ['btnCtrlBuild','btnCtrlDrag','btnCtrlOrbit'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            const map = { build:'btnCtrlBuild', drag:'btnCtrlDrag', orbit:'btnCtrlOrbit' };
+            const active = document.getElementById(map[mode]);
+            if (active) active.classList.add('active');
 
-            if (mode === 'build') {
-                btnBuild.classList.add('active');
-                btnOrbit.classList.remove('active');
-                controls.enabled = false;
-            } else {
-                btnOrbit.classList.add('active');
-                btnBuild.classList.remove('active');
-                controls.enabled = true;
+            controls.enabled = (mode === 'orbit');
+
+            const canvas = renderer && renderer.domElement;
+            if (canvas) {
+                canvas.style.cursor = mode === 'drag' ? 'grab' : (mode === 'build' ? 'crosshair' : 'default');
             }
         }
 
@@ -459,22 +501,95 @@
             }
         }
 
-        function onCanvasClick(event) {
-            if (controlMode !== 'build') return;
-
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
+        // ─── POINTER DOWN ────────────────────────────────────────────────────────
+        function onPointerDown(event) {
+            if (event.button !== undefined && event.button !== 0) return; // left click only
+            updateMouseCoords(event);
             raycaster.setFromCamera(mouse, camera);
 
-            // Intersect placed items first for deletion
-            const placedMeshes = placedObjects.map(obj => obj.mesh);
-            const intersections = raycaster.intersectObjects(placedMeshes);
+            const placedMeshes = placedObjects.map(o => o.mesh);
+            const hits = raycaster.intersectObjects(placedMeshes);
 
-            if (intersections.length > 0) {
-                const hitMesh = intersections[0].object;
+            if (controlMode === 'drag' && hits.length > 0) {
+                // Start dragging the hit object
+                event.preventDefault();
+                isDragging = true;
+                dragObject = placedObjects.find(o => o.mesh === hits[0].object);
+
+                if (dragObject) {
+                    dragOffsetY = dragObject.mesh.position.y;
+                    // Update drag plane Y to the object's ground level
+                    dragPlane.constant = -dragOffsetY + dragOffsetY; // = 0, keep it on ground
+                    controls.enabled = false;
+                    renderer.domElement.style.cursor = 'grabbing';
+
+                    // Highlight dragged object
+                    if (dragObject.mesh.material.emissive) {
+                        dragObject.mesh.material.emissive.setHex(0x004d2a);
+                    }
+                    // Show drag hint
+                    const hint = document.getElementById('dragHint');
+                    if (hint) { hint.classList.remove('hidden'); }
+                }
+                return;
+            }
+
+            if (controlMode === 'build') {
+                onCanvasBuildClick(hits);
+            }
+        }
+
+        // ─── POINTER MOVE ────────────────────────────────────────────────────────
+        function onPointerMove(event) {
+            if (!isDragging || !dragObject) return;
+            event.preventDefault();
+            updateMouseCoords(event);
+            raycaster.setFromCamera(mouse, camera);
+
+            // Intersect a horizontal plane at Y=0 (ground)
+            const groundIntersects = raycaster.intersectObject(planeMesh);
+            if (groundIntersects.length > 0) {
+                const p = groundIntersects[0].point;
+                const gridX = Math.round(p.x * 2) / 2;
+                const gridZ = Math.round(p.z * 2) / 2;
+                // Clamp inside field
+                dragObject.mesh.position.x = Math.max(-4, Math.min(4, gridX));
+                dragObject.mesh.position.z = Math.max(-4, Math.min(4, gridZ));
+                // Keep original Y (height offset preserved)
+                dragObject.mesh.position.y = dragOffsetY;
+            }
+        }
+
+        // ─── POINTER UP ──────────────────────────────────────────────────────────
+        function onPointerUp(event) {
+            if (isDragging && dragObject) {
+                // Clear emissive highlight
+                if (dragObject.mesh.material.emissive) {
+                    dragObject.mesh.material.emissive.setHex(0x000000);
+                }
+                isDragging = false;
+                dragObject = null;
+                renderer.domElement.style.cursor = 'grab';
+                const hint = document.getElementById('dragHint');
+                if (hint) { hint.classList.add('hidden'); }
+            }
+        }
+
+        // ─── COORD HELPER ────────────────────────────────────────────────────────
+        function updateMouseCoords(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            mouse.x = ((clientX - rect.left) / rect.width)  * 2 - 1;
+            mouse.y = -((clientY - rect.top)  / rect.height) * 2 + 1;
+        }
+
+        // ─── BUILD CLICK (place / select / rotate / delete) ──────────────────────
+        function onCanvasBuildClick(hits) {
+            if (hits.length > 0) {
+                const hitMesh = hits[0].object;
                 const idx = placedObjects.findIndex(obj => obj.mesh === hitMesh);
+
                 if (idx !== -1) {
                     const obj = placedObjects[idx];
 
@@ -484,70 +599,86 @@
                     }
                     selectedObject = obj;
                     if (selectedObject.mesh.material.emissive) {
-                        selectedObject.mesh.material.emissive.setHex(0x003a1a); // soft green emissive glow
+                        selectedObject.mesh.material.emissive.setHex(0x003a1a);
                     }
 
-                    // Update slider values to match this selected object's height offset
-                    let baseH = (selectedObject.type === 'pillar' ? 1.25 : selectedObject.type === 'wall' ? 0.6 : selectedObject.type === 'door' ? 0.9 : selectedObject.type === 'window' ? 1.0 : selectedObject.type === 'roof' ? 2.0 : 0.25);
-                    let currentOffset = Math.max(0, selectedObject.mesh.position.y - baseH);
+                    // Sync height slider to selected object
+                    const baseH = getBaseHeight(selectedObject.type);
+                    const currentOffset = Math.max(0, selectedObject.mesh.position.y - baseH);
                     document.getElementById('heightOffsetSlider').value = currentOffset;
-                    document.getElementById('lblHeightOffsetVal').textContent = currentOffset.toFixed(1) + ' เมตร';
+                    document.getElementById('lblHeightOffsetVal').textContent = currentOffset.toFixed(1) + ' ม.';
                     activeHeightOffset = currentOffset;
 
+                    // Update info panel
+                    const typeLabel = { pillar:'เสาโรงเรือน', wall:'กำแพงกั้น', roof:'หลังคา',
+                        door:'ประตูเข้า', window:'บานระบาย', bag_hungarian:'ก้อนเห็ดนางรม',
+                        bag_splitgill:'ก้อนเห็ดแครง', mist:'หัวพ่นหมอก', fan:'พัดลมระบาย', rotate:'หมุน' };
+                    const infoEl = document.getElementById('selectedInfo');
+                    if (infoEl) infoEl.innerHTML = `<span class="text-emerald-400 font-black">${typeLabel[obj.type]||obj.type}</span><br><span class="text-slate-400">Y: ${selectedObject.mesh.position.y.toFixed(1)} ม.</span>`;
+
                     if (activeTool === 'rotate') {
-                        // Rotate item by 45 degrees
                         obj.mesh.rotation.y += Math.PI / 4;
-                        // Juiciness scale feedback
                         const originalScale = obj.mesh.scale.clone();
                         obj.mesh.scale.multiplyScalar(1.15);
-                        setTimeout(() => {
-                            obj.mesh.scale.copy(originalScale);
-                        }, 100);
+                        setTimeout(() => { obj.mesh.scale.copy(originalScale); }, 100);
                         return;
                     }
-                    
-                    // Clicking a highlighted/selected object again deletes it
+
+                    // Click selected again → delete
                     adjustCash(toolPrices[obj.type]);
                     scene.remove(obj.mesh);
                     placedObjects.splice(idx, 1);
                     selectedObject = null;
+                    const infoEl2 = document.getElementById('selectedInfo');
+                    if (infoEl2) infoEl2.textContent = 'คลิกเลือกวัสดุ...';
+                    updateRightPanelStats();
                 }
                 return;
             }
 
-            // Otherwise place item
+            // Place new item on ground
             const groundIntersects = raycaster.intersectObject(planeMesh);
             if (groundIntersects.length > 0) {
                 const point = groundIntersects[0].point;
-
                 const gridX = Math.round(point.x * 2) / 2;
                 const gridZ = Math.round(point.z * 2) / 2;
 
                 if (Math.abs(gridX) <= 4.0 && Math.abs(gridZ) <= 4.0) {
                     const cost = toolPrices[activeTool];
                     let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
-                    if (cash < cost) {
-                        alert('งบประมาณสะสมไม่เพียงพอ!');
-                        return;
-                    }
+                    if (cash < cost) { alert('งบประมาณสะสมไม่เพียงพอ!'); return; }
 
-                    let baseHeight = (activeTool === 'pillar' ? 1.25 : activeTool === 'wall' ? 0.6 : activeTool === 'door' ? 0.9 : activeTool === 'window' ? 1.0 : activeTool === 'roof' ? 2.0 : 0.25);
-                    let heightVal = activeHeightOffset + baseHeight;
-
+                    const heightVal = activeHeightOffset + getBaseHeight(activeTool);
                     const geom = toolGeometries[activeTool];
-                    const mat = toolMaterials[activeTool].clone(); // clone to allow per-instance material state
+                    const mat = toolMaterials[activeTool].clone();
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(gridX, heightVal, gridZ);
                     mesh.castShadow = true;
                     mesh.receiveShadow = true;
                     scene.add(mesh);
-
                     placedObjects.push({ type: activeTool, mesh: mesh });
-
                     adjustCash(-cost);
+                    updateRightPanelStats();
                 }
             }
         }
+
+        function getBaseHeight(type) {
+            const map = { pillar:1.25, wall:0.6, door:0.9, window:1.0, roof:2.0 };
+            return map[type] !== undefined ? map[type] : 0.25;
+        }
+
+        function updateRightPanelStats() {
+            const countEl = document.getElementById('lblObjCount');
+            const budgetEl = document.getElementById('lblBudgetLeft');
+            if (countEl) countEl.textContent = placedObjects.length;
+            if (budgetEl) {
+                const cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+                budgetEl.textContent = cash.toLocaleString() + ' บ.';
+            }
+        }
+
+
 
         function adjustCash(amount) {
             let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
@@ -559,12 +690,17 @@
         function syncWalletUI() {
             let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
             document.getElementById('lblWalletCash').textContent = cash.toLocaleString() + ' บาท';
+            updateRightPanelStats();
         }
 
         function clear3DScene() {
             if (confirm('คุณต้องการรีเซ็ตรื้อถอนโครงสร้างทั้งหมดกลับสู่ห้องว่างหรือไม่?')) {
                 placedObjects.forEach(obj => scene.remove(obj.mesh));
                 placedObjects = [];
+                selectedObject = null;
+                const infoEl = document.getElementById('selectedInfo');
+                if (infoEl) infoEl.textContent = 'คลิกเลือกวัสดุ...';
+                updateRightPanelStats();
             }
         }
 
@@ -573,17 +709,15 @@
                 const obj = placedObjects.pop();
                 adjustCash(toolPrices[obj.type]);
                 scene.remove(obj.mesh);
+                updateRightPanelStats();
             }
         }
 
         function updateHeightOffset() {
             activeHeightOffset = parseFloat(document.getElementById('heightOffsetSlider').value);
-            document.getElementById('lblHeightOffsetVal').textContent = activeHeightOffset.toFixed(1) + ' เมตร';
-            
-            // Adjust selected object's height dynamically in real-time
+            document.getElementById('lblHeightOffsetVal').textContent = activeHeightOffset.toFixed(1) + ' ม.';
             if (selectedObject) {
-                let baseH = (selectedObject.type === 'pillar' ? 1.25 : selectedObject.type === 'wall' ? 0.6 : selectedObject.type === 'door' ? 0.9 : selectedObject.type === 'window' ? 1.0 : selectedObject.type === 'roof' ? 2.0 : 0.25);
-                selectedObject.mesh.position.y = activeHeightOffset + baseH;
+                selectedObject.mesh.position.y = activeHeightOffset + getBaseHeight(selectedObject.type);
             }
         }
 
