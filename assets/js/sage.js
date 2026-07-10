@@ -608,6 +608,28 @@ function clearAIChatTable() {
     }
 }
 
+function resetChat() {
+    if (confirm('คุณต้องการรีเซ็ตประวัติการสนทนาทั้งหมดใช่หรือไม่?')) {
+        chatCtx = [];
+        const box = document.getElementById('chatHistory');
+        if (box) {
+            box.innerHTML = `
+                <div class="flex justify-start animate-pop-in">
+                    <div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed bg-gradient-to-br from-emerald-50 to-white dark:from-gray-800 dark:to-gray-800/60 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm">
+                        <div class="flex items-center gap-2 mb-2"><span class="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs"><i class="fas fa-robot"></i></span><strong class="text-emerald-600 dark:text-emerald-400">AI MSSM</strong></div>
+                        สวัสดีครับ! ผมคือผู้ช่วยของคุณ 🍄<br><br>
+                        ผมมีความเชี่ยวชาญด้านเห็ดทั้ง 4 ชนิด การวิเคราะห์เศรษฐศาสตร์ และแนวคิด Zero Waste<br>
+                        <strong class="text-emerald-600 dark:text-emerald-400">พิมพ์ถามได้เลยครับ!</strong>
+                    </div>
+                </div>
+            `;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+    }
+}
+
 function saveAICache() {
     localStorage.setItem('mssm_ai_saved_logs', JSON.stringify(aiSavedLogs));
 }

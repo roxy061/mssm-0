@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
+<title>MSSM Master Dataset & Statistical Analytics Center Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class'
+    }
+</script>
+<style>
+    @theme { --font-prompt: 'Prompt', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Prompt', sans-serif; }
+    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .animate-pop-in { animation: popIn .3s ease-out forwards; }
+    .animate-fadeIn { animation: fadeIn .4s ease-out forwards; }
+    .nav-item { position: relative; overflow: hidden; }
+    .nav-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #10b981; transform: scaleY(0); transition: transform .25s ease; border-radius: 0 3px 3px 0; }
+    .dark .nav-item::before { background: #34d399; }
+    .nav-item:hover::before, .nav-item.active::before { transform: scaleY(1); }
+    .nav-item.active { background: rgba(16,185,129,0.1); }
+    .dark .nav-item.active { background: rgba(52,211,153,0.1); }
+</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
+
+<button id="themeToggle" class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none" aria-label="Toggle Dark/Light Mode">
+    <i id="themeToggleIcon" class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
+</button>
+
+<canvas id="particleCanvas"></canvas>
+
+<!-- Hamburger -->
+<button onclick="toggleMenu()" class="lg:hidden fixed top-3.5 left-3.5 z-[100] w-12 h-12 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer"><i class="fas fa-bars text-xl"></i></button>
+<div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+        <div class="text-2xl mb-1">📊</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">MSSM Dataset</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">Statistical Analytics</div>
+    </div>
+    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+    <nav class="flex-1 px-3 py-4 space-y-1">
+        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+        <a href="index.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i class="fas fa-home"></i></span> หน้าแรก</a>
+        <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
+            <a href="lab.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
+            <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs"><i class="fas fa-database"></i></span> คลังข้อมูลวิจัย</a>
+            <a href="doc.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white text-xs"><i class="fas fa-book"></i></span> คู่มือวิจัย</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform" target="_blank" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i class="fas fa-poll"></i></span> แบบสอบถาม</a>
+        </div>
+    </nav>
+</aside>
+
+<!-- Main content -->
+<div class="lg:pl-[260px] min-h-screen flex flex-col max-lg:pt-[60px] pb-8 animate-fadeIn">
+    <header class="text-center px-6 py-8 md:py-12 shrink-0 relative overflow-hidden">
+        <div class="absolute w-48 h-48 rounded-full bg-emerald-400/10 blur-3xl -top-10 -left-10 pointer-events-none"></div>
+        <div class="absolute w-48 h-48 rounded-full bg-blue-400/10 blur-3xl -bottom-10 -right-10 pointer-events-none"></div>
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-4 shadow-sm">📊 Data Center & Analytics</div>
+            <h1 class="text-2xl md:text-3.5xl font-black text-gray-800 dark:text-gray-100 leading-tight">📊 MSSM Master Dataset & Statistical Analytics Center</h1>
+            <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-3 max-w-2xl mx-auto leading-relaxed">ระบบวิเคราะห์และประมวลผลฐานข้อมูลเชิงประจักษ์ โครงงานวิจัยเปรียบเทียบประสิทธิภาพและผลตอบแทนเชิงเศรษฐศาสตร์ของเห็ด 4 สายพันธุ์บนก้อนเพาะเชื้อสูตรชุมชน</p>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[95%] w-full mx-auto px-4 md:px-8 space-y-8">
+        
+        <!-- Glassmorphism Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-5 rounded-2xl bg-white/40 dark:bg-gray-800/20 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 transition-all hover:scale-[1.02]">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fas fa-boxes-stacked"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Samples</span>
+                    <strong class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100" id="cardSamples">n=40 ก้อน</strong>
+                    <span class="text-[9px] block text-gray-500 dark:text-gray-400">(สายพันธุ์ละ 10 ก้อน)</span>
+                </div>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/40 dark:bg-gray-800/20 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 transition-all hover:scale-[1.02]">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fas fa-coins"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Base Cost</span>
+                    <strong class="text-lg md:text-xl font-black text-gray-800 dark:text-gray-100">18.00 บาท</strong>
+                    <span class="text-[9px] block text-gray-500 dark:text-gray-400">(ราคาต้นทุนคงที่ / ก้อน)</span>
+                </div>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/40 dark:bg-gray-800/20 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 transition-all hover:scale-[1.02]">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fas fa-trophy"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Top MPI Performer</span>
+                    <strong class="text-sm md:text-base font-black text-amber-600 dark:text-amber-400 block" id="cardTopMpi">เห็ดแครง (0.853)</strong>
+                    <span class="text-[9px] block text-gray-500 dark:text-gray-400">(ประเมินโดย SAW Model)</span>
+                </div>
+            </div>
+            <div class="p-5 rounded-2xl bg-white/40 dark:bg-gray-800/20 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4 transition-all hover:scale-[1.02]">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-400 to-rose-600 text-white flex items-center justify-center text-xl shadow-md"><i class="fas fa-money-bill-trend-up"></i></div>
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Max Net Profit</span>
+                    <strong class="text-sm md:text-base font-black text-rose-500 dark:text-rose-400 block" id="cardMaxProfit">เห็ดแครง (303.75 บาท)</strong>
+                    <span class="text-[9px] block text-gray-500 dark:text-gray-400">(ผลตอบแทนต่อ 10 ก้อน)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Visualizations -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Growth Chart -->
+            <div class="p-5 rounded-2xl bg-white/70 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 1. อัตราเติบโตเฉลี่ยของเส้นใย (ซม./วัน)</h3>
+                <div class="h-[200px] w-full">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+            <!-- Yield Chart -->
+            <div class="p-5 rounded-2xl bg-white/70 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> 2. ปริมาณผลผลิตสดรวมเฉลี่ย (กรัม/ก้อน)</h3>
+                <div class="h-[200px] w-full">
+                    <canvas id="yieldChart"></canvas>
+                </div>
+            </div>
+            <!-- Payback Chart -->
+            <div class="p-5 rounded-2xl bg-white/70 dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                <h3 class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 3. ระยะเวลาคืนทุนทางการเงิน (วัน)</h3>
+                <div class="h-[200px] w-full">
+                    <canvas id="paybackChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Master Dataset Table & CRUD -->
+        <div class="p-5 md:p-7 rounded-2xl bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-md">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 border-b border-gray-200 dark:border-gray-700 pb-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex items-center justify-center text-sm shadow"><i class="fas fa-database"></i></div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-gray-800 dark:text-gray-100">ตารางคลังข้อมูลหลัก (Master Dataset Table)</h2>
+                        <p class="text-[10px] text-gray-400 mt-0.5">ตารางประเมินผลลัพธ์ประสิทธิภาพและผลตอบแทนทางเศรษฐกิจของเห็ด</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportFullCSV()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:shadow transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"><i class="fas fa-file-csv"></i> 📥 Export Full Dataset (.CSV)</button>
+                    <button onclick="restoreDefaultDataset()" class="px-3.5 py-2 rounded-xl text-xs font-bold border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 transition shadow-sm cursor-pointer"><i class="fas fa-arrow-rotate-left"></i> โหลดค่าเริ่มต้น</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-900/30">
+                <table class="w-full min-w-[750px] text-xs md:text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100/80 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 text-center font-bold">
+                            <th class="p-3 w-16">อันดับ</th>
+                            <th class="p-3 text-left">สายพันธุ์เห็ด</th>
+                            <th class="p-3">อัตราเส้นใย (ซม./วัน)</th>
+                            <th class="p-3">ผลผลิตรวม (กก.)</th>
+                            <th class="p-3">กำไรสุทธิ (บาท)</th>
+                            <th class="p-3">ค่า BCR</th>
+                            <th class="p-3">คืนทุน (วัน)</th>
+                            <th class="p-3">คะแนน MPI</th>
+                            <th class="p-3 w-20">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterDatasetBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center px-4 py-8 text-xs opacity-60 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-900/50 mt-12">
+        &copy; 2026 Mush-up NVC. All rights reserved.
+    </footer>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
+
+<script src="assets/js/core.js"></script>
+<script>
+    // Master Dataset CRUD Engine
+    const DEFAULT_DATASET = [
+        { id: 1, name: 'เห็ดแครง', growth: 0.85, yieldKg: 3.225, profit: 303.75, bcr: 2.69, payback: 33.49, mpi: 0.853 },
+        { id: 2, name: 'เห็ดนางฟ้าภูฐาน', growth: 0.61, yieldKg: 4.286, profit: 248.60, bcr: 2.38, payback: 37.80, mpi: 0.797 },
+        { id: 3, name: 'เห็ดนางรมฮังการี', growth: 0.58, yieldKg: 4.018, profit: 221.80, bcr: 2.23, payback: 40.32, mpi: 0.689 },
+        { id: 4, name: 'เห็ดหูหนู', growth: 0.42, yieldKg: 2.473, profit: 42.57, bcr: 1.24, payback: 72.78, mpi: 0.000 }
+    ];
+
+    let dataset = [];
+    let undoStack = [];
+    let charts = {};
+
+    function loadDataset() {
+        const saved = localStorage.getItem('mssm_master_dataset');
+        if (saved) {
+            try {
+                dataset = JSON.parse(saved);
+            } catch (e) {
+                dataset = [...DEFAULT_DATASET];
+            }
+        } else {
+            dataset = [...DEFAULT_DATASET];
+        }
+    }
+
+    function saveDataset() {
+        localStorage.setItem('mssm_master_dataset', JSON.stringify(dataset));
+    }
+
+    function restoreDefaultDataset() {
+        if (confirm('คุณต้องการรีเซ็ตคลังข้อมูลวิจัยกลับสู่ค่าเริ่มต้นของรายงานใช่หรือไม่?')) {
+            dataset = [...DEFAULT_DATASET];
+            saveDataset();
+            renderAll();
+            showToast('♻️ รีเซ็ตข้อมูลกลับสู่ค่าเริ่มต้นแล้ว');
+        }
+    }
+
+    function deleteRow(id) {
+        const index = dataset.findIndex(item => item.id === id);
+        if (index === -1) return;
+        
+        const deletedItem = dataset[index];
+        undoStack.push({ index, item: deletedItem });
+        
+        dataset.splice(index, 1);
+        saveDataset();
+        renderAll();
+        
+        showUndoToast(`ลบข้อมูล ${deletedItem.name} สำเร็จ`);
+    }
+
+    function undoDelete() {
+        if (undoStack.length === 0) return;
+        const lastDeleted = undoStack.pop();
+        dataset.splice(lastDeleted.index, 0, lastDeleted.item);
+        saveDataset();
+        renderAll();
+        
+        const toast = document.getElementById('undoToast');
+        if (toast) toast.remove();
+    }
+
+    function showUndoToast(message) {
+        const existing = document.getElementById('undoToast');
+        if (existing) existing.remove();
+        
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        
+        const toast = document.createElement('div');
+        toast.id = 'undoToast';
+        toast.className = 'pointer-events-auto bg-gray-900/95 dark:bg-white/95 text-white dark:text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between gap-4 border border-gray-800 dark:border-gray-200 text-xs md:text-sm animate-pop-in min-w-[280px] max-w-sm';
+        toast.innerHTML = `
+            <div class="flex items-center gap-2">
+                <span class="text-amber-400">🗑️</span>
+                <span class="font-semibold">${message}</span>
+            </div>
+            <button onclick="undoDelete()" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-black transition-all">กู้คืน (Undo)</button>
+        `;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast && toast.parentNode) {
+                toast.classList.add('opacity-0', 'translate-y-2', 'transition-all', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 4500);
+    }
+
+    function showToast(message) {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'pointer-events-auto bg-gray-900/95 dark:bg-white/95 text-white dark:text-gray-900 px-4 py-2.5 rounded-xl shadow-xl text-xs md:text-sm border border-gray-800 dark:border-gray-200 animate-pop-in';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('opacity-0', 'transition-all', 'duration-300');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    function updateSummaryCards() {
+        const samples = dataset.length * 10;
+        document.getElementById('cardSamples').textContent = `n=${samples} ก้อน`;
+
+        if (dataset.length === 0) {
+            document.getElementById('cardTopMpi').textContent = 'ไม่มีข้อมูล';
+            document.getElementById('cardMaxProfit').textContent = 'ไม่มีข้อมูล';
+            return;
+        }
+
+        const sortedMpi = [...dataset].sort((a,b) => b.mpi - a.mpi);
+        const topMpi = sortedMpi[0];
+        document.getElementById('cardTopMpi').textContent = `${topMpi.name} (${topMpi.mpi.toFixed(3)})`;
+
+        const sortedProfit = [...dataset].sort((a,b) => b.profit - a.profit);
+        const topProfit = sortedProfit[0];
+        document.getElementById('cardMaxProfit').textContent = `${topProfit.name} (${topProfit.profit.toFixed(2)} บาท)`;
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('masterDatasetBody');
+        if (!tbody) return;
+
+        if (dataset.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="p-8 text-center text-gray-400 italic">
+                        <i class="fas fa-database mb-2 block text-xl opacity-60"></i> ยังไม่มีข้อมูลในคลังข้อมูลวิจัย
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort by MPI score
+        const sorted = [...dataset].sort((a,b) => b.mpi - a.mpi);
+
+        tbody.innerHTML = sorted.map((item, index) => {
+            const dark = document.documentElement.classList.contains('dark');
+            const pc = item.profit >= 0 ? (dark ? 'text-emerald-400' : 'text-emerald-600') : 'text-red-500';
+            return `
+                <tr class="border-b border-gray-100 dark:border-gray-800/80 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 text-center text-gray-700 dark:text-gray-300 transition-colors">
+                    <td class="p-3 font-bold text-gray-400 dark:text-gray-500">${index + 1}</td>
+                    <td class="p-3 text-left font-extrabold text-gray-800 dark:text-gray-200">${item.name}</td>
+                    <td class="p-3 font-mono">${item.growth.toFixed(2)}</td>
+                    <td class="p-3 font-mono">${item.yieldKg.toFixed(3)}</td>
+                    <td class="p-3 font-bold font-mono ${pc}">${item.profit.toFixed(2)}</td>
+                    <td class="p-3 font-mono">${item.bcr.toFixed(2)}</td>
+                    <td class="p-3 font-mono">${item.payback.toFixed(2)}</td>
+                    <td class="p-3 font-black text-amber-500 font-mono">${item.mpi.toFixed(3)}</td>
+                    <td class="p-3">
+                        <button onclick="deleteRow(${item.id})" class="px-2 py-1 rounded bg-red-50 hover:bg-red-500 text-red-500 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1 mx-auto text-[10px] font-bold">
+                            <i class="fas fa-trash text-[9px]"></i> ลบ
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderCharts() {
+        const dark = document.documentElement.classList.contains('dark');
+        const textClr = dark ? '#e2e8f0' : '#334155';
+        const gridClr = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+        const themeEmerald = dark ? '#34d399' : '#10b981';
+        const themeBlue = dark ? '#60a5fa' : '#3b82f6';
+        const themeAmber = dark ? '#fbbf24' : '#f59e0b';
+
+        Chart.defaults.font.family = "'Prompt', sans-serif";
+        Chart.defaults.font.size = 11;
+        Chart.defaults.color = textClr;
+
+        const labels = dataset.map(item => item.name);
+
+        // Chart 1: Growth Bar Chart
+        if (charts.growth) charts.growth.destroy();
+        const growthEl = document.getElementById('growthChart');
+        if (growthEl) {
+            charts.growth = new Chart(growthEl.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'อัตราเส้นใย (ซม./วัน)',
+                        data: dataset.map(item => item.growth),
+                        backgroundColor: themeEmerald,
+                        borderRadius: 6,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridClr }, ticks: { color: textClr } },
+                        x: { grid: { display: false }, ticks: { color: textClr } }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Yield Bar Chart
+        if (charts.yield) charts.yield.destroy();
+        const yieldEl = document.getElementById('yieldChart');
+        if (yieldEl) {
+            charts.yield = new Chart(yieldEl.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ปริมาณผลผลิตสด (กรัม/ก้อน)',
+                        data: dataset.map(item => Math.round((item.yieldKg * 1000) / 10)), // convert 10-bag yield back to single-bag grams
+                        backgroundColor: themeBlue,
+                        borderRadius: 6,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridClr }, ticks: { color: textClr } },
+                        x: { grid: { display: false }, ticks: { color: textClr } }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Payback Line Chart
+        if (charts.payback) charts.payback.destroy();
+        const paybackEl = document.getElementById('paybackChart');
+        if (paybackEl) {
+            charts.payback = new Chart(paybackEl.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'คืนทุน (วัน)',
+                        data: dataset.map(item => item.payback),
+                        borderColor: themeAmber,
+                        backgroundColor: themeAmber + '15',
+                        borderWidth: 2,
+                        pointBackgroundColor: themeAmber,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: gridClr }, ticks: { color: textClr } },
+                        x: { grid: { display: false }, ticks: { color: textClr } }
+                    }
+                }
+            });
+        }
+    }
+
+    function renderAll() {
+        updateSummaryCards();
+        renderTable();
+        renderCharts();
+    }
+
+    function exportFullCSV() {
+        if (dataset.length === 0) {
+            alert('ไม่มีข้อมูลสำหรับส่งออกครับ');
+            return;
+        }
+
+        const headers = ['ลำดับ', 'สายพันธุ์เห็ด', 'อัตราการเจริญเติบโตของเส้นใย (ซม./วัน)', 'ปริมาณผลผลิตสดรวม (กก.)', 'กำไรสุทธิรวม (บาท)', 'อัตราผลตอบแทนต่อต้นทุน (BCR)', 'ระยะเวลาคืนทุน (วัน)', 'ดัชนีประสิทธิภาพ (MPI)'];
+        const rows = [headers];
+
+        dataset.forEach((item, index) => {
+            rows.push([
+                index + 1,
+                item.name,
+                item.growth,
+                item.yieldKg,
+                item.profit,
+                item.bcr,
+                item.payback,
+                item.mpi
+            ]);
+        });
+
+        let csvContent = "\ufeff"; // Support UTF-8 in Excel
+        rows.forEach(row => {
+            csvContent += row.map(v => `"${(v + '').replace(/"/g, '""')}"`).join(",") + "\r\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `mssm_master_dataset_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('📥 ส่งออกคลังข้อมูลเรียบร้อยแล้ว');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDataset();
+        renderAll();
+    });
+
+    window.addEventListener('themechanged', () => {
+        renderCharts();
+    });
+</script>
+</body>
+</html>

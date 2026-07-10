@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+<script>
+    (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.remove('dark');
+        } else {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
+<title>คู่มือระเบียบวิธีวิจัยและแบบจำลองคณิตศาสตร์ - MSSM Open-Science Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class'
+    }
+</script>
+<style>
+    @theme { --font-prompt: 'Prompt', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Prompt', sans-serif; }
+    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .animate-pop-in { animation: popIn .3s ease-out forwards; }
+    .animate-fadeIn { animation: fadeIn .4s ease-out forwards; }
+    .nav-item { position: relative; overflow: hidden; }
+    .nav-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #10b981; transform: scaleY(0); transition: transform .25s ease; border-radius: 0 3px 3px 0; }
+    .dark .nav-item::before { background: #34d399; }
+    .nav-item:hover::before, .nav-item.active::before { transform: scaleY(1); }
+    .nav-item.active { background: rgba(16,185,129,0.1); }
+    .dark .nav-item.active { background: rgba(52,211,153,0.1); }
+    .math-card { font-family: 'Cambria', 'Georgia', serif; }
+</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
+
+<button id="themeToggle" class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none" aria-label="Toggle Dark/Light Mode">
+    <i id="themeToggleIcon" class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
+</button>
+
+<canvas id="particleCanvas"></canvas>
+
+<!-- Hamburger -->
+<button onclick="toggleMenu()" class="lg:hidden fixed top-3.5 left-3.5 z-[100] w-12 h-12 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer"><i class="fas fa-bars text-xl"></i></button>
+<div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+        <div class="text-2xl mb-1">📖</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">MSSM Docs</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">Methodology & Science</div>
+    </div>
+    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+    <nav class="flex-1 px-3 py-4 space-y-1">
+        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+        <a href="index.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i class="fas fa-home"></i></span> หน้าแรก</a>
+        <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
+            <a href="lab.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
+            <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
+            <a href="dataset.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs"><i class="fas fa-database"></i></span> คลังข้อมูลวิจัย</a>
+            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white text-xs"><i class="fas fa-book"></i></span> คู่มือวิจัย</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform" target="_blank" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i class="fas fa-poll"></i></span> แบบสอบถาม</a>
+        </div>
+    </nav>
+</aside>
+
+<!-- Main content -->
+<div class="lg:pl-[260px] min-h-screen flex flex-col max-lg:pt-[60px] pb-8 animate-fadeIn">
+    <header class="text-center px-6 py-8 md:py-12 shrink-0 relative overflow-hidden">
+        <div class="absolute w-48 h-48 rounded-full bg-emerald-400/10 blur-3xl -top-10 -left-10 pointer-events-none"></div>
+        <div class="absolute w-48 h-48 rounded-full bg-purple-400/10 blur-3xl -bottom-10 -right-10 pointer-events-none"></div>
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-xs font-bold text-purple-600 dark:text-purple-400 mb-4 shadow-sm">📄 Open-Science Documentation</div>
+            <h1 class="text-2xl md:text-3.5xl font-black text-gray-800 dark:text-gray-100 leading-tight">📄 เล่มรายงานโครงงานวิจัยดิจิทัล (Open-Science Documentation)</h1>
+            <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-3 max-w-2xl mx-auto leading-relaxed">ระเบียบวิธีวิจัย ตัวแปรวิจัย สมการคณิตศาสตร์ของแบบจำลองคัดเลือกสายพันธุ์เห็ดอัจฉริยะ (MSSM)</p>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[95%] w-full mx-auto px-4 md:px-8 space-y-8">
+        
+        <!-- SECTION 1: Introduction & Framework -->
+        <section class="p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center gap-3 border-b border-gray-150 dark:border-gray-800 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center text-lg"><i class="fas fa-compass"></i></div>
+                <h2 class="text-lg md:text-xl font-extrabold text-gray-800 dark:text-gray-100">ส่วนที่ 1: บทนำและโครงสร้างระเบียบวิธีวิจัย (Introduction & Research Framework)</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-3">
+                    <h3 class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5"><i class="fas fa-quote-left text-xs"></i> ที่มาและความสำคัญ (Problem Statement)</h3>
+                    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        ปัจจุบันการคัดเลือกสายพันธุ์เห็ดเพื่อเพาะเลี้ยงในวิสาหกิจชุมชนยังขาดเครื่องมือตัดสินใจที่เป็นระบบและมักอาศัยเพียงประสบการณ์ โครงงานวิจัยนี้จึงได้พัฒนา **แบบจำลองคำนวณอัตโนมัติบนพื้นฐานข้อมูลเชิงประจักษ์ (Data-driven Decision Making)** ขึ้น เพื่อนำข้อมูลวิทยาศาสตร์การเพาะเลี้ยงและเศรษฐศาสตร์มาแปลงค่าถ่วงน้ำหนัก เพื่อขจัดปัญหาความไม่แน่นอนทางการเกษตร ลดความเสี่ยงในการลงทุน และลดค่าเสียโอกาสสำหรับผู้ประกอบการเกษตรชุมชน
+                    </p>
+                </div>
+                <div class="space-y-3">
+                    <h3 class="text-sm font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5"><i class="fas fa-flask-vial text-xs"></i> ข้อกำหนดสูตรก้อนเพาะเชื้อ (Community Substrate Formula)</h3>
+                    <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        การเพาะเห็ดทั้ง 4 สายพันธุ์ถูกควบคุมตัวแปรสารอาหารให้อยู่บนก้อนเพาะเชื้อสูตรมาตรฐานชุมชน (ก้อนน้ำหนักคงที่ 650 กรัม) เพื่อรับประกันความเท่าเทียมทางสถิติ ดังนี้:
+                    </p>
+                    <ul class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ขี้เลื่อยไม้ยางพารา</span><strong>575 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>รำละเอียด</span><strong>32.5 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ปลายข้าวสาร</span><strong>32.5 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ปูนขาว / ดีเกลือ</span><strong>6.5g / 1.2g</strong></li>
+                    </ul>
+                    <span class="text-[10px] block italic text-gray-400 dark:text-gray-500 text-right mt-1">* ควบคุมความชื้นสัมพัทธ์โดยเฉลี่ยอยู่ที่ 60 - 65%</span>
+                </div>
+            </div>
+
+            <!-- Variables Grid -->
+            <div class="mt-6 border-t border-gray-100 dark:border-gray-800/80 pt-5">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">การกำหนดตัวแปรโครงงาน (Variables Specification)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800/60">
+                        <span class="text-[10px] font-bold text-emerald-600 uppercase block tracking-wider mb-1">ตัวแปรต้น (Independent Variables)</span>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-semibold">
+                            สายพันธุ์เห็ดเศรษฐกิจยอดนิยม 4 สายพันธุ์: เห็ดแครง, เห็ดหูหนูดำ, เห็ดนางฟ้าภูฐาน, และเห็ดนางรมฮังการี
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800/60">
+                        <span class="text-[10px] font-bold text-amber-600 uppercase block tracking-wider mb-1">ตัวแปรตาม (Dependent Variables)</span>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-semibold">
+                            อัตราเจริญเติบโตของเส้นใย, ระยะเวลาให้ผลผลิตครั้งแรก, ปริมาณผลผลิตสดรวม, กำไรสุทธิ, ค่า BCR และระยะเวลาคืนทุน
+                        </p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800/60">
+                        <span class="text-[10px] font-bold text-blue-600 uppercase block tracking-wider mb-1">ตัวแปรควบคุม (Control Variables)</span>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-semibold">
+                            อุณหภูมิโรงเรือนบ่มเชื้อ (25-30°C), อุณหภูมิการนึ่งฆ่าเชื้อ (100°C เป็นเวลา 3 ชั่วโมง), ปริมาณข้าวฟ่างหัวเชื้อ (20 เมล็ด/ก้อน), และวิธีรดน้ำ
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Mathematical Framework -->
+        <section class="p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center gap-3 border-b border-gray-150 dark:border-gray-800 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 text-white flex items-center justify-center text-lg"><i class="fas fa-calculator"></i></div>
+                <h2 class="text-lg md:text-xl font-extrabold text-gray-800 dark:text-gray-100">ส่วนที่ 2: แบบจำลองคณิตศาสตร์และการคำนวณ (Mathematical Framework)</h2>
+            </div>
+            
+            <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                แบบจำลองคัดเลือกสายพันธุ์เห็ดอัจฉริยะ (MSSM) ประยุกต์ใช้ระเบียบวิธี **Simple Additive Weighting (SAW)** ภายใต้เกณฑ์หลายมิติ (Multi-Criteria Decision Making: MCDM) โดยแสดงรายละเอียดขั้นตอนและสูตรคำนวณเบื้องหลังดังนี้:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Normalization formulas -->
+                <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800/80 space-y-4">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider block border-b border-gray-200 dark:border-gray-800 pb-2">1. การปรับมาตรฐานข้อมูล (Normalization Formula)</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        เนื่องจากข้อมูลดิบมีหลากหลายหน่วยวัด (ซม./วัน, กรัม, บาท, วัน) จึงต้องแปลงให้อยู่ในช่วงค่า 0.0 - 1.0 เสมอเพื่อนำไปคำนวณ:
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-150 dark:border-gray-900">
+                            <span class="text-[10px] font-bold text-emerald-600 block mb-2 uppercase">เกณฑ์ผลเชิงบวก (Higher is Better)</span>
+                            <div class="math-card text-center text-lg font-bold text-gray-800 dark:text-gray-200 py-2">
+                                X' = <div class="inline-block text-center align-middle"><div class="border-b border-gray-800 dark:border-gray-300 pb-0.5 px-2">X - X<sub>min</sub></div><div class="pt-0.5">X<sub>max</sub> - X<sub>min</sub></div></div>
+                            </div>
+                            <span class="text-[9px] text-gray-400 block text-center mt-2">(เช่น อัตราเส้นใย, ปริมาณผลผลิต, กำไรสุทธิ, BCR)</span>
+                        </div>
+                        
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-150 dark:border-gray-900">
+                            <span class="text-[10px] font-bold text-amber-600 block mb-2 uppercase">เกณฑ์ผลเชิงลบ (Lower is Better)</span>
+                            <div class="math-card text-center text-lg font-bold text-gray-800 dark:text-gray-200 py-2">
+                                X' = <div class="inline-block text-center align-middle"><div class="border-b border-gray-800 dark:border-gray-300 pb-0.5 px-2">X<sub>max</sub> - X</div><div class="pt-0.5">X<sub>max</sub> - X<sub>min</sub></div></div>
+                            </div>
+                            <span class="text-[9px] text-gray-400 block text-center mt-2">(เช่น ระยะเวลาออกดอกแรก, ระยะเวลาคืนทุน)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MPI and weighting -->
+                <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-800/80 space-y-4">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider block border-b border-gray-200 dark:border-gray-800 pb-2">2. ดัชนีประสิทธิภาพเห็ด (Mushroom Performance Index: MPI)</h3>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        สูตรคำนวณรวมดัชนีประสิทธิภาพแบบจำลองสำหรับเห็ดแต่ละสายพันธุ์:
+                    </p>
+                    
+                    <div class="p-4 bg-white dark:bg-gray-950 rounded-xl border border-gray-150 dark:border-gray-900 text-center">
+                        <div class="math-card text-2xl font-bold text-purple-600 dark:text-purple-400 py-3">
+                            MPI = &sum;<sub>i=1</sub><sup>n</sup> (W<sub>i</sub> &times; X'<sub>i</sub>)
+                        </div>
+                        <span class="text-[9px] text-gray-400 block mt-2">โดยที่ W<sub>i</sub> คือค่าน้ำหนักปัจจัย และ X'<sub>i</sub> คือค่าที่ผ่านการปรับมาตรฐานแล้ว</span>
+                    </div>
+
+                    <div class="space-y-2">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">การกำหนดค่าน้ำหนักมาตรฐาน (Criteria Weights W<sub>i</sub>)</span>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>ปริมาณผลผลิตรวม</span><strong class="text-purple-600">0.25</strong></div>
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>กำไรสุทธิ</span><strong class="text-purple-600">0.25</strong></div>
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>อัตราเจริญเส้นใย</span><strong class="text-purple-600">0.15</strong></div>
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>อัตราส่วน BCR</span><strong class="text-purple-600">0.15</strong></div>
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>ระยะเวลาดอกแรก</span><strong class="text-purple-600">0.10</strong></div>
+                            <div class="p-2 rounded bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-900 flex justify-between"><span>ระยะเวลาคืนทุน</span><strong class="text-purple-600">0.10</strong></div>
+                        </div>
+                        <span class="text-[10px] text-emerald-600 font-bold block text-center mt-2">&sum; W<sub>i</sub> = 1.00 (ผลรวมค่าน้ำหนักรวมต้องมีค่าเท่ากับ 1.00 เสมอ)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Program Algorithm Flowchart -->
+        <section class="p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6">
+            <div class="flex items-center gap-3 border-b border-gray-150 dark:border-gray-800 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-lg"><i class="fas fa-diagram-project"></i></div>
+                <h2 class="text-lg md:text-xl font-extrabold text-gray-800 dark:text-gray-100">ส่วนที่ 3: แผนผังตรรกะอัลกอริทึมของโปรแกรม (Algorithm Flowchart)</h2>
+            </div>
+            
+            <p class="text-xs md:text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+                ขั้นตอนและอัลกอริทึมในการประมวลผลคำนวณจัดอันดับสายพันธุ์เห็ดของโปรแกรม MSSM (อ้างอิงจากแผนผังภาคผนวก จ หน้า 99 ของเล่มโครงงาน):
+            </p>
+
+            <!-- Gorgeous Flowchart SVG / HTML -->
+            <div class="p-6 rounded-2xl bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 flex flex-col md:flex-row items-center justify-around gap-6 md:gap-3 py-10">
+                
+                <div class="flex flex-col items-center max-w-[120px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-play text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">เริ่มต้นระบบ</span>
+                </div>
+                
+                <div class="hidden md:block text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-right"></i></div>
+                <div class="md:hidden text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flex flex-col items-center max-w-[140px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-keyboard text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">รับค่านำเข้าพารามิเตอร์ข้อมูลดิบ</span>
+                </div>
+
+                <div class="hidden md:block text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-right"></i></div>
+                <div class="md:hidden text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flex flex-col items-center max-w-[140px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-scale-balanced text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">ประมวลผล Normalization</span>
+                </div>
+
+                <div class="hidden md:block text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-right"></i></div>
+                <div class="md:hidden text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flex flex-col items-center max-w-[140px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-calculator text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">ประมวลผลคำนวณหาค่า MPI</span>
+                </div>
+
+                <div class="hidden md:block text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-right"></i></div>
+                <div class="md:hidden text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flex flex-col items-center max-w-[140px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-arrow-down-wide-short text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">เรียงคะแนนแบบไดนามิก</span>
+                </div>
+
+                <div class="hidden md:block text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-right"></i></div>
+                <div class="md:hidden text-gray-400 dark:text-gray-600 text-lg"><i class="fas fa-arrow-down"></i></div>
+
+                <div class="flex flex-col items-center max-w-[120px] text-center">
+                    <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg font-bold"><i class="fas fa-desktop text-xs"></i></div>
+                    <span class="text-[11px] font-black text-gray-800 dark:text-gray-200 mt-2 block">แสดงผลลัพธ์จัดอันดับบน UI</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center px-4 py-8 text-xs opacity-60 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-900/50 mt-12">
+        &copy; 2026 Mush-up NVC. All rights reserved.
+    </footer>
+</div>
+
+<script src="assets/js/core.js"></script>
+</body>
+</html>
