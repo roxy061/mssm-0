@@ -253,6 +253,38 @@
                     <div id="btnPlace" class="mobile-action-btn btn-place" title="วางบล็อก"><i class="fas fa-plus"></i></div>
                     <div id="btnDestroy" class="mobile-action-btn btn-destroy" title="ลบบล็อก"><i class="fas fa-trash"></i></div>
 
+                    <!-- Minecraft style Hotbar (bottom center overlay) -->
+                    <div id="sandboxHotbar" class="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-black/65 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/20 flex gap-2 pointer-events-auto hidden shadow-2xl">
+                        <button onclick="selectSandboxTool('wood')" id="hotbarWood" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white active-tool" style="border-color: #22c55e; background-color: rgba(16, 185, 129, 0.2);" title="เสาไม้">
+                            <span>🪵</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">ไม้</span>
+                        </button>
+                        <button onclick="selectSandboxTool('concrete')" id="hotbarConcrete" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="เสาปูน">
+                            <span>🧱</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">ปูน</span>
+                        </button>
+                        <button onclick="selectSandboxTool('steel')" id="hotbarSteel" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="โครงเหล็ก">
+                            <span>🔩</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">เหล็ก</span>
+                        </button>
+                        <button onclick="selectSandboxTool('fan')" id="hotbarFan" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="พัดลมระบายอากาศ">
+                            <span>🌀</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">พัดลม</span>
+                        </button>
+                        <button onclick="selectSandboxTool('mist')" id="hotbarMist" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="หัวพ่นหมอก">
+                            <span>💦</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">พ่นหมอก</span>
+                        </button>
+                        <button onclick="selectSandboxTool('sensor')" id="hotbarSensor" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="เซนเซอร์">
+                            <span>📡</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">เซนเซอร์</span>
+                        </button>
+                        <button onclick="selectSandboxTool('bag')" id="hotbarBag" class="w-11 h-11 rounded-xl bg-slate-900 border border-slate-700/60 flex flex-col items-center justify-center text-sm transition hover:scale-105 active:scale-95 text-white" title="ก้อนเชื้อเห็ด">
+                            <span>🍄</span>
+                            <span class="text-[7.5px] block font-bold mt-0.5 text-slate-350">ก้อนเห็ด</span>
+                        </button>
+                    </div>
+
                     <!-- Action Instructions Overlay Guide -->
                     <div id="controlGuideOverlay" class="absolute top-16 right-4 p-3 rounded-2xl bg-black/75 backdrop-blur-md text-white border border-white/10 text-[10px] space-y-1.5 z-30 pointer-events-none max-w-[210px] shadow-lg animate-pop-in">
                         <strong class="font-extrabold text-amber-400 block mb-1 flex items-center gap-1.5"><i class="fas fa-keyboard"></i> คู่มือการควบคุม</strong>
@@ -735,6 +767,7 @@
             const jumpBtn = document.getElementById('btnJump');
             const placeBtn = document.getElementById('btnPlace');
             const destroyBtn = document.getElementById('btnDestroy');
+            const hotbar = document.getElementById('sandboxHotbar');
 
             const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
@@ -753,6 +786,7 @@
                 if (jumpBtn) jumpBtn.style.display = 'none';
                 if (placeBtn) placeBtn.style.display = 'none';
                 if (destroyBtn) destroyBtn.style.display = 'none';
+                if (hotbar) hotbar.classList.add('hidden');
                 document.exitPointerLock();
             } else {
                 document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
@@ -762,6 +796,7 @@
                 
                 if (placementCursor) placementCursor.visible = true;
                 if (crosshair) crosshair.style.display = 'block';
+                if (hotbar) hotbar.classList.remove('hidden');
                 
                 // Show Roblox-style mobile controls on mobile devices
                 if (isTouch) {
@@ -799,6 +834,17 @@
             ['wood', 'concrete', 'steel', 'fan', 'mist', 'sensor', 'bag'].forEach(t => {
                 const el = document.getElementById('tool' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (el) el.classList.toggle('active-tool', tool === t);
+                const hotbarEl = document.getElementById('hotbar' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (hotbarEl) {
+                    hotbarEl.classList.toggle('active-tool', tool === t);
+                    if (tool === t) {
+                        hotbarEl.style.borderColor = '#22c55e';
+                        hotbarEl.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                    } else {
+                        hotbarEl.style.borderColor = 'rgba(100, 116, 139, 0.4)';
+                        hotbarEl.style.backgroundColor = 'transparent';
+                    }
+                }
             });
         }
 
@@ -1162,6 +1208,10 @@
                 camera.position.addScaledVector(velocity, 0.5);
                 if (!isJumping) camera.position.y = eyeHeight;
                 
+                // Enforce boundaries to prevent falling off the 3D map
+                camera.position.x = Math.max(-9.5, Math.min(9.5, camera.position.x));
+                camera.position.z = Math.max(-9.5, Math.min(9.5, camera.position.z));
+                
                 const target = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(1,0,0), pitch).applyAxisAngle(new THREE.Vector3(0,1,0), yaw).add(camera.position);
                 camera.lookAt(target);
 
@@ -1169,12 +1219,23 @@
                 const raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
                 
-                // Raycast ground floor
-                const groundIntersects = raycaster.intersectObject(floorMesh);
-                if (groundIntersects.length > 0) {
-                    const p = groundIntersects[0].point;
-                    snappedTargetPos.x = Math.round(p.x * 2) / 2;
-                    snappedTargetPos.z = Math.round(p.z * 2) / 2;
+                // Raycast ground floor and objects for placing blocks
+                const buildTargets = [floorMesh, ...sandboxGroup.children];
+                const buildIntersects = raycaster.intersectObjects(buildTargets, true);
+                if (buildIntersects.length > 0) {
+                    const hit = buildIntersects[0];
+                    let finalPos = hit.point.clone();
+                    if (hit.object !== floorMesh) {
+                        // Offset placement along the normal of the hit face (Minecraft block placement style)
+                        const normal = hit.face.normal.clone();
+                        normal.transformDirection(hit.object.matrixWorld);
+                        finalPos.addScaledVector(normal, 0.15);
+                    }
+                    snappedTargetPos.x = Math.round(finalPos.x * 2) / 2;
+                    snappedTargetPos.z = Math.round(finalPos.z * 2) / 2;
+                    snappedTargetPos.x = Math.max(-9.5, Math.min(9.5, snappedTargetPos.x));
+                    snappedTargetPos.z = Math.max(-9.5, Math.min(9.5, snappedTargetPos.z));
+
                     if (placementCursor) {
                         placementCursor.position.set(snappedTargetPos.x, 0.03, snappedTargetPos.z);
                     }
