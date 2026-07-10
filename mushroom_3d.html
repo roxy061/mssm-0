@@ -109,6 +109,14 @@
         <!-- COLLAPSIBLE LEFT DRAWER (Structure Panel) -->
         <aside id="leftSidebar" class="w-60 cad-sidebar flex flex-col shrink-0 z-15 overflow-y-auto max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:pt-12 max-md:-translate-x-full">
             
+            <!-- Category: Edit Tools -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-edit text-emerald-400"></i> เครื่องมือจัดการ</span>
+                <button onclick="selectBuildTool('rotate')" id="toolRotate" class="tool-btn w-full p-2.5 rounded-xl flex items-center justify-center gap-2 text-[10px] font-bold text-slate-300">
+                    <span>🔄 หมุนวัสดุ 360° (ฟรี)</span>
+                </button>
+            </div>
+
             <!-- Category: Structural elements -->
             <div class="p-3 border-b border-slate-700">
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-warehouse text-emerald-400"></i> โครงสร้างโรงเรือน</span>
@@ -238,7 +246,8 @@
             'bag_hungarian': 18,
             'bag_splitgill': 25,
             'mist': 150,
-            'fan': 350
+            'fan': 350,
+            'rotate': 0
         };
 
         const toolMaterials = {
@@ -433,6 +442,17 @@
                 const idx = placedObjects.findIndex(obj => obj.mesh === hitMesh);
                 if (idx !== -1) {
                     const obj = placedObjects[idx];
+                    if (activeTool === 'rotate') {
+                        // Rotate item by 45 degrees
+                        obj.mesh.rotation.y += Math.PI / 4;
+                        // Juiciness scale feedback
+                        const originalScale = obj.mesh.scale.clone();
+                        obj.mesh.scale.multiplyScalar(1.15);
+                        setTimeout(() => {
+                            obj.mesh.scale.copy(originalScale);
+                        }, 100);
+                        return;
+                    }
                     adjustCash(toolPrices[obj.type]);
                     scene.remove(obj.mesh);
                     placedObjects.splice(idx, 1);
