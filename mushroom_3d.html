@@ -91,6 +91,10 @@
         <div class="flex items-center gap-1">
             <button onclick="undoLastAction()" class="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-bold rounded-lg hover:border-emerald-500 transition flex items-center gap-1"><i class="fas fa-undo"></i> ย้อนกลับ</button>
             <button onclick="clear3DScene()" class="px-2.5 py-1.5 bg-red-950/40 border border-red-900/60 text-[10px] text-red-400 font-bold rounded-lg hover:bg-red-900/20 transition flex items-center gap-1"><i class="fas fa-trash-alt"></i> ล้าง</button>
+            <div class="w-[1px] h-4 bg-slate-700 mx-1"></div>
+            <button onclick="savePlanToFile()" class="px-2.5 py-1.5 bg-emerald-600 border border-emerald-500 text-[10px] text-white font-bold rounded-lg hover:bg-emerald-500 transition flex items-center gap-1"><i class="fas fa-save"></i> บันทึกแปลน</button>
+            <button onclick="triggerFileSelect()" class="px-2.5 py-1.5 bg-blue-600 border border-blue-500 text-[10px] text-white font-bold rounded-lg hover:bg-blue-500 transition flex items-center gap-1"><i class="fas fa-folder-open"></i> ดึงแปลน</button>
+            <input type="file" id="fileInput" accept=".json" onchange="loadPlanFromFile(event)" style="display:none;">
         </div>
 
         <div class="flex items-center gap-3">
@@ -212,14 +216,11 @@
                 </button>
             </div>
 
-            <!-- Floor heights context panel (compact floating style) -->
-            <div class="absolute top-4 right-4 bg-slate-900/90 border border-slate-800 p-2.5 rounded-2xl shadow-xl flex items-center gap-2 z-10 max-sm:hidden">
-                <span class="text-[9px] text-slate-400 font-bold">สูงก้อนเชื้อ:</span>
-                <select id="floorHeightSelect" onchange="adjustFloorPlaneHeight()" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-200 focus:outline-none">
-                    <option value="2.0">2000 mm</option>
-                    <option value="2.5" selected>2500 mm</option>
-                    <option value="3.0">3000 mm</option>
-                </select>
+            <!-- Floor heights and placement height offset context panel -->
+            <div class="absolute top-4 right-4 bg-slate-900/90 border border-slate-800 p-3 rounded-2xl shadow-xl flex flex-col gap-2 z-10 w-44">
+                <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider"><i class="fas fa-arrows-alt-v text-emerald-400"></i> ระดับความสูงวัสดุ</span>
+                <input type="range" id="heightOffsetSlider" min="0" max="3" step="0.2" value="0.0" oninput="updateHeightOffset()" class="w-full accent-emerald-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer">
+                <span class="text-[9px] text-emerald-400 font-bold block" id="lblHeightOffsetVal">0.0 เมตร (ติดพื้น)</span>
             </div>
         </main>
     </div>
@@ -236,6 +237,8 @@
 
         let placedObjects = [];
         let mobileSidebarOpen = false;
+        let activeHeightOffset = 0.0;
+        let selectedObject = null;
 
         const toolPrices = {
             'pillar': 150,
@@ -442,6 +445,23 @@
                 const idx = placedObjects.findIndex(obj => obj.mesh === hitMesh);
                 if (idx !== -1) {
                     const obj = placedObjects[idx];
+
+                    // Selection highlight
+                    if (selectedObject && selectedObject.mesh.material.emissive) {
+                        selectedObject.mesh.material.emissive.setHex(0x000000);
+                    }
+                    selectedObject = obj;
+                    if (selectedObject.mesh.material.emissive) {
+                        selectedObject.mesh.material.emissive.setHex(0x22c55e * 0.2); // green emissive glow
+                    }
+
+                    // Update slider values to match this selected object's height offset
+                    let baseH = (selectedObject.type === 'pillar' ? 1.25 : selectedObject.type === 'wall' ? 0.6 : selectedObject.type === 'door' ? 0.9 : selectedObject.type === 'window' ? 1.0 : selectedObject.type === 'roof' ? 2.0 : 0.25);
+                    let currentOffset = Math.max(0, selectedObject.mesh.position.y - baseH);
+                    document.getElementById('heightOffsetSlider').value = currentOffset;
+                    document.getElementById('lblHeightOffsetVal').textContent = currentOffset.toFixed(1) + ' เมตร';
+                    activeHeightOffset = currentOffset;
+
                     if (activeTool === 'rotate') {
                         // Rotate item by 45 degrees
                         obj.mesh.rotation.y += Math.PI / 4;
@@ -453,9 +473,12 @@
                         }, 100);
                         return;
                     }
+                    
+                    // Clicking a highlighted/selected object again deletes it
                     adjustCash(toolPrices[obj.type]);
                     scene.remove(obj.mesh);
                     placedObjects.splice(idx, 1);
+                    selectedObject = null;
                 }
                 return;
             }
@@ -476,12 +499,8 @@
                         return;
                     }
 
-                    let heightVal = 0.25;
-                    if (activeTool === 'pillar') heightVal = 1.25;
-                    if (activeTool === 'wall') heightVal = 0.6;
-                    if (activeTool === 'door') heightVal = 0.9;
-                    if (activeTool === 'window') heightVal = 1.0;
-                    if (activeTool === 'roof') heightVal = 2.0;
+                    let baseHeight = (activeTool === 'pillar' ? 1.25 : activeTool === 'wall' ? 0.6 : activeTool === 'door' ? 0.9 : activeTool === 'window' ? 1.0 : activeTool === 'roof' ? 2.0 : 0.25);
+                    let heightVal = activeHeightOffset + baseHeight;
 
                     const geom = toolGeometries[activeTool];
                     const mat = toolMaterials[activeTool];
@@ -525,20 +544,90 @@
             }
         }
 
-        function adjustFloorPlaneHeight() {
-            const height = parseFloat(document.getElementById('floorHeightSelect').value);
-            placedObjects.forEach(obj => {
-                if (obj.type === 'pillar') {
-                    scene.remove(obj.mesh);
-                    const newGeo = new THREE.CylinderGeometry(0.12, 0.12, height, 8);
-                    const newMesh = new THREE.Mesh(newGeo, toolMaterials['pillar']);
-                    newMesh.position.set(obj.mesh.position.x, height / 2, obj.mesh.position.z);
-                    newMesh.castShadow = true;
-                    newMesh.receiveShadow = true;
-                    scene.add(newMesh);
-                    obj.mesh = newMesh;
+        function updateHeightOffset() {
+            activeHeightOffset = parseFloat(document.getElementById('heightOffsetSlider').value);
+            document.getElementById('lblHeightOffsetVal').textContent = activeHeightOffset.toFixed(1) + ' เมตร';
+            
+            // Adjust selected object's height dynamically in real-time
+            if (selectedObject) {
+                let baseH = (selectedObject.type === 'pillar' ? 1.25 : selectedObject.type === 'wall' ? 0.6 : selectedObject.type === 'door' ? 0.9 : selectedObject.type === 'window' ? 1.0 : selectedObject.type === 'roof' ? 2.0 : 0.25);
+                selectedObject.mesh.position.y = activeHeightOffset + baseH;
+            }
+        }
+
+        // Export placed items layout as a downloadable JSON file
+        function savePlanToFile() {
+            if (placedObjects.length === 0) {
+                alert('ไม่พบวัตถุโครงสร้างที่จะบันทึก!');
+                return;
+            }
+            
+            const exportData = placedObjects.map(obj => ({
+                type: obj.type,
+                x: obj.mesh.position.x,
+                y: obj.mesh.position.y,
+                z: obj.mesh.position.z,
+                rotY: obj.mesh.rotation.y
+            }));
+
+            const jsonStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `mssm_3d_house_plan_${Date.now()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function triggerFileSelect() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Import layout from a selected JSON file
+        function loadPlanFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) {
+                        alert('รูปแบบไฟล์แปลนไม่ถูกต้อง!');
+                        return;
+                    }
+
+                    // Clear existing scene elements first
+                    placedObjects.forEach(obj => scene.remove(obj.mesh));
+                    placedObjects = [];
+
+                    // Rebuild objects from file data
+                    data.forEach(item => {
+                        const geom = toolGeometries[item.type];
+                        const mat = toolMaterials[item.type];
+                        if (geom && mat) {
+                            const mesh = new THREE.Mesh(geom, mat);
+                            mesh.position.set(item.x, item.y, item.z);
+                            if (item.rotY) mesh.rotation.y = item.rotY;
+                            mesh.castShadow = true;
+                            mesh.receiveShadow = true;
+                            scene.add(mesh);
+                            placedObjects.push({ type: item.type, mesh: mesh });
+                        }
+                    });
+
+                    updateCountersUI();
+                    alert('โหลดไฟล์แบบแปลนสำเร็จเรียบร้อย!');
+                } catch (err) {
+                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์แบบแปลน: ' + err.message);
                 }
-            });
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
         }
 
         function animate() {
