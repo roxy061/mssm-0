@@ -464,6 +464,7 @@
         let selectedSandboxTool = 'wood'; // 'wood', 'concrete', 'steel', 'fan', 'mist', 'sensor', 'bag'
         let floorMaterial = 'soil'; // 'soil', 'sand', 'cement'
         let roofMaterial = 'thatch'; // 'thatch', 'metal'
+        let needsRender = true;
         
         let placedBags = [];
         let placedProps = []; // { type: 'wood'|'concrete'|'steel'|'fan'|'mist'|'sensor', mesh: THREE.Mesh/Group }
@@ -515,6 +516,7 @@
             });
 
             document.addEventListener('keydown', (e) => {
+                needsRender = true;
                 if (cameraView !== 'fps') return;
                 switch (e.code) {
                     case 'KeyW': case 'ArrowUp': moveForward = true; break;
@@ -528,6 +530,7 @@
             });
 
             document.addEventListener('keyup', (e) => {
+                needsRender = true;
                 switch (e.code) {
                     case 'KeyW': case 'ArrowUp': moveForward = false; break;
                     case 'KeyA': case 'ArrowLeft': moveLeft = false; break;
@@ -635,12 +638,14 @@
             yaw -= e.movementX * 0.002;
             pitch -= e.movementY * 0.002;
             pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+            needsRender = true;
         }
 
         function triggerJump() {
             if (!isJumping) {
                 playerVelocityY = 4.2;
                 isJumping = true;
+                needsRender = true;
             }
         }
 
@@ -863,6 +868,7 @@
 
         function selectSandboxTool(tool) {
             selectedSandboxTool = tool;
+            needsRender = true;
             ['wood', 'concrete', 'steel', 'fan', 'mist', 'sensor', 'bag'].forEach(t => {
                 const el = document.getElementById('tool' + t.charAt(0).toUpperCase() + t.slice(1));
                 if (el) el.classList.toggle('active-tool', tool === t);
@@ -882,6 +888,7 @@
 
         function setFloorMaterial(type) {
             floorMaterial = type;
+            needsRender = true;
             document.getElementById('btnFloorSoil').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
             document.getElementById('btnFloorSand').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
             document.getElementById('btnFloorCement').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
@@ -901,6 +908,7 @@
 
         function setRoofMaterial(type) {
             roofMaterial = type;
+            needsRender = true;
             document.getElementById('btnRoofThatch').className = 'px-2.5 py-0.5 rounded bg-gray-100 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
             document.getElementById('btnRoofMetal').className = 'px-2.5 py-0.5 rounded bg-gray-100 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
 
@@ -1163,10 +1171,12 @@
                 handle.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
                 moveForward = dy < -10; moveBackward = dy > 10;
                 moveLeft = dx < -10; moveRight = dx > 10;
+                needsRender = true;
             });
             joystick.addEventListener('touchend', () => {
                 dragStart = null; handle.style.transform = 'translate(0px,0px)';
                 moveForward = moveBackward = moveLeft = moveRight = false;
+                needsRender = true;
             });
 
             // Right Camera Swipe Look
@@ -1183,36 +1193,45 @@
                 pitch -= dy * 0.007;
                 pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
                 lookStart = { x: touch.clientX, y: touch.clientY };
+                needsRender = true;
             });
             lookArea.addEventListener('touchend', () => { lookStart = null; });
 
             // Action Buttons
-            jumpBtn.addEventListener('click', triggerJump);
-            placeBtn.addEventListener('click', triggerPlaceAtCrosshair);
-            destroyBtn.addEventListener('click', triggerDestroyAtCrosshair);
+            jumpBtn.addEventListener('click', () => { triggerJump(); needsRender = true; });
+            placeBtn.addEventListener('click', () => { triggerPlaceAtCrosshair(); needsRender = true; });
+            destroyBtn.addEventListener('click', () => { triggerDestroyAtCrosshair(); needsRender = true; });
             
             // Allow touch triggers too
-            jumpBtn.addEventListener('touchstart', (e) => { triggerJump(); e.preventDefault(); });
-            placeBtn.addEventListener('touchstart', (e) => { triggerPlaceAtCrosshair(); e.preventDefault(); });
-            destroyBtn.addEventListener('touchstart', (e) => { triggerDestroyAtCrosshair(); e.preventDefault(); });
+            jumpBtn.addEventListener('touchstart', (e) => { triggerJump(); needsRender = true; e.preventDefault(); });
+            placeBtn.addEventListener('touchstart', (e) => { triggerPlaceAtCrosshair(); needsRender = true; e.preventDefault(); });
+            destroyBtn.addEventListener('touchstart', (e) => { triggerDestroyAtCrosshair(); needsRender = true; e.preventDefault(); });
         }
 
         function animate() {
             requestAnimationFrame(animate);
-            placedProps.forEach(p => {
-                if (p.type === 'fan') {
-                    const blade = p.mesh.getObjectByName('blade');
-                    if (blade) blade.rotation.z += 0.15;
+
+            let isMoving = moveForward || moveBackward || moveLeft || moveRight || isJumping || Math.abs(velocity.lengthSq()) > 0.0001;
+            let isOrbiting = (cameraView === 'orbit' && controls && controls.enabled && (controls.state !== -1 || controls.update()));
+            let hasFadingAnimations = (rainParticles !== null) || placedProps.some(p => p.type === 'fan');
+
+            if (needsRender || isMoving || isOrbiting || hasFadingAnimations) {
+                needsRender = false;
+
+                placedProps.forEach(p => {
+                    if (p.type === 'fan') {
+                        const blade = p.mesh.getObjectByName('blade');
+                        if (blade) blade.rotation.z += 0.15;
+                    }
+                });
+                if (rainParticles) {
+                    const pos = rainParticles.geometry.attributes.position.array;
+                    for (let i = 1; i < pos.length; i += 3) {
+                        pos[i] -= 0.25;
+                        if (pos[i] < 0.1) pos[i] = 20;
+                    }
+                    rainParticles.geometry.attributes.position.needsUpdate = true;
                 }
-            });
-            if (rainParticles) {
-                const pos = rainParticles.geometry.attributes.position.array;
-                for (let i = 1; i < pos.length; i += 3) {
-                    pos[i] -= 0.25;
-                    if (pos[i] < 0.1) pos[i] = 20;
-                }
-                rainParticles.geometry.attributes.position.needsUpdate = true;
-            }
             if (cameraView === 'fps') {
                 const front = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
                 const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
@@ -1296,6 +1315,7 @@
                 if (controls) controls.update();
             }
             if (renderer && scene && camera) renderer.render(scene, camera);
+            }
         }
 
         // Instructions Modal handlers
