@@ -133,9 +133,23 @@
             border: 2px solid #22c55e !important;
             box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
         }
+        @media (orientation: portrait) and (max-width: 1024px) {
+            #orientationOverlay {
+                display: flex !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen text-gray-800 dark:text-gray-100 flex overflow-x-hidden">
+
+    <!-- Landscape Orientation Lock Overlay for Mobile -->
+    <div id="orientationOverlay" class="fixed inset-0 bg-[#0f172a] z-[9999] flex-col items-center justify-center text-center p-6 hidden">
+        <div class="animate-bounce mb-6 text-emerald-400 text-6xl">
+            <i class="fas fa-rotate text-emerald-450"></i>
+        </div>
+        <h2 class="text-white font-extrabold text-base sm:text-lg mb-2">🔄 กรุณาหมุนโทรศัพท์มือถือเป็น "แนวนอน" (Landscape Mode)</h2>
+        <p class="text-[11px] text-slate-400 max-w-xs leading-relaxed">เพื่อมุมมองสายตา (FOV) ที่กว้างขวาง และการเล่นเกมด้วยระบบจอยสติ๊กคู่ (Dual Virtual Joysticks) เพาะเห็ด 3D ได้อย่างสนุกสนานลื่นไหลที่สุดสไตล์ Minecraft</p>
+    </div>
 
     <!-- LEFT SIDEBAR -->
     <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-gray-200 dark:border-slate-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
