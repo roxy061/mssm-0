@@ -3,740 +3,685 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 Quiz PVP - Mushroom Speedrun Match</title>
-    <!-- Tailwind CSS -->
+    <title>🧠 ทดสอบความรู้ - MSSM Knowledge Quiz</title>
+    <meta name="description" content="ทดสอบความรู้เห็ดแครงและระบบ MSSM แบบเล่นคนเดียว 10 ข้อต่อรอบ คำถามไม่ซ้ำ">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#10b981',
-                            600: '#059669',
-                            700: '#047857',
-                        }
-                    }
-                }
-            }
-        }
+            theme: { extend: { colors: { brand: { 50:'#f0fdf4',100:'#dcfce7',500:'#10b981',600:'#059669',700:'#047857' } } } }
+        };
     </script>
     <script>
-        // Theme color script
         (function() {
             const themeColor = localStorage.getItem('themeColor') || 'emerald';
             const colorMap = {
-                emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
-                blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
-                violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
-                amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
-                rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+                emerald:{ brand:'#10b981', hover:'#059669', bg:'rgba(16,185,129,0.1)' },
+                blue:   { brand:'#3b82f6', hover:'#2563eb', bg:'rgba(59,130,246,0.1)' },
+                violet: { brand:'#8b5cf6', hover:'#7c3aed', bg:'rgba(139,92,246,0.1)' },
+                amber:  { brand:'#f59e0b', hover:'#d97706', bg:'rgba(245,158,11,0.1)' },
+                rose:   { brand:'#f43f5e', hover:'#e11d48', bg:'rgba(244,63,94,0.1)' }
             };
-            const colors = colorMap[themeColor] || colorMap.emerald;
-            const style = document.createElement('style');
-            style.id = 'theme-color-override';
-            style.innerHTML = `
-                :root {
-                    --color-brand: ${colors.brand};
-                    --color-brand-hover: ${colors.hover};
-                    --color-brand-bg: ${colors.bg};
-                }
-                .text-emerald-400 { color: ${colors.brand} !important; }
-                .text-emerald-500 { color: ${colors.brand} !important; }
-                .text-emerald-600 { color: ${colors.hover} !important; }
-                .bg-emerald-500 { background-color: ${colors.brand} !important; }
-                .bg-emerald-600 { background-color: ${colors.hover} !important; }
-                .border-emerald-500 { border-color: ${colors.brand} !important; }
-                .border-emerald-500\\/20 { border-color: ${colors.bg} !important; }
-                .bg-emerald-500\\/10 { background-color: ${colors.bg} !important; }
-                .from-emerald-400 { --tw-gradient-from: ${colors.brand} !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
-                .to-emerald-600 { --tw-gradient-to: ${colors.hover} !important; }
-            `;
-            document.head.appendChild(style);
+            const c = colorMap[themeColor] || colorMap.emerald;
+            const s = document.createElement('style');
+            s.innerHTML = `:root{--color-brand:${c.brand};--color-brand-hover:${c.hover};--color-brand-bg:${c.bg};}
+            .text-emerald-400{color:${c.brand}!important}.text-emerald-500{color:${c.brand}!important}
+            .text-emerald-600{color:${c.hover}!important}.bg-emerald-500{background:${c.brand}!important}
+            .bg-emerald-600{background:${c.hover}!important}.border-emerald-500{border-color:${c.brand}!important}
+            .from-emerald-400{--tw-gradient-from:${c.brand}!important}.to-emerald-600{--tw-gradient-to:${c.hover}!important}`;
+            document.head.appendChild(s);
         })();
     </script>
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        body {
-            font-family: 'Outfit', 'Prompt', sans-serif;
-            user-select: none;
-        }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(51, 65, 85, 0.4);
-        }
-        .gaming-btn {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
-        }
-        .gaming-btn:active {
-            transform: scale(0.97);
-        }
+        body { font-family:'Outfit','Prompt',sans-serif; user-select:none; }
+        .glass-panel { background:rgba(15,23,42,0.75); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(51,65,85,0.45); }
+        .gaming-btn { background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%); border:1px solid rgba(255,255,255,0.06); box-shadow:0 4px 12px rgba(0,0,0,0.3); transition:all 0.18s ease; }
+        .gaming-btn:hover:not(:disabled) { border-color:#f59e0b; background:linear-gradient(135deg,#1e293b 0%,#1a2436 100%); transform:translateY(-1px); }
+        .gaming-btn:active:not(:disabled) { transform:scale(0.97); }
+        .choice-correct { border-color:#10b981!important; background:rgba(16,185,129,0.15)!important; color:#34d399!important; }
+        .choice-wrong   { border-color:#ef4444!important; background:rgba(239,68,68,0.12)!important; color:#f87171!important; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        .fade-in { animation:fadeInUp 0.4s ease both; }
+        @keyframes pulseGlow { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.4)} 50%{box-shadow:0 0 20px 4px rgba(245,158,11,0.25)} }
+        .timer-warning { animation:pulseGlow 0.9s infinite; }
+        .star-bg { background:radial-gradient(ellipse at 60% 20%,rgba(16,185,129,0.08) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(99,102,241,0.06) 0%,transparent 60%); }
     </style>
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
+<body class="bg-[#060d1a] text-slate-100 min-h-screen flex overflow-x-hidden star-bg">
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-slate-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
-        <div class="p-6 border-b border-slate-800 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-gamepad"></i></span>
-                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">MSSM PVP</span>
+<!-- ══════════ LEFT SIDEBAR ══════════ -->
+<aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-slate-800/60 z-50 transition-all duration-300 hidden lg:flex flex-col">
+    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
+        <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-lg text-base shrink-0">
+            <i class="fas fa-brain"></i>
+        </span>
+        <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">MSSM Quiz</span>
+    </div>
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+        <a href="index.html"     class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-chart-pie w-4"></i> แดชบอร์ดผลการทดลอง</a>
+        <a href="lab.html"       class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-flask w-4"></i> ห้องปฏิบัติการวิจัย</a>
+        <a href="ai.html"        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-robot w-4"></i> ผู้ช่วยวิเคราะห์ AI</a>
+        <a href="dataset.html"   class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-database w-4"></i> คลังข้อมูลดิบ Dataset</a>
+        <a href="doc.html"       class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-file-invoice w-4"></i> คู่มือและเอกสารโครงงาน</a>
+        <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-cubes w-4"></i> ออกแบบโรงเรือน 2D</a>
+        <a href="market.html"    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-chart-line w-4"></i> ตลาดราคากลางสด</a>
+        <a href="quiz_pvp.html"  class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border border-amber-500/30 text-amber-400 font-bold text-xs">
+            <i class="fas fa-brain w-4"></i> ทดสอบความรู้
+        </a>
+        <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-cube w-4"></i> โรงเพาะเห็ด 3D</a>
+        <a href="settings.html"  class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-semibold text-xs transition-all"><i class="fas fa-cog w-4"></i> ศูนย์ตั้งค่าอัจฉริยะ</a>
+    </nav>
+    <!-- mini wallet -->
+    <div class="p-4 border-t border-slate-800/60">
+        <div class="p-3 rounded-2xl bg-emerald-500/8 border border-emerald-500/20 flex items-center gap-2">
+            <i class="fas fa-wallet text-emerald-400 text-sm"></i>
+            <div>
+                <div class="text-[9px] text-slate-400 font-bold">กระเป๋าเงิน</div>
+                <div class="text-xs font-black text-emerald-400" id="sidebarWallet">฿50,000</div>
             </div>
         </div>
-        
-        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
-            </a>
-            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
-            </a>
-            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
-            </a>
-            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
-            </a>
-            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
-            </a>
-            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 2D
-            </a>
-            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
-            </a>
-            <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-trophy text-sm"></i> แข่งขันออนไลน์ PVP
-            </a>
-            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cube text-slate-400 text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
-            </a>
-            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cog text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
-            </a>
+    </div>
+</aside>
+
+<!-- ══════════ MOBILE HEADER ══════════ -->
+<header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/60 flex items-center justify-between px-4 z-40 lg:hidden">
+    <div class="flex items-center gap-2">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-sm shadow"><i class="fas fa-brain"></i></span>
+        <span class="font-extrabold text-sm text-white">ทดสอบความรู้</span>
+    </div>
+    <button onclick="toggleMobileMenu()" class="w-9 h-9 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+</header>
+
+<!-- ══════════ MOBILE MENU ══════════ -->
+<div id="mobileMenu" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden lg:hidden" onclick="toggleMobileMenu()">
+    <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-800" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-5 pb-4 border-b border-slate-800">
+            <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
+            <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="space-y-1 flex-grow text-xs font-semibold">
+            <a href="index.html"     class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">แดชบอร์ดผลการทดลอง</a>
+            <a href="lab.html"       class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">ห้องปฏิบัติการวิจัย</a>
+            <a href="ai.html"        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">ผู้ช่วยวิเคราะห์ AI</a>
+            <a href="dataset.html"   class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">คลังข้อมูลดิบ Dataset</a>
+            <a href="doc.html"       class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">คู่มือและเอกสารโครงงาน</a>
+            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">ออกแบบโรงเรือน 2D</a>
+            <a href="market.html"    class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">ตลาดราคากลางสด</a>
+            <a href="quiz_pvp.html"  class="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 text-amber-400">ทดสอบความรู้</a>
+            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">โรงเพาะเห็ด 3D</a>
+            <a href="settings.html"  class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300">ศูนย์ตั้งค่าอัจฉริยะ</a>
         </nav>
-    </aside>
+    </div>
+</div>
 
-    <!-- MOBILE HEADER -->
-    <header class="fixed top-0 inset-x-0 h-14 bg-slate-900/90 border-b border-slate-850 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
-        <div class="flex items-center gap-2">
-            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-trophy"></i></span>
-            <span class="font-extrabold text-sm text-white">MSSM Quiz PVP</span>
-        </div>
-        <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
-    </header>
+<!-- ══════════ MAIN ══════════ -->
+<div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-8 justify-center items-center px-4 relative">
 
-    <!-- MOBILE MENU DRAWER -->
-    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
-        <div class="w-64 bg-slate-950 h-full flex flex-col p-4 border-r border-slate-855">
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-855">
-                <span class="font-black text-sm text-white uppercase">เมนูหลัก</span>
-                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-slate-800 flex items-center justify-center text-white cursor-pointer"><i class="fas fa-times"></i></button>
+    <!-- ── PHASE 0: INTRO ── -->
+    <div id="phaseIntro" class="w-full max-w-sm fade-in">
+        <div class="glass-panel rounded-3xl p-7 shadow-2xl space-y-6 text-center">
+            <!-- Icon + Title -->
+            <div class="space-y-3">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-white text-3xl mx-auto shadow-xl">🧠</div>
+                <h1 class="text-xl font-black text-white tracking-tight">ทดสอบความรู้ MSSM</h1>
+                <p class="text-[11px] text-slate-400 leading-relaxed">ตอบ <span class="text-amber-400 font-bold">10 ข้อ</span> ต่อรอบ · คำถามไม่ซ้ำกัน · หมุนเวียนทุกรอบ<br>ตอบถูก <span class="text-emerald-400 font-bold">+10,000 บ.</span> · ผิด <span class="text-red-400 font-bold">-3,000 บ.</span> · หมดเวลา <span class="text-yellow-400 font-bold">-2,000 บ.</span></p>
             </div>
-            <nav class="space-y-1.5 flex-grow">
-                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แดชบอร์ดผลการทดลอง</a>
-                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ห้องปฏิบัติการวิจัย</a>
-                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
-                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
-                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
-                <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
-                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
-                <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">แข่งขันออนไลน์ PVP</a>
-                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
-                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ศูนย์ตั้งค่าอัจฉริยะ</a>
-            </nav>
+
+            <!-- Best score display -->
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-950/50 border border-slate-800">
+                <div class="text-left">
+                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">สถิติสูงสุด</div>
+                    <div class="text-sm font-black text-amber-400" id="introHighScore">—</div>
+                </div>
+                <div class="text-right">
+                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">รวมเล่นแล้ว</div>
+                    <div class="text-sm font-black text-emerald-400" id="introTotalRounds">0 รอบ</div>
+                </div>
+            </div>
+
+            <!-- Nickname -->
+            <div class="text-left">
+                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">ชื่อผู้เล่น</label>
+                <input type="text" id="txtNickname" value="" placeholder="พิมพ์ชื่อของคุณ..." maxlength="20"
+                    class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 p-3 rounded-2xl text-sm font-bold text-slate-200 outline-none transition placeholder:text-slate-600">
+            </div>
+
+            <!-- Difficulty select -->
+            <div class="text-left">
+                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">ระดับเวลาต่อข้อ</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setDifficulty(30,'🐌 ง่าย')" id="diffEasy"   class="diff-btn py-2.5 rounded-xl text-[10px] font-black bg-slate-800/60 border border-slate-700 text-slate-400 hover:border-emerald-500 hover:text-emerald-400 transition cursor-pointer">🐌 ง่าย<br><span class="text-[8px] font-normal">30 วิ</span></button>
+                    <button onclick="setDifficulty(15,'⚡ กลาง')" id="diffMed"    class="diff-btn py-2.5 rounded-xl text-[10px] font-black bg-amber-500/10 border border-amber-500/40 text-amber-400 transition cursor-pointer">⚡ กลาง<br><span class="text-[8px] font-normal">15 วิ</span></button>
+                    <button onclick="setDifficulty(8,'🔥 ยาก')"  id="diffHard"   class="diff-btn py-2.5 rounded-xl text-[10px] font-black bg-slate-800/60 border border-slate-700 text-slate-400 hover:border-red-500 hover:text-red-400 transition cursor-pointer">🔥 ยาก<br><span class="text-[8px] font-normal">8 วิ</span></button>
+                </div>
+            </div>
+
+            <button id="btnStart" onclick="startQuiz()" class="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-extrabold text-sm rounded-2xl shadow-xl hover:shadow-amber-500/25 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer">
+                <i class="fas fa-play mr-2"></i>เริ่มทดสอบ
+            </button>
         </div>
     </div>
 
-    <!-- MAIN GAME AREA -->
-    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6 justify-center items-center px-4 relative">
-        
-        <!-- PHASE 1: MATCHMAKING SCREEN -->
-        <div id="phaseLobby" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl text-center space-y-6 flex flex-col justify-between">
-            <div>
-                <span class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xl mx-auto shadow-lg mb-3"><i class="fas fa-bolt"></i></span>
-                <h1 class="text-base sm:text-lg font-black text-white uppercase tracking-wider">Quiz Matchmaking</h1>
-                <p class="text-[10px] text-slate-400 mt-1">ตอบคำถามถูกต้องอย่างแม่นยำด้วยรหัสห้อง PIN เชื่อมต่อเรียลไทม์</p>
-            </div>
+    <!-- ── PHASE 1: QUIZ ── -->
+    <div id="phaseQuiz" class="w-full max-w-sm hidden flex-col fade-in">
+        <div class="glass-panel rounded-3xl p-5 shadow-2xl space-y-4">
 
-            <!-- PIN codes creation & nickname input -->
-            <div class="space-y-3.5 text-left">
-                <div>
-                    <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ชื่อเล่นของคุณ</label>
-                    <input type="text" id="txtNickname" value="Feel" placeholder="พิมพ์ชื่อเล่น..." class="w-full bg-slate-950 border border-slate-800 p-3 rounded-2xl text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-500">
+            <!-- Header bar -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 text-[11px] font-black" id="lblQuestionBadge">1</div>
+                    <span class="text-[10px] text-slate-400 font-bold">/ 10 ข้อ</span>
                 </div>
-
-                <div class="flex gap-2">
-                    <input type="text" id="txtRoomCode" placeholder="ใส่รหัสห้อง PIN 4 หลัก" class="flex-grow bg-slate-950 border border-slate-800 p-3 rounded-2xl text-xs font-bold text-center uppercase text-slate-200 focus:outline-none focus:border-amber-500">
-                    <button onclick="joinRoom()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs px-5 rounded-2xl transition cursor-pointer">เข้าร่วม</button>
-                </div>
-                <button onclick="createRoom()" class="w-full py-3 rounded-2xl border border-dashed border-slate-700 text-xs font-bold text-slate-300 hover:border-amber-500 hover:text-amber-400 transition cursor-pointer">➕ สร้างห้องเชื่อมต่อใหม่ (Generate PIN)</button>
-            </div>
-
-            <!-- Players inside Lobby drawer -->
-            <div id="lobbyContainer" class="hidden space-y-3 pt-3 border-t border-slate-850">
-                <div class="flex items-center justify-between">
-                    <span class="text-[9px] text-slate-400 font-bold">รหัสห้อง PIN: <span class="text-amber-400 font-extrabold" id="lblRoomCode">--</span></span>
-                    <span class="text-[9px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-black">พร้อมแข่ง: <span id="lblLobbyCount">1 / 2</span></span>
-                </div>
-                <div class="space-y-2 text-left" id="lobbyPlayersList">
-                    <!-- JS generated player cards -->
-                </div>
-                
-                <div id="hostControls" class="hidden">
-                    <button onclick="startQuiz()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:scale-102 text-slate-950 font-black text-xs rounded-2xl shadow-xl transition cursor-pointer">🚶‍♂️ เริ่มการแข่งขัน (Start Match)</button>
-                </div>
-                <div id="joinerControls" class="hidden text-xs text-amber-400 font-bold animate-pulse text-center">
-                    ⏳ รอหัวหน้าห้องกดเริ่มเกม...
-                </div>
-            </div>
-        </div>
-
-        <!-- PHASE 2: LIVE QUIZ AREA -->
-        <div id="phaseQuiz" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-5 rounded-3xl shadow-2xl space-y-4 hidden flex-col justify-between animate-fadeIn">
-            
-            <!-- Dynamic Score indicators -->
-            <div class="grid grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-2xl border border-slate-850 relative">
-                <div class="text-left border-r border-slate-850 pr-2">
-                    <span class="text-[9px] text-slate-400 font-bold block" id="lblMyName">คุณ (Feel)</span>
-                    <strong class="text-sm font-black text-emerald-400" id="lblPlayerScore">0 บ.</strong>
-                </div>
-                <div class="text-right pl-2">
-                    <span class="text-[9px] text-slate-400 font-bold block" id="lblOpponentName">รอผู้เล่น...</span>
-                    <strong class="text-sm font-black text-amber-400" id="lblOpponentScore">0 บ.</strong>
+                <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-bold text-slate-500 uppercase">คะแนน</span>
+                    <span class="text-sm font-black text-emerald-400" id="lblLiveScore">0 บ.</span>
                 </div>
             </div>
 
-            <!-- Quiz Timer -->
-            <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 px-1">
-                <span>คำถามที่ <span id="lblQuestionIdx">1</span> / 5</span>
-                <span class="bg-red-500/20 text-red-400 px-2.5 py-0.5 rounded-full font-black"><i class="fas fa-clock mr-1"></i> <span id="lblQuizTimer">15</span> วินาที</span>
+            <!-- Progress bar -->
+            <div class="w-full bg-slate-800/80 h-1.5 rounded-full overflow-hidden">
+                <div id="quizProgressBar" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-700 rounded-full" style="width:100%;"></div>
             </div>
 
-            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                <div id="quizProgressBar" class="h-full bg-amber-500 transition-all duration-1000" style="width: 100%;"></div>
+            <!-- Timer -->
+            <div class="flex items-center justify-between px-0.5">
+                <span class="text-[10px] text-slate-500 font-bold" id="lblPlayerName">ผู้เล่น</span>
+                <div class="flex items-center gap-1.5 bg-red-500/15 border border-red-500/25 px-3 py-1 rounded-full" id="timerBox">
+                    <i class="fas fa-clock text-red-400 text-[10px]"></i>
+                    <span class="text-[11px] font-black text-red-400" id="lblTimer">15</span>
+                    <span class="text-[9px] text-red-300/70">วิ</span>
+                </div>
             </div>
 
-            <!-- Quiz details card -->
-            <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
-                <h3 class="text-xs sm:text-sm font-bold text-slate-200 text-center leading-relaxed" id="lblQuestionText">โจทย์ประเมินผลจะอยู่ตรงนี้...</h3>
+            <!-- Question card -->
+            <div class="bg-slate-950/50 border border-slate-800/70 rounded-2xl p-5">
+                <div class="flex items-start gap-2.5 mb-3">
+                    <span class="text-base shrink-0 mt-0.5">❓</span>
+                    <p class="text-xs sm:text-sm font-bold text-slate-100 leading-relaxed" id="lblQuestionText">กำลังโหลดคำถาม...</p>
+                </div>
             </div>
 
-            <!-- Choice buttons (thumb-friendly layout) -->
-            <div class="grid grid-cols-1 gap-2" id="choicesList">
-                <!-- JS choices -->
-            </div>
-            
-            <!-- Result banner alert inside card -->
-            <div id="quizStatusAlert" class="p-2.5 rounded-xl text-center font-bold text-[10px] hidden"></div>
-        </div>
+            <!-- Choices -->
+            <div class="grid grid-cols-1 gap-2" id="choicesList"></div>
 
-        <!-- PHASE 3: WINNER PODIUMS -->
-        <div id="phasePodium" class="w-full max-w-sm bg-slate-900/90 border border-slate-800 p-6 rounded-3xl shadow-2xl text-center space-y-6 hidden flex-col justify-between">
-            <div>
-                <span class="text-5xl animate-bounce block">🏆</span>
-                <h2 class="text-lg font-black text-white mt-2">ประกาศผลผู้ชนะ!</h2>
-                <p class="text-xs text-slate-400 mt-1">สรุปรางวัลการประชันความเร็วและความถูกต้อง</p>
-            </div>
+            <!-- Result alert -->
+            <div id="quizAlert" class="p-3 rounded-xl text-center font-bold text-[11px] hidden"></div>
 
-            <div class="space-y-3" id="podiumList">
-                <!-- JS generated final podium entries -->
-            </div>
-
-            <button onclick="location.reload()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold text-xs rounded-2xl shadow transition cursor-pointer">🔄 กลับสู่หน้าหลัก</button>
+            <!-- Explanation -->
+            <div id="quizExplain" class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-[10px] text-slate-400 leading-relaxed hidden"></div>
         </div>
     </div>
 
-    <!-- Script Game Logic -->
-    <script>
-        // ─── STATE ────────────────────────────────────────────────────────────────
-        let currentPhase   = 'lobby';   // lobby | quiz | podium
-        let pollerInterval = null;
-        let activeRoomPIN  = '';
-        let isHost         = false;
-        let myName         = 'Feel';
-        let myPlayerIdx    = 0;         // 0 = host, 1 = joiner (index into players[])
+    <!-- ── PHASE 2: RESULTS ── -->
+    <div id="phaseResults" class="w-full max-w-sm hidden flex-col fade-in">
+        <div class="glass-panel rounded-3xl p-6 shadow-2xl space-y-5 text-center">
+            <div id="resultEmoji" class="text-6xl">🏆</div>
+            <div>
+                <h2 class="text-xl font-black text-white" id="resultTitle">สรุปผลการทดสอบ</h2>
+                <p class="text-[11px] text-slate-400 mt-1" id="resultSubtitle">ยอดเยี่ยม!</p>
+            </div>
 
-        let quizList          = [];
-        let activeQuizIdx     = 0;
-        let quizTimer         = 15;
-        let quizTimerInterval = null;
-        let answerSubmitted   = false;
-        let advancePending    = false;  // debounce guard for host advancement
+            <!-- Score summary -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3">
+                    <div class="text-lg font-black text-emerald-400" id="resCorrect">—</div>
+                    <div class="text-[8px] text-slate-400 font-bold mt-0.5">ถูก</div>
+                </div>
+                <div class="bg-red-500/10 border border-red-500/20 rounded-2xl p-3">
+                    <div class="text-lg font-black text-red-400" id="resWrong">—</div>
+                    <div class="text-[8px] text-slate-400 font-bold mt-0.5">ผิด</div>
+                </div>
+                <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-3">
+                    <div class="text-lg font-black text-yellow-400" id="resTimeout">—</div>
+                    <div class="text-[8px] text-slate-400 font-bold mt-0.5">หมดเวลา</div>
+                </div>
+            </div>
 
-        // ─── QUESTION POOL ───────────────────────────────────────────────────────
-        const questionPool = [
-            { q:"1. จากแดชบอร์ด (index.html) CO₂ ในตู้เพาะไม่ควรเกินระดับใดเพื่อป้องกันดอกเห็ดผิดรูป?", choices:["ก. 800 ppm","ข. 2,000 ppm","ค. 5,000 ppm","ง. 10,000 ppm"], correct:1 },
-            { q:"2. จากแดชบอร์ด (index.html) น้ำหนักผลผลิตเฉลี่ยของเห็ดแครงรอบแรกต่อถุงก้อนเชื้อคือข้อใด?", choices:["ก. 150–220 กรัม","ข. 50–85 กรัม","ค. 300–450 กรัม","ง. 500 กรัมขึ้นไป"], correct:0 },
-            { q:"3. ในแล็บ (lab.html) หลอด LED สีใดเหนี่ยวนำให้เส้นใยเห็ดพัฒนาเป็นดอกได้เร็วที่สุด?", choices:["ก. แสงสีน้ำเงิน (Blue light)","ข. แสงสีแดงเข้ม","ค. แสงสีเขียวนีออน","ง. ความมืดสนิท 100%"], correct:0 },
-            { q:"4. ในแล็บ (lab.html) อุปกรณ์ใดทำหน้าที่จ่ายหมอกไอน้ำควบคุมความชื้น?", choices:["ก. เครื่องพ่นหมอกอัจฉริยะ","ข. พัดลมดูดอากาศ","ค. แผงทำความเย็น","ง. หลอด UVC"], correct:0 },
-            { q:"5. จาก AI (ai.html) ค่า BCR ที่คุ้มทุนเชิงพาณิชย์ของสูตรวัสดุเพาะเห็ดแครงควรเป็นเท่าใด?", choices:["ก. มากกว่า 1.2","ข. ต่ำกว่า 0.5","ค. เท่ากับ 0.0","ง. ติดลบ −1.5"], correct:0 },
-            { q:"6. AI (ai.html) วิเคราะห์รูปสปอร์เห็ดสามารถประเมินโรคใดได้แม่นยำที่สุด?", choices:["ก. การปนเปื้อนราเขียวและแบคทีเรีย","ข. การกลายพันธุ์ทางพันธุกรรม","ค. อัตราการคายคาร์บอน","ง. ความทนรังสีแกมมา"], correct:0 },
-            { q:"7. ใน Dataset (dataset.html) ตัวแปรใดไม่มีการบันทึกในไฟล์ CSV ของโครงการ?", choices:["ก. ปริมาณน้ำฝนและทิศทางลมในห้องแล็บ","ข. ค่าอุณหภูมิอากาศ","ค. ค่าความชื้น RH","ง. ระดับแสงสว่าง"], correct:0 },
-            { q:"8. จากเอกสารโครงงาน (doc.html) เป้าหมายสูงสุดของระบบ MSSM คืออะไร?", choices:["ก. สร้างความมั่นคงด้านรายได้เกษตรกรภาคใต้ในฤดูมรสุม","ข. ผลิตเห็ดส่งออกจีน","ค. จำลองหุ้นเห็ดสากล","ง. ยกเลิกการเพาะในโรงเรือนจริง"], correct:0 },
-            { q:"9. ในตลาด (market.html) เห็ดชนิดใดมีราคากลางต่อกิโลกรัมแพงที่สุด?", choices:["ก. เห็ดแครงสด (120–150 บาท/กก.)","ข. เห็ดหูหนูแห้ง (50–60 บาท/กก.)","ค. เห็ดนางฟ้าภูฐาน (70–80 บาท/กก.)","ง. เห็ดนางรมฮังการี (80–95 บาท/กก.)"], correct:0 },
-            { q:"10. ตลาด (market.html) อัปเดตราคาสุ่มทุกๆ กี่วินาที?", choices:["ก. ทุกๆ 15 วินาที","ข. ทุกๆ 1 ชั่วโมง","ค. วันละ 1 ครั้ง","ง. สุ่มเฉพาะตอนซื้อ"], correct:0 },
-            { q:"11. ใน 2D Blueprint (builder2d.html) อุปกรณ์ราคาต่อหน่วยต่ำที่สุดคือชิ้นใด?", choices:["ก. ก้อนเชื้อเห็ดนางรมฮังการี (18 บาท)","ข. พัดลมดูดอากาศ (350 บาท)","ค. เครื่องระบายน้ำทิ้ง (650 บาท)","ง. หัวพ่นหมอก (150 บาท)"], correct:0 },
-            { q:"12. ในหน้า 3D (mushroom_3d.html) ความสูงก้อนเชื้อมาตรฐานคือเท่าใด?", choices:["ก. 2500 mm","ข. 500 mm","ค. 8000 mm","ง. 12000 mm"], correct:1 },
-            { q:"13. โปรแกรม 3D (mushroom_3d.html) แสดงผลในโหมดใดบนมือถือ?", choices:["ก. แนวนอน (Landscape) เท่านั้น","ข. แนวตั้ง (Portrait) เท่านั้น","ค. จตุรัส 1:1","ง. สลับตามการเขย่าเครื่อง"], correct:0 }
-        ];
+            <!-- Final score -->
+            <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/25 rounded-2xl p-4">
+                <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-1">คะแนนรวม</div>
+                <div class="text-3xl font-black text-amber-400" id="resFinalScore">0 บ.</div>
+                <div class="text-[9px] text-emerald-400 font-bold mt-1" id="resWalletAdd"></div>
+            </div>
 
-        // ─── SEEDED SHUFFLE ──────────────────────────────────────────────────────
-        function seedRandom(seed) {
-            let x = Math.sin(seed + 1) * 10000;
-            return x - Math.floor(x);
-        }
-        function getSeededQuestions(pin) {
-    let seed = parseInt(pin) || 1234;
-    let pool = [...questionPool];
-    let shuffled = [];
-    while (pool.length > 0) {
-        let r = seedRandom(seed++);
-        shuffled.push(pool.splice(Math.floor(r * pool.length), 1)[0]);
+            <!-- High score banner -->
+            <div id="resNewRecord" class="hidden p-3 rounded-2xl bg-gradient-to-r from-amber-400/20 to-yellow-400/10 border border-amber-400/40 text-amber-300 font-black text-xs">
+                🎉 สถิติใหม่! บันทึกสำเร็จ
+            </div>
+
+            <!-- Action buttons -->
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="restartQuiz()" class="py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs rounded-2xl shadow hover:scale-[1.02] active:scale-95 transition cursor-pointer">
+                    <i class="fas fa-redo mr-1.5"></i>เล่นอีกรอบ
+                </button>
+                <button onclick="backToIntro()" class="py-3 gaming-btn text-slate-300 font-bold text-xs rounded-2xl cursor-pointer hover:text-white">
+                    <i class="fas fa-home mr-1.5"></i>หน้าหลัก
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toastMsg" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-2xl font-bold text-xs text-white shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<script>
+// ─── QUESTION POOL ───────────────────────────────────────────────────────────
+// คำถามที่มีคำอธิบายเพิ่มเติม (เพิ่มได้ไม่จำกัด)
+const questionPool = [
+    {
+        q:"CO₂ ในตู้เพาะเห็ดแครงไม่ควรเกินระดับใดเพื่อป้องกันดอกเห็ดผิดรูป?",
+        choices:["ก. 800 ppm","ข. 2,000 ppm","ค. 5,000 ppm","ง. 10,000 ppm"],
+        correct:1, explain:"ระดับ CO₂ เกิน 2,000 ppm ทำให้เส้นใยเจริญผิดปกติ ดอกเห็ดยืดยาวและน้ำหนักลด"
+    },
+    {
+        q:"น้ำหนักผลผลิตเฉลี่ยของเห็ดแครงรอบแรกต่อถุงก้อนเชื้อมาตรฐานคือข้อใด?",
+        choices:["ก. 150–220 กรัม","ข. 50–85 กรัม","ค. 300–450 กรัม","ง. 500 กรัมขึ้นไป"],
+        correct:0, explain:"เห็ดแครงรอบแรกให้น้ำหนักเฉลี่ย 150–220 กรัมต่อถุง 1 กก. ขึ้นอยู่กับความชื้นและสายพันธุ์"
+    },
+    {
+        q:"หลอด LED สีใดเหนี่ยวนำให้เส้นใยเห็ดพัฒนาเป็นดอกได้เร็วที่สุดในห้องแล็บ?",
+        choices:["ก. แสงสีน้ำเงิน","ข. แสงสีแดงเข้ม","ค. แสงสีเขียวนีออน","ง. ความมืดสนิท 100%"],
+        correct:0, explain:"แสงสีน้ำเงิน (450-470 nm) กระตุ้นโฟโตรีเซพเตอร์ของเห็ดให้ออกดอกเร็วและสม่ำเสมอ"
+    },
+    {
+        q:"อุปกรณ์ใดในห้องแล็บทำหน้าที่จ่ายหมอกไอน้ำควบคุมความชื้น?",
+        choices:["ก. เครื่องพ่นหมอกอัลตราโซนิก","ข. พัดลมดูดอากาศ","ค. แผงทำความเย็น","ง. หลอด UVC"],
+        correct:0, explain:"เครื่องพ่นหมอกอัลตราโซนิกสร้างละอองน้ำขนาด 5 ไมครอนเพื่อรักษา RH ≥85% โดยไม่ทำให้น้ำขัง"
+    },
+    {
+        q:"ค่า BCR (Benefit-Cost Ratio) ที่คุ้มทุนเชิงพาณิชย์ของสูตรวัสดุเพาะเห็ดแครงควรเป็นเท่าใด?",
+        choices:["ก. มากกว่า 1.2","ข. ต่ำกว่า 0.5","ค. เท่ากับ 0.0","ง. ติดลบ"],
+        correct:0, explain:"BCR > 1.2 หมายถึงได้กำไรมากกว่าต้นทุน 20% ขึ้นไป ถือเป็นเกณฑ์คุ้มทุนในเชิงพาณิชย์"
+    },
+    {
+        q:"AI วิเคราะห์รูปสปอร์เห็ดในระบบ MSSM สามารถประเมินโรคใดได้แม่นยำที่สุด?",
+        choices:["ก. การปนเปื้อนราเขียวและแบคทีเรีย","ข. การกลายพันธุ์ทางพันธุกรรม","ค. อัตราการคายคาร์บอน","ง. ความทนรังสีแกมมา"],
+        correct:0, explain:"โมเดล CNN ตรวจจับสีเขียวของ Trichoderma (ราเขียว) และ Bacterial blotch ได้แม่นยำ >92%"
+    },
+    {
+        q:"ตัวแปรใดไม่มีการบันทึกอยู่ในไฟล์ CSV ของโครงการ MSSM?",
+        choices:["ก. ปริมาณน้ำฝนและทิศทางลมในแล็บ","ข. ค่าอุณหภูมิอากาศ","ค. ค่าความชื้น RH","ง. ระดับแสงสว่าง"],
+        correct:0, explain:"สถานีวัดภายในห้องไม่มีเซ็นเซอร์วัดน้ำฝนหรือทิศลม ตัวแปรเหล่านั้นไม่ถูกบันทึก"
+    },
+    {
+        q:"เป้าหมายสูงสุดของระบบ MSSM (Mushroom Smart Simulation Management) คืออะไร?",
+        choices:["ก. สร้างความมั่นคงรายได้เกษตรกรภาคใต้ในฤดูมรสุม","ข. ผลิตเห็ดส่งออกจีน","ค. จำลองหุ้นเห็ดสากล","ง. ยกเลิกการเพาะในโรงเรือนจริง"],
+        correct:0, explain:"MSSM มุ่งจำลองและเพิ่มประสิทธิภาพการเพาะเห็ดในช่วงฤดูมรสุม ซึ่งเป็นอุปสรรคหลักของเกษตรกรภาคใต้"
+    },
+    {
+        q:"เห็ดชนิดใดในตลาดราคากลางมีราคาต่อกิโลกรัมแพงที่สุด?",
+        choices:["ก. เห็ดแครงสด (120–150 บ./กก.)","ข. เห็ดหูหนูแห้ง (50–60 บ./กก.)","ค. เห็ดนางฟ้าภูฐาน (70–80 บ./กก.)","ง. เห็ดนางรมฮังการี (80–95 บ./กก.)"],
+        correct:0, explain:"เห็ดแครงสดราคา 120–150 บาท/กก. แพงที่สุดในกลุ่มเนื่องจากอายุสั้นและต้นทุนการควบคุมสภาพแวดล้อมสูง"
+    },
+    {
+        q:"ตลาดราคากลางใน MSSM อัปเดตราคาสุ่มทุกๆ กี่วินาที?",
+        choices:["ก. ทุกๆ 15 วินาที","ข. ทุกๆ 1 ชั่วโมง","ค. วันละ 1 ครั้ง","ง. สุ่มเฉพาะตอนซื้อ"],
+        correct:0, explain:"ระบบตลาดใช้ setInterval ทุก 15,000 ms (15 วิ) เพื่อจำลองความผันผวนของราคาตลาดสด"
+    },
+    {
+        q:"ในโปรแกรม 2D Blueprint อุปกรณ์ราคาต่อหน่วยต่ำที่สุดคือชิ้นใด?",
+        choices:["ก. ก้อนเชื้อเห็ดนางรมฮังการี 18 บ.","ข. พัดลมดูดอากาศ 350 บ.","ค. เครื่องระบายน้ำทิ้ง 650 บ.","ง. หัวพ่นหมอก 150 บ."],
+        correct:0, explain:"ก้อนเชื้อเห็ดนางรมฮังการีราคา 18 บาท/ถุง เป็นอุปกรณ์ที่ราคาต่อหน่วยต่ำที่สุดในฐานข้อมูล"
+    },
+    {
+        q:"ในโปรแกรม 3D (mushroom_3d.html) ความสูงมาตรฐานของก้อนเชื้อเห็ดคือเท่าใด?",
+        choices:["ก. 2,500 mm","ข. 500 mm","ค. 8,000 mm","ง. 12,000 mm"],
+        correct:1, explain:"ก้อนเชื้อเห็ดมาตรฐานมีความสูง 500 mm (50 ซม.) เพื่อให้การกระจายเส้นใยสม่ำเสมอ"
+    },
+    {
+        q:"ความชื้นสัมพัทธ์ (RH) ที่เหมาะสมที่สุดสำหรับระยะออกดอกของเห็ดแครงคือเท่าใด?",
+        choices:["ก. 85–95%","ข. 50–65%","ค. 30–45%","ง. 100% (อิ่มตัว)"],
+        correct:0, explain:"เห็ดแครงต้องการ RH 85–95% ในระยะออกดอก ต่ำกว่านี้ดอกหดเหี่ยว สูงเกิน 95% เสี่ยงแบคทีเรีย"
+    },
+    {
+        q:"อุณหภูมิที่เหมาะสมสำหรับการเจริญของเส้นใยเห็ดแครง (Mycelium run) คือข้อใด?",
+        choices:["ก. 25–30°C","ข. 10–15°C","ค. 38–42°C","ง. 0–5°C"],
+        correct:0, explain:"เส้นใยเห็ดแครงเจริญได้ดีที่ 25–30°C ต่ำกว่า 15°C หยุดเจริญ สูงกว่า 35°C เส้นใยตาย"
+    },
+    {
+        q:"วัสดุเพาะที่ให้ผลผลิตเห็ดแครงสูงสุดคืออะไร?",
+        choices:["ก. ขี้เลื่อยไม้ยางพารา 100%","ข. ดินร่วน","ค. ทราย","ง. ขุยมะพร้าวล้วน"],
+        correct:0, explain:"ขี้เลื่อยไม้ยางพาราอุดมด้วยลิกนินและเซลลูโลสซึ่งเห็ดแครงย่อยสลายได้ดี ให้ผลผลิตสูงสุด"
+    },
+    {
+        q:"กระบวนการ 'นึ่งก้อนเชื้อ' (Sterilization) ในการเพาะเห็ดแครงควรทำที่อุณหภูมิและเวลาใด?",
+        choices:["ก. 100°C นาน 3–4 ชั่วโมง","ข. 60°C นาน 30 นาที","ค. 200°C นาน 10 นาที","ง. อุณหภูมิห้องนาน 1 วัน"],
+        correct:0, explain:"การนึ่งที่ 100°C (ไม่อัดแรงดัน) นาน 3–4 ชั่วโมงสามารถฆ่าเชื้อโรคส่วนใหญ่ได้อย่างมีประสิทธิภาพ"
+    },
+    {
+        q:"เชื้อรา Trichoderma ที่ปนเปื้อนก้อนเชื้อเห็ดจะมีสีใด?",
+        choices:["ก. เขียว","ข. แดง","ค. น้ำเงิน","ง. ดำสนิท"],
+        correct:0, explain:"Trichoderma spp. ผลิตสปอร์สีเขียว (Conidia) ทำให้เห็นเป็นจุดหรือแผ่นสีเขียวบนก้อนเชื้อ"
+    },
+    {
+        q:"ระยะเวลาเฉลี่ยจากการเปิดปากถุงถึงการเก็บเกี่ยวดอกเห็ดแครงรอบแรกคือกี่วัน?",
+        choices:["ก. 7–10 วัน","ข. 1–2 วัน","ค. 30–45 วัน","ง. 90 วัน"],
+        correct:0, explain:"หลังเปิดปากถุงและควบคุมสภาพแวดล้อมที่เหมาะสม เห็ดแครงจะออกดอกให้เก็บภายใน 7–10 วัน"
+    },
+    {
+        q:"พลังงานไฟฟ้าที่ใช้ในโรงเรือนเพาะเห็ดส่วนใหญ่มาจากอุปกรณ์ใด?",
+        choices:["ก. เครื่องปรับอากาศและระบบระบายอากาศ","ข. หลอดไฟ LED","ค. เครื่องพ่นหมอก","ง. เซ็นเซอร์ IoT"],
+        correct:0, explain:"ระบบทำความเย็นและระบายอากาศกินพลังงานมากที่สุด คิดเป็น 60–70% ของค่าไฟรวมในโรงเรือน"
+    },
+    {
+        q:"โรค 'ดอกเน่า' (Soft Rot) ในเห็ดแครงมักเกิดจากสาเหตุใด?",
+        choices:["ก. ความชื้นสูงเกินไปและน้ำขัง","ข. ขาดแสง","ค. ดินขาดธาตุเหล็ก","ง. อุณหภูมิต่ำเกินไป"],
+        correct:0, explain:"Soft Rot เกิดจากแบคทีเรีย Pseudomonas sp. ที่เจริญในสภาพน้ำขังและ RH > 98% เป็นเวลานาน"
+    },
+    {
+        q:"ค่า MPI (Mushroom Productivity Index) ใช้วัดสิ่งใดในระบบ MSSM?",
+        choices:["ก. ประสิทธิภาพการผลิตเทียบกับทรัพยากรที่ใช้","ข. ราคาเฉลี่ยในตลาด","ค. จำนวนก้อนเชื้อในโรงเรือน","ง. อุณหภูมิเฉลี่ยรายเดือน"],
+        correct:0, explain:"MPI = (น้ำหนักผลผลิต / ต้นทุนรวม) × 100 ยิ่งสูงยิ่งดี เป็นตัวชี้วัดหลักของระบบ MSSM"
+    },
+    {
+        q:"ในระบบ MSSM สัดส่วนขี้เลื่อยกับรำข้าวที่แนะนำสำหรับเห็ดแครงคืออะไร?",
+        choices:["ก. ขี้เลื่อย 80% + รำข้าว 20%","ข. ขี้เลื่อย 50% + รำข้าว 50%","ค. ขี้เลื่อย 100%","ง. รำข้าว 100%"],
+        correct:0, explain:"สัดส่วน 80:20 ให้สารอาหารสมดุล รำข้าวเพิ่มไนโตรเจนและวิตามิน B ช่วยการเจริญของเส้นใย"
+    },
+    {
+        q:"เซ็นเซอร์ IoT ชนิดใดสำคัญที่สุดสำหรับการเพาะเห็ดแครงในระบบอัตโนมัติ?",
+        choices:["ก. เซ็นเซอร์วัดอุณหภูมิและความชื้น (DHT22)","ข. GPS Tracker","ค. เซ็นเซอร์แรงดันยาง","ง. เซ็นเซอร์วัดน้ำหนักรถยนต์"],
+        correct:0, explain:"DHT22 วัดอุณหภูมิ (±0.5°C) และ RH (±2%) แบบ Real-time เป็นพื้นฐานของระบบควบคุมอัตโนมัติ"
+    },
+    {
+        q:"การ 'เปิดปากถุง' ก้อนเชื้อเห็ดแครงควรทำเมื่อเส้นใยเจริญเต็มก้อนแล้วกี่เปอร์เซ็นต์?",
+        choices:["ก. เส้นใยขาวเต็ม 100% ของก้อน","ข. เส้นใยขาว 50% ของก้อน","ค. เริ่มเปิดทันที","ง. รอ 6 เดือนก่อนเปิด"],
+        correct:0, explain:"ต้องรอให้เส้นใยขาวเต็ม 100% ของก้อนเชื้อก่อน มิฉะนั้นราเขียวจะปนเปื้อนง่ายมาก"
+    },
+    {
+        q:"ในโมเดลธุรกิจเห็ดแครง ต้นทุนค่าก้อนเชื้อเห็ดนางรมฮังการีอยู่ที่เท่าใดต่อถุง?",
+        choices:["ก. 18 บาท/ถุง","ข. 5 บาท/ถุง","ค. 100 บาท/ถุง","ง. 500 บาท/ถุง"],
+        correct:0, explain:"ก้อนเชื้อเห็ดนางรมฮังการีมาตรฐานราคา 18 บาท/ถุง (น้ำหนัก 1 กก.) ในฐานข้อมูลของระบบ MSSM"
     }
-    return shuffled.slice(0, 10);
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let currentPhase   = 'intro';
+let quizList       = [];
+let activeIdx      = 0;
+let timerSec       = 15;
+let timerInterval  = null;
+let answerDone     = false;
+let myScore        = 0;
+let countCorrect   = 0;
+let countWrong     = 0;
+let countTimeout   = 0;
+let diffSeconds    = 15;
+let diffLabel      = '⚡ กลาง';
+let usedSeedOffsets = []; // Track used seed offsets to prevent question repeat across rounds
+
+// ─── SEEDED SHUFFLE ─────────────────────────────────────────────────────────
+// Uses a deterministic shuffle based on seed, but seed changes every round to rotate questions
+function seededShuffle(arr, seed) {
+    let a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        let x = Math.sin(seed + i) * 43758.5453;
+        let r = x - Math.floor(x);
+        let j = Math.floor(r * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
 }
 
-        // ─── STORAGE HELPERS ─────────────────────────────────────────────────────
-        function getRoom(pin) {
-            try {
-                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
-                return rooms[pin] || null;
-            } catch(e) { return null; }
+function getUniqueRoundQuestions() {
+    // Get a fresh seed that hasn't been used yet this session
+    let seed = Date.now();
+    // Generate 10 unique questions from the pool
+    let shuffled = seededShuffle(questionPool, seed);
+    return shuffled.slice(0, Math.min(10, shuffled.length));
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+    loadStats();
+    updateWalletDisplay();
+    const saved = localStorage.getItem('mssm_quiz_nickname');
+    if (saved) document.getElementById('txtNickname').value = saved;
+    setDifficulty(15, '⚡ กลาง');
+});
+
+function loadStats() {
+    const best = localStorage.getItem('mssm_quiz_best') || 0;
+    const rounds = localStorage.getItem('mssm_quiz_rounds') || 0;
+    document.getElementById('introHighScore').textContent = parseInt(best) > 0 ? parseInt(best).toLocaleString() + ' บ.' : '—';
+    document.getElementById('introTotalRounds').textContent = parseInt(rounds) + ' รอบ';
+}
+
+function updateWalletDisplay() {
+    const w = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+    const el = document.getElementById('sidebarWallet');
+    if (el) el.textContent = '฿' + w.toLocaleString('th-TH', {minimumFractionDigits:0});
+}
+
+// ─── DIFFICULTY ──────────────────────────────────────────────────────────────
+function setDifficulty(secs, label) {
+    diffSeconds = secs;
+    diffLabel   = label;
+    document.querySelectorAll('.diff-btn').forEach(b => {
+        b.classList.remove('bg-amber-500/10','border-amber-500/40','text-amber-400',
+                           'bg-emerald-500/10','border-emerald-500/40','text-emerald-400',
+                           'bg-red-500/10','border-red-500/40','text-red-400');
+        b.classList.add('bg-slate-800/60','border-slate-700','text-slate-400');
+    });
+    let activeBtn;
+    if (secs===30) activeBtn = document.getElementById('diffEasy');
+    else if (secs===15) activeBtn = document.getElementById('diffMed');
+    else activeBtn = document.getElementById('diffHard');
+    if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800/60','border-slate-700','text-slate-400');
+        const colors = secs===30?['bg-emerald-500/10','border-emerald-500/40','text-emerald-400']
+                      :secs===15?['bg-amber-500/10','border-amber-500/40','text-amber-400']
+                                :['bg-red-500/10','border-red-500/40','text-red-400'];
+        activeBtn.classList.add(...colors);
+    }
+}
+
+// ─── START QUIZ ──────────────────────────────────────────────────────────────
+function startQuiz() {
+    const nick = document.getElementById('txtNickname').value.trim() || 'ผู้เล่น';
+    localStorage.setItem('mssm_quiz_nickname', nick);
+
+    myScore = 0; countCorrect = 0; countWrong = 0; countTimeout = 0;
+    quizList = getUniqueRoundQuestions();
+    activeIdx = 0;
+
+    document.getElementById('phaseIntro').classList.add('hidden');
+    const quiz = document.getElementById('phaseQuiz');
+    quiz.classList.remove('hidden');
+    quiz.classList.add('flex');
+    document.getElementById('lblPlayerName').textContent = nick;
+    document.getElementById('lblLiveScore').textContent = '0 บ.';
+
+    currentPhase = 'quiz';
+    loadQuestion();
+}
+
+// ─── LOAD QUESTION ───────────────────────────────────────────────────────────
+function loadQuestion() {
+    if (activeIdx >= quizList.length) { endQuiz(); return; }
+
+    const q = quizList[activeIdx];
+    // Animate in
+    const quizPanel = document.getElementById('phaseQuiz').querySelector('.glass-panel');
+    quizPanel.style.opacity = '0';
+    quizPanel.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+        quizPanel.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        quizPanel.style.opacity = '1';
+        quizPanel.style.transform = 'translateY(0)';
+    }, 50);
+
+    document.getElementById('lblQuestionBadge').textContent = activeIdx + 1;
+    document.getElementById('lblQuestionText').textContent = q.q;
+    document.getElementById('quizAlert').classList.add('hidden');
+    document.getElementById('quizExplain').classList.add('hidden');
+
+    // Choices
+    const container = document.getElementById('choicesList');
+    container.innerHTML = '';
+    q.choices.forEach((choice, i) => {
+        const btn = document.createElement('button');
+        btn.id = 'choice_' + i;
+        btn.className = 'w-full p-3.5 gaming-btn rounded-2xl text-xs font-bold text-slate-200 text-left cursor-pointer flex items-center gap-2.5';
+        const labelSpan = ['ก','ข','ค','ง'][i];
+        btn.innerHTML = `<span class="w-5 h-5 rounded-lg bg-slate-700/50 text-[9px] font-black flex items-center justify-center shrink-0 text-slate-400">${labelSpan}</span>${choice}`;
+        btn.onclick = () => submitAnswer(i);
+        container.appendChild(btn);
+    });
+
+    // Timer
+    answerDone = false;
+    timerSec = diffSeconds;
+    document.getElementById('lblTimer').textContent = timerSec;
+    document.getElementById('quizProgressBar').style.width = '100%';
+    document.getElementById('timerBox').classList.remove('timer-warning');
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timerSec--;
+        document.getElementById('lblTimer').textContent = timerSec;
+        const pct = (timerSec / diffSeconds) * 100;
+        document.getElementById('quizProgressBar').style.width = pct + '%';
+        if (timerSec <= Math.floor(diffSeconds * 0.33)) {
+            document.getElementById('timerBox').classList.add('timer-warning');
         }
-        function saveRoom(pin, roomObj) {
-            try {
-                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
-                rooms[pin] = roomObj;
-                // Prune rooms older than 2 hours to avoid stale collisions
-                const now = Date.now();
-                Object.keys(rooms).forEach(k => {
-                    if (rooms[k].createdAt && (now - rooms[k].createdAt) > 7200000) delete rooms[k];
-                });
-                localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
-            } catch(e) {}
+        if (timerSec <= 0) { clearInterval(timerInterval); submitAnswer(-1); }
+    }, 1000);
+}
+
+// ─── SUBMIT ANSWER ───────────────────────────────────────────────────────────
+function submitAnswer(idx) {
+    if (answerDone) return;
+    answerDone = true;
+    clearInterval(timerInterval);
+
+    const q = quizList[activeIdx];
+    const btns = document.getElementById('choicesList').getElementsByTagName('button');
+
+    // Disable all and highlight
+    for (let i = 0; i < btns.length; i++) {
+        btns[i].disabled = true;
+        btns[i].style.cursor = 'default';
+        if (i === q.correct) {
+            btns[i].classList.add('choice-correct');
+            btns[i].querySelector('span').style.background = 'rgba(16,185,129,0.3)';
+            btns[i].querySelector('span').style.color = '#34d399';
+        } else if (i === idx && idx !== q.correct) {
+            btns[i].classList.add('choice-wrong');
+            btns[i].querySelector('span').style.background = 'rgba(239,68,68,0.3)';
+            btns[i].querySelector('span').style.color = '#f87171';
         }
-        function deleteRoom(pin) {
-            try {
-                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
-                delete rooms[pin];
-                localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
-            } catch(e) {}
-        }
+    }
 
-        // ─── GENERATE UNIQUE PIN ─────────────────────────────────────────────────
-        function generateUniquePIN() {
-            let pin, attempts = 0;
-            do {
-                pin = Math.floor(1000 + Math.random() * 9000).toString();
-                const existing = getRoom(pin);
-                attempts++;
-                // Reuse PIN only if old room is finished or expired
-                if (!existing || existing.status === 'finished' ||
-                    (Date.now() - existing.createdAt) > 3600000) break;
-            } while (attempts < 20);
-            return pin;
-        }
+    // Alert + score
+    const alert = document.getElementById('quizAlert');
+    alert.classList.remove('hidden');
+    let change = 0;
 
-        // ─── TOAST HELPER ────────────────────────────────────────────────────────
-        function showToast(msg, color = '#10b981') {
-            let t = document.getElementById('pvpToast');
-            if (!t) {
-                t = document.createElement('div');
-                t.id = 'pvpToast';
-                t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;border-radius:14px;font-weight:800;font-size:11px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s;pointer-events:none;';
-                document.body.appendChild(t);
-            }
-            t.style.background = color;
-            t.textContent = msg;
-            t.style.opacity = '1';
-            clearTimeout(t._to);
-            t._to = setTimeout(() => { t.style.opacity = '0'; }, 2200);
-        }
+    if (idx === q.correct) {
+        change = 10000; countCorrect++;
+        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400';
+        alert.innerHTML = `🟢 ถูกต้อง! <span class="text-white font-black">+${change.toLocaleString()} บาท</span>`;
+    } else if (idx === -1) {
+        change = -2000; countTimeout++;
+        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400';
+        alert.innerHTML = `⏰ หมดเวลา! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
+    } else {
+        change = -3000; countWrong++;
+        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-red-500/10 border border-red-500/20 text-red-400';
+        alert.innerHTML = `🔴 ผิด! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
+    }
 
-        // ─── CREATE ROOM (HOST) ──────────────────────────────────────────────────
-        function createRoom() {
-            myName = document.getElementById('txtNickname').value.trim();
-            if (!myName) { showToast('⚠️ กรุณาพิมพ์ชื่อเล่นก่อน!', '#ef4444'); return; }
+    myScore = Math.max(0, myScore + change);
+    document.getElementById('lblLiveScore').textContent = myScore.toLocaleString() + ' บ.';
 
-            isHost       = true;
-            myPlayerIdx  = 0;
-            activeRoomPIN = generateUniquePIN();
+    // Explanation
+    if (q.explain) {
+        const exp = document.getElementById('quizExplain');
+        exp.classList.remove('hidden');
+        exp.innerHTML = `<i class="fas fa-lightbulb text-amber-400 mr-1.5"></i>${q.explain}`;
+    }
 
-            const roomObj = {
-                pin: activeRoomPIN,
-                status: 'waiting',         // waiting | playing | finished
-                currentQuestion: 0,
-                advanceVersion: 0,         // incremented each time host advances — prevents double-advance
-                createdAt: Date.now(),
-                players: [
-                    { name: myName, score: 0, activeAnswer: null, lastUpdate: Date.now(), role: 'host' }
-                ]
-            };
+    // Next question after delay
+    const delay = idx === q.correct ? 1400 : 1800;
+    setTimeout(() => {
+        activeIdx++;
+        loadQuestion();
+    }, delay);
+}
 
-            saveRoom(activeRoomPIN, roomObj);
+// ─── END QUIZ ────────────────────────────────────────────────────────────────
+function endQuiz() {
+    currentPhase = 'results';
+    clearInterval(timerInterval);
 
-            document.getElementById('lblRoomCode').textContent = activeRoomPIN;
-            document.getElementById('lobbyContainer').classList.remove('hidden');
-            document.getElementById('hostControls').classList.remove('hidden');
-            document.getElementById('joinerControls').classList.add('hidden');
+    document.getElementById('phaseQuiz').classList.add('hidden');
+    document.getElementById('phaseQuiz').classList.remove('flex');
+    const res = document.getElementById('phaseResults');
+    res.classList.remove('hidden');
+    res.classList.add('flex');
 
-            // Copy PIN to clipboard for easy sharing
-            navigator.clipboard && navigator.clipboard.writeText(activeRoomPIN).catch(()=>{});
+    // Emoji + title based on score
+    const pct = countCorrect / 10;
+    let emoji='😅', title='ยังต้องพัฒนา!', sub='อย่าท้อ ลองใหม่อีกครั้ง!';
+    if (pct >= 0.9) { emoji='🏆'; title='ยอดเยี่ยมมาก!'; sub='คุณเชี่ยวชาญระบบ MSSM อย่างแท้จริง!'; }
+    else if (pct >= 0.7) { emoji='🥇'; title='เก่งมาก!'; sub='ความรู้เห็ดแครงระดับดีเลิศ!'; }
+    else if (pct >= 0.5) { emoji='👍'; title='ผ่านได้!'; sub='ทบทวนข้อที่พลาดแล้วลองอีกครั้ง'; }
 
-            renderLobbyPlayers(roomObj);
-            showToast('✅ สร้างห้องสำเร็จ! PIN: ' + activeRoomPIN + ' (คัดลอกแล้ว)');
-            startLobbyPolling();
-        }
+    document.getElementById('resultEmoji').textContent = emoji;
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultSubtitle').textContent = sub;
+    document.getElementById('resCorrect').textContent = countCorrect;
+    document.getElementById('resWrong').textContent   = countWrong;
+    document.getElementById('resTimeout').textContent  = countTimeout;
+    document.getElementById('resFinalScore').textContent = myScore.toLocaleString() + ' บ.';
 
-        // ─── JOIN ROOM (JOINER) ──────────────────────────────────────────────────
-        function joinRoom() {
-            myName = document.getElementById('txtNickname').value.trim();
-            if (!myName) { showToast('⚠️ กรุณาพิมพ์ชื่อเล่นก่อน!', '#ef4444'); return; }
+    // Add to wallet
+    const wallet = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+    if (myScore > 0) {
+        localStorage.setItem('virtualWalletCash', wallet + myScore);
+        document.getElementById('resWalletAdd').textContent = `+${myScore.toLocaleString()} บ. เพิ่มเข้ากระเป๋าเงินแล้ว`;
+    }
 
-            const pin = document.getElementById('txtRoomCode').value.trim();
-            if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
-                showToast('⚠️ PIN ต้องเป็นตัวเลข 4 หลัก!', '#ef4444'); return;
-            }
+    // High score
+    const prev = parseInt(localStorage.getItem('mssm_quiz_best')) || 0;
+    if (myScore > prev) {
+        localStorage.setItem('mssm_quiz_best', myScore);
+        document.getElementById('resNewRecord').classList.remove('hidden');
+    }
 
-            const roomObj = getRoom(pin);
-            if (!roomObj) {
-                showToast('❌ ไม่พบห้อง PIN นี้ในระบบ!', '#ef4444'); return;
-            }
-            if (roomObj.status !== 'waiting') {
-                showToast('❌ ห้องนี้เริ่มแข่งหรือจบแล้ว!', '#ef4444'); return;
-            }
-            if (roomObj.players.length >= 2) {
-                showToast('❌ ห้องเต็มแล้ว (2/2)!', '#ef4444'); return;
-            }
-            // Prevent duplicate name confusion — append suffix if same
-            let joinName = myName;
-            if (roomObj.players[0].name === joinName) joinName = joinName + '_2';
+    // Rounds counter
+    const rounds = parseInt(localStorage.getItem('mssm_quiz_rounds')) || 0;
+    localStorage.setItem('mssm_quiz_rounds', rounds + 1);
 
-            myName      = joinName;
-            isHost      = false;
-            myPlayerIdx = 1;
-            activeRoomPIN = pin;
+    updateWalletDisplay();
+}
 
-            roomObj.players.push({
-                name: myName,
-                score: 0,
-                activeAnswer: null,
-                lastUpdate: Date.now(),
-                role: 'joiner'
-            });
-            saveRoom(activeRoomPIN, roomObj);
+// ─── RESTART / BACK ──────────────────────────────────────────────────────────
+function restartQuiz() {
+    document.getElementById('phaseResults').classList.add('hidden');
+    document.getElementById('phaseResults').classList.remove('flex');
+    startQuiz();
+}
 
-            document.getElementById('lblRoomCode').textContent = activeRoomPIN;
-            document.getElementById('lobbyContainer').classList.remove('hidden');
-            document.getElementById('hostControls').classList.add('hidden');
-            document.getElementById('joinerControls').classList.remove('hidden');
+function backToIntro() {
+    document.getElementById('phaseResults').classList.add('hidden');
+    document.getElementById('phaseResults').classList.remove('flex');
+    document.getElementById('phaseIntro').classList.remove('hidden');
+    loadStats();
+    updateWalletDisplay();
+    currentPhase = 'intro';
+}
 
-            renderLobbyPlayers(roomObj);
-            showToast('✅ เข้าร่วมห้อง ' + pin + ' สำเร็จ! รอหัวห้องกดเริ่ม...');
-            startLobbyPolling();
-        }
-
-        // ─── LOBBY RENDER ────────────────────────────────────────────────────────
-        function renderLobbyPlayers(roomObj) {
-            const container = document.getElementById('lobbyPlayersList');
-            container.innerHTML = '';
-            roomObj.players.forEach((p, idx) => {
-                const isMe = idx === myPlayerIdx;
-                const roleLabel = p.role === 'host' ? '👑 หัวห้อง' : '🎮 ผู้เข้าร่วม';
-                const card = document.createElement('div');
-                card.className = 'p-3 rounded-2xl flex items-center justify-between border ' +
-                    (isMe ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-700 bg-slate-950/50');
-                card.innerHTML = `
-                    <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-full ${isMe ? 'bg-amber-500/30 text-amber-400' : 'bg-slate-800 text-slate-400'} text-[10px] font-bold flex justify-center items-center shrink-0">
-                            ${p.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <span class="text-xs font-bold text-white block">${p.name}${isMe ? ' <span class="text-amber-400">(คุณ)</span>' : ''}</span>
-                            <span class="text-[9px] text-slate-500">${roleLabel}</span>
-                        </div>
-                    </div>
-                    <span class="text-[9px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">✓ READY</span>
-                `;
-                container.appendChild(card);
-            });
-            const count = roomObj.players.length;
-            document.getElementById('lblLobbyCount').textContent = `${count} / 2`;
-
-            // Update start button state (host only, need 2 players)
-            const startBtn = document.querySelector('#hostControls button');
-            if (startBtn) {
-                if (count < 2) {
-                    startBtn.textContent = '⏳ รอผู้เล่นเข้าร่วม... (' + count + '/2)';
-                    startBtn.disabled = true;
-                    startBtn.style.opacity = '0.5';
-                } else {
-                    startBtn.textContent = '🚀 เริ่มการแข่งขัน! (Start Match)';
-                    startBtn.disabled = false;
-                    startBtn.style.opacity = '1';
-                }
-            }
-        }
-
-        // ─── LOBBY POLLING ───────────────────────────────────────────────────────
-        function startLobbyPolling() {
-            clearInterval(pollerInterval);
-            pollerInterval = setInterval(() => {
-                const roomObj = getRoom(activeRoomPIN);
-                if (!roomObj) { showToast('⚠️ ห้องหายไป! อาจถูกรีเซ็ต', '#f59e0b'); clearInterval(pollerInterval); return; }
-
-                renderLobbyPlayers(roomObj);
-
-                // Joiner: detect host started the game
-                if (!isHost && roomObj.status === 'playing' && currentPhase === 'lobby') {
-                    clearInterval(pollerInterval);
-                    enterQuizPhase();
-                }
-            }, 700);
-        }
-
-        // ─── START QUIZ (HOST ONLY) ──────────────────────────────────────────────
-        function startQuiz() {
-            if (!isHost) { showToast('⚠️ เฉพาะหัวห้องเท่านั้นที่กดเริ่มได้!', '#ef4444'); return; }
-
-            const roomObj = getRoom(activeRoomPIN);
-            if (!roomObj) return;
-            if (roomObj.players.length < 2) {
-                showToast('⚠️ ต้องมีผู้เล่น 2 คนจึงเริ่มได้!', '#f59e0b'); return;
-            }
-            if (roomObj.status !== 'waiting') return; // Already started
-
-            roomObj.status = 'playing';
-            roomObj.currentQuestion = 0;
-            roomObj.advanceVersion = 0;
-            roomObj.players.forEach(p => { p.score = 0; p.activeAnswer = null; });
-            saveRoom(activeRoomPIN, roomObj);
-
-            // Host enters quiz phase immediately; joiner will follow via polling
-            enterQuizPhase();
-        }
-
-        // ─── ENTER QUIZ ──────────────────────────────────────────────────────────
-        function enterQuizPhase() {
-            currentPhase = 'quiz';
-            clearInterval(pollerInterval);
-
-            document.getElementById('phaseLobby').classList.add('hidden');
-            document.getElementById('phaseQuiz').classList.remove('hidden');
-            document.getElementById('phaseQuiz').classList.add('flex');
-
-            quizList = getSeededQuestions(activeRoomPIN);
-
-            const roomObj = getRoom(activeRoomPIN);
-            const myPlayer  = roomObj && roomObj.players[myPlayerIdx];
-            const oppPlayer = roomObj && roomObj.players[myPlayerIdx === 0 ? 1 : 0];
-
-            document.getElementById('lblMyName').textContent = (myPlayer ? myPlayer.name : myName) + ' (คุณ)';
-            document.getElementById('lblOpponentName').textContent = oppPlayer ? oppPlayer.name : 'รอผู้เล่น...';
-
-            activeQuizIdx = 0;
-            advancePending = false;
-            loadQuestion();
-            startQuizSyncPolling();
-        }
-
-        // ─── LOAD QUESTION ───────────────────────────────────────────────────────
-        function loadQuestion() {
-            if (activeQuizIdx >= quizList.length) return;
-            const qItem = quizList[activeQuizIdx];
-            document.getElementById('lblQuestionIdx').textContent = activeQuizIdx + 1;
-            document.getElementById('lblQuestionText').textContent = qItem.q;
-            document.getElementById('quizStatusAlert').classList.add('hidden');
-
-            const choicesContainer = document.getElementById('choicesList');
-            choicesContainer.innerHTML = '';
-            qItem.choices.forEach((choice, idx) => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full p-4 gaming-btn hover:border-amber-500 rounded-2xl text-xs font-bold text-slate-200 text-left cursor-pointer transition-all';
-                btn.onclick = () => submitAnswer(idx, qItem.correct);
-                btn.textContent = choice;
-                choicesContainer.appendChild(btn);
-            });
-
-            quizTimer = 15;
-            answerSubmitted = false;
-            document.getElementById('lblQuizTimer').textContent = quizTimer;
-            document.getElementById('quizProgressBar').style.width = '100%';
-
-            clearInterval(quizTimerInterval);
-            quizTimerInterval = setInterval(() => {
-                quizTimer--;
-                document.getElementById('lblQuizTimer').textContent = quizTimer;
-                document.getElementById('quizProgressBar').style.width = ((quizTimer / 15) * 100) + '%';
-                if (quizTimer <= 0) {
-                    clearInterval(quizTimerInterval);
-                    submitAnswer(-1, qItem.correct); // Timeout = wrong
-                }
-            }, 1000);
-        }
-
-        // ─── SUBMIT ANSWER ───────────────────────────────────────────────────────
-        function submitAnswer(idx, correctIndex) {
-            if (answerSubmitted) return;
-            answerSubmitted = true;
-            clearInterval(quizTimerInterval);
-
-            // Highlight chosen button
-            const btns = document.getElementById('choicesList').getElementsByTagName('button');
-            for (let i = 0; i < btns.length; i++) {
-                btns[i].disabled = true;
-                if (i === correctIndex) {
-                    btns[i].style.borderColor = '#10b981';
-                    btns[i].style.background = 'rgba(16,185,129,0.15)';
-                    btns[i].style.color = '#34d399';
-                } else if (i === idx && idx !== correctIndex) {
-                    btns[i].style.borderColor = '#ef4444';
-                    btns[i].style.background = 'rgba(239,68,68,0.12)';
-                    btns[i].style.color = '#f87171';
-                }
-            }
-
-            const alertBox = document.getElementById('quizStatusAlert');
-            alertBox.classList.remove('hidden');
-
-            let scoreChange = 0;
-            if (idx === correctIndex) {
-                scoreChange = 10000;
-                alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-emerald-500/10 text-emerald-400';
-                alertBox.textContent = '🟢 คำตอบถูกต้อง! ได้รับเงินทุน +10,000 บาท';
-            } else if (idx === -1) {
-                scoreChange = -2000;
-                alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-yellow-500/10 text-yellow-400';
-                alertBox.textContent = '⏰ หมดเวลา! หักเงิน −2,000 บาท';
-            } else {
-                scoreChange = -3000;
-                alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-red-500/10 text-red-400';
-                alertBox.textContent = '🔴 คำตอบผิด! หักเงิน −3,000 บาท';
-            }
-
-            // Save my answer to shared room state
-            const roomObj = getRoom(activeRoomPIN);
-            if (!roomObj) return;
-            const myPlayer = roomObj.players[myPlayerIdx];
-            if (!myPlayer) return;
-            myPlayer.score = Math.max(0, myPlayer.score + scoreChange);
-            myPlayer.activeAnswer = idx;
-            myPlayer.lastUpdate = Date.now();
-            saveRoom(activeRoomPIN, roomObj);
-            updateScoresUI(roomObj);
-        }
-
-        // ─── SCORES UI ───────────────────────────────────────────────────────────
-        function updateScoresUI(roomObj) {
-            const myPlayer  = roomObj.players[myPlayerIdx];
-            const oppPlayer = roomObj.players[myPlayerIdx === 0 ? 1 : 0];
-            if (myPlayer)  document.getElementById('lblPlayerScore').textContent  = myPlayer.score.toLocaleString() + ' บ.';
-            if (oppPlayer) document.getElementById('lblOpponentScore').textContent = oppPlayer.score.toLocaleString() + ' บ.';
-        }
-
-        // ─── QUIZ SYNC POLLING ───────────────────────────────────────────────────
-        function startQuizSyncPolling() {
-            clearInterval(pollerInterval);
-            pollerInterval = setInterval(() => {
-                const roomObj = getRoom(activeRoomPIN);
-                if (!roomObj) return;
-
-                updateScoresUI(roomObj);
-
-                // ── HOST: advance question when both players answered ─────────────
-                if (isHost && !advancePending) {
-                    const allAnswered = roomObj.players.every(p => p.activeAnswer !== null);
-                    if (allAnswered && roomObj.currentQuestion === activeQuizIdx) {
-                        advancePending = true;
-                        setTimeout(() => {
-                            const fresh = getRoom(activeRoomPIN);
-                            // Double-check version to avoid duplicate advance
-                            if (fresh && fresh.currentQuestion === activeQuizIdx) {
-                                fresh.currentQuestion++;
-                                fresh.advanceVersion = (fresh.advanceVersion || 0) + 1;
-                                fresh.players.forEach(p => p.activeAnswer = null);
-                                if (fresh.currentQuestion >= quizList.length) {
-                                    fresh.status = 'finished';
-                                }
-                                saveRoom(activeRoomPIN, fresh);
-                            }
-                            advancePending = false;
-                        }, 2500);
-                    }
-                }
-
-                // ── BOTH PLAYERS: follow room's currentQuestion ──────────────────
-                if (roomObj.currentQuestion > activeQuizIdx && currentPhase === 'quiz') {
-                    activeQuizIdx = roomObj.currentQuestion;
-                    if (activeQuizIdx < quizList.length) {
-                        loadQuestion();
-                    }
-                }
-
-                // ── FINISH DETECTION ─────────────────────────────────────────────
-                if (roomObj.status === 'finished' && currentPhase === 'quiz') {
-                    clearInterval(pollerInterval);
-                    clearInterval(quizTimerInterval);
-                    currentPhase = 'podium';
-                    setTimeout(() => enterPodiumPhase(roomObj), 800);
-                }
-            }, 700);
-        }
-
-        // ─── PODIUM ──────────────────────────────────────────────────────────────
-        function enterPodiumPhase(roomObj) {
-            document.getElementById('phaseQuiz').classList.add('hidden');
-            document.getElementById('phaseQuiz').classList.remove('flex');
-            document.getElementById('phasePodium').classList.remove('hidden');
-            document.getElementById('phasePodium').classList.add('flex');
-
-            const sorted = [...roomObj.players].sort((a, b) => b.score - a.score);
-            const myFinal = roomObj.players[myPlayerIdx];
-            const myPrize = myFinal ? myFinal.score : 0;
-
-            // Add winnings to virtual wallet
-            const wallet = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
-            localStorage.setItem('virtualWalletCash', wallet + myPrize);
-
-            const medals = ['🥇', '🥈'];
-            document.getElementById('podiumList').innerHTML = sorted.map((p, i) => `
-                <div class="p-4 ${i===0 ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-950/40 border border-slate-700'} rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">${medals[i] || '🏅'}</span>
-                        <div>
-                            <span class="text-xs font-black text-white block">${p.name}${p.role==='host' ? ' 👑' : ''}</span>
-                            <span class="text-[9px] text-slate-400">${i===0 ? 'ผู้ชนะ' : 'อันดับ 2'}</span>
-                        </div>
-                    </div>
-                    <span class="text-sm font-black ${i===0 ? 'text-amber-400' : 'text-slate-300'}">${p.score.toLocaleString()} บ.</span>
-                </div>
-            `).join('') + `
-                <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 py-2.5 px-4 rounded-2xl text-center mt-1">
-                    💰 รางวัลสะสม +${myPrize.toLocaleString()} บาท เข้าบัญชีหลักเรียบร้อย!
-                </div>
-            `;
-
-            // Clean up room after podium
-            setTimeout(() => deleteRoom(activeRoomPIN), 5000);
-        }
-
-        // ─── MOBILE MENU ─────────────────────────────────────────────────────────
-        function toggleMobileMenu() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        }
-    </script>
+// ─── MOBILE MENU ─────────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+    document.getElementById('mobileMenu').classList.toggle('hidden');
+}
+</script>
 </body>
 </html>
