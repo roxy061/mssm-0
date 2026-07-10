@@ -47,9 +47,9 @@
             border-color: rgba(51, 65, 85, 0.4);
         }
         .crosshair {
-            width: 12px;
-            height: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            width: 14px;
+            height: 14px;
+            border: 2.5px solid rgba(255, 255, 255, 0.95);
             border-radius: 50%;
             pointer-events: none;
             position: absolute;
@@ -60,27 +60,74 @@
             z-index: 30;
         }
         .joystick-container {
-            width: 100px;
-            height: 100px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            width: 90px;
+            height: 90px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             position: absolute;
-            bottom: 30px;
-            left: 30px;
+            bottom: 25px;
+            left: 25px;
             touch-action: none;
             display: none;
             z-index: 30;
         }
         .joystick-handle {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.8);
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.85);
             border-radius: 50%;
             position: absolute;
-            top: 30px;
-            left: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            top: 25px;
+            left: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.25);
+        }
+        .mobile-look-area {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            z-index: 25;
+            touch-action: none;
+            display: none;
+        }
+        .mobile-action-btn {
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            z-index: 30;
+            touch-action: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+            user-select: none;
+            cursor: pointer;
+        }
+        .mobile-action-btn:active {
+            transform: scale(0.9);
+        }
+        .btn-jump {
+            bottom: 85px;
+            right: 25px;
+            background: rgba(59, 130, 246, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        .btn-place {
+            bottom: 25px;
+            right: 80px;
+            background: rgba(34, 197, 94, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+        .btn-destroy {
+            bottom: 25px;
+            right: 25px;
+            background: rgba(239, 68, 68, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.4);
         }
         .active-tool {
             border: 2px solid #22c55e !important;
@@ -193,10 +240,14 @@
                     </div>
                     <!-- Crosshair for FPS targeting -->
                     <div id="fpsCrosshair" class="crosshair"></div>
-                    <!-- Virtual Joystick for mobile users -->
+                    <!-- Virtual Joysticks & Mobile Buttons (Roblox style) -->
                     <div id="virtualJoystick" class="joystick-container">
                         <div id="joystickHandle" class="joystick-handle"></div>
                     </div>
+                    <div id="mobileLookArea" class="mobile-look-area"></div>
+                    <div id="btnJump" class="mobile-action-btn btn-jump" title="กระโดด"><i class="fas fa-arrow-up"></i></div>
+                    <div id="btnPlace" class="mobile-action-btn btn-place" title="วางบล็อก"><i class="fas fa-plus"></i></div>
+                    <div id="btnDestroy" class="mobile-action-btn btn-destroy" title="ลบบล็อก"><i class="fas fa-trash"></i></div>
                 </div>
 
                 <!-- Object Proximity Info Tooltip -->
@@ -296,19 +347,19 @@
                             </div>
                             <div class="p-2 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-center">
                                 <span class="text-[7.5px] font-bold text-gray-400 uppercase tracking-wider block">ความชื้นจำลอง</span>
-                                <strong id="simHum" class="text-xs font-black text-blue-600 dark:text-blue-400">62% RH</strong>
-                            </div>
-                            <div class="p-2 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-center">
-                                <span class="text-[7.5px] font-bold text-gray-400 uppercase tracking-wider block">งบประมาณสะสม</span>
-                                <strong id="lblCost" class="text-xs font-black text-emerald-600 dark:text-emerald-400">0 บ.</strong>
-<div class="text-xs bg-gray-50/50 dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800 p-3 rounded-2xl flex items-center justify-between">
-                            <div>
-                                <span class="text-[8.5px] font-bold text-gray-400 uppercase">ก้อนเชื้อติดตั้งแล้ว:</span>
-                                <div class="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-0.5"><span id="lblCapacity" class="text-emerald-500 text-base font-black">0</span> / 650 ก้อน</div>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[8.5px] font-bold text-gray-400 uppercase">โหมดสภาพอากาศปัจจุบัน:</span>
-                                <div id="lblWeatherMode" class="text-xs font-black text-amber-500 mt-0.5">กลางวัน (Sunny)</div>
+<div class="p-3 rounded-2xl bg-white/50 dark:bg-slate-900/40 border border-gray-150 dark:border-slate-800 flex items-center justify-between text-xs transition hover:scale-[1.01] animate-pop-in">
+                                    <div class="space-y-0.5">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-extrabold text-[10px] text-gray-400">#${index + 1}</span>
+                                            <strong class="font-extrabold text-gray-700 dark:text-gray-200 text-[11px]">${item.name}</strong>
+                                        </div>
+                                        <span class="text-[9px] text-gray-400 block">ค่าน้ำหนัก MPI: <span class="font-bold text-emerald-500">${item.mpi.toFixed(3)}</span> | คืนทุน: <span class="font-bold text-gray-600 dark:text-gray-300">${item.paybackDays} วัน</span></span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] text-gray-400 block">กำไรคาดการณ์</span>
+                                        <strong class="text-xs font-black text-emerald-600 dark:text-emerald-400">+${item.totalProfit.toLocaleString()} บ.</strong>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -336,6 +387,7 @@
         let mistParticles = null;
         let rainParticles = null;
         let rainAudio = null;
+        let placementCursor = null; // Wireframe grid selector
         
         let weatherMode = 'sunny'; // 'sunny', 'rainy', 'night'
         let cameraView = 'orbit'; // 'orbit', 'fps'
@@ -344,15 +396,23 @@
         let roofMaterial = 'thatch'; // 'thatch', 'metal'
         
         let placedBags = [];
-        let placedProps = []; // { type: 'wood'|'concrete'|'steel'|'fan'|'mist'|'sensor', mesh: THREE.Mesh }
+        let placedProps = []; // { type: 'wood'|'concrete'|'steel'|'fan'|'mist'|'sensor', mesh: THREE.Mesh/Group }
         let occupiedCoords = {}; // "x,z" -> mesh/group
 
-        // First Person Navigation State
+        // First Person Navigation State & Physics
         let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
         let yaw = 0, pitch = 0;
         let velocity = new THREE.Vector3();
         let direction = new THREE.Vector3();
         const eyeHeight = 1.6;
+        
+        let playerVelocityY = 0;
+        let isJumping = false;
+        const gravity = -9.8;
+        
+        let snappedTargetPos = new THREE.Vector3();
+        let hoveredObject = null;
+        let originalHoverColor = null;
 
         let floorMesh;
 
@@ -391,6 +451,9 @@
                     case 'KeyA': case 'ArrowLeft': moveLeft = true; break;
                     case 'KeyS': case 'ArrowDown': moveBackward = true; break;
                     case 'KeyD': case 'ArrowRight': moveRight = true; break;
+                    case 'Space': triggerJump(); e.preventDefault(); break;
+                    case 'KeyE': triggerPlaceAtCrosshair(); break;
+                    case 'KeyQ': triggerDestroyAtCrosshair(); break;
                 }
             });
 
@@ -403,14 +466,21 @@
                 }
             });
 
-            setupMobileJoystick();
+            setupMobileControls();
 
             const canvasContainer = document.getElementById('canvasContainer');
             canvasContainer.addEventListener('mousedown', (e) => {
-                if (e.button === 0 && cameraView === 'orbit') {
-                    tryPlaceSandboxItem(e);
+                if (cameraView === 'orbit') {
+                    if (e.button === 0) tryPlaceSandboxItem(e);
+                } else if (cameraView === 'fps') {
+                    if (document.pointerLockElement === canvasContainer) {
+                        if (e.button === 0) triggerPlaceAtCrosshair();
+                        else if (e.button === 2) triggerDestroyAtCrosshair();
+                    }
                 }
             });
+
+            canvasContainer.addEventListener('contextmenu', e => e.preventDefault());
         });
 
         function init3D() {
@@ -463,6 +533,13 @@
             gridHelper.position.y = 0.01;
             scene.add(gridHelper);
 
+            // Snapping target preview cursor
+            const cursorGeo = new THREE.BoxGeometry(0.5, 0.05, 0.5);
+            const cursorMat = new THREE.MeshBasicMaterial({ color: 0x10b981, wireframe: true, transparent: true, opacity: 0.8 });
+            placementCursor = new THREE.Mesh(cursorGeo, cursorMat);
+            placementCursor.visible = false;
+            scene.add(placementCursor);
+
             houseStructure = new THREE.Group();
             sandboxGroup = new THREE.Group();
             scene.add(houseStructure);
@@ -472,7 +549,7 @@
             animate();
 
             container.addEventListener('click', () => {
-                if (cameraView === 'fps') {
+                if (cameraView === 'fps' && document.pointerLockElement !== container) {
                     container.requestPointerLock();
                 }
             });
@@ -490,6 +567,58 @@
             yaw -= e.movementX * 0.002;
             pitch -= e.movementY * 0.002;
             pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+        }
+
+        function triggerJump() {
+            if (!isJumping) {
+                playerVelocityY = 4.2;
+                isJumping = true;
+            }
+        }
+
+        function triggerPlaceAtCrosshair() {
+            if (cameraView === 'fps') {
+                placeItem(snappedTargetPos.x, snappedTargetPos.z);
+            }
+        }
+
+        function triggerDestroyAtCrosshair() {
+            if (cameraView === 'fps' && hoveredObject) {
+                // Find and delete from arrays
+                let found = false;
+                
+                // Check placedBags
+                const bagIdx = placedBags.findIndex(b => b === hoveredObject || b.uuid === hoveredObject.uuid || b.children.includes(hoveredObject));
+                if (bagIdx > -1) {
+                    const bag = placedBags[bagIdx];
+                    sandboxGroup.remove(bag);
+                    placedBags.splice(bagIdx, 1);
+                    found = true;
+                }
+
+                // Check placedProps
+                if (!found) {
+                    const propIdx = placedProps.findIndex(p => p.mesh === hoveredObject || p.mesh.uuid === hoveredObject.uuid || p.mesh.children?.includes(hoveredObject));
+                    if (propIdx > -1) {
+                        const prop = placedProps[propIdx];
+                        sandboxGroup.remove(prop.mesh);
+                        placedProps.splice(propIdx, 1);
+                        found = true;
+                    }
+                }
+
+                // Clean occupied coords
+                if (found) {
+                    for (let key in occupiedCoords) {
+                        if (occupiedCoords[key] === hoveredObject || occupiedCoords[key].uuid === hoveredObject.uuid || occupiedCoords[key].children?.includes(hoveredObject)) {
+                            delete occupiedCoords[key];
+                            break;
+                        }
+                    }
+                    hoveredObject = null;
+                    updateSandboxMetrics();
+                }
+            }
         }
 
         function setWeather(mode) {
@@ -564,6 +693,12 @@
             
             const crosshair = document.getElementById('fpsCrosshair');
             const joystick = document.getElementById('virtualJoystick');
+            const lookArea = document.getElementById('mobileLookArea');
+            const jumpBtn = document.getElementById('btnJump');
+            const placeBtn = document.getElementById('btnPlace');
+            const destroyBtn = document.getElementById('btnDestroy');
+
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
             if (view === 'orbit') {
                 document.getElementById('btnViewOrbit').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
@@ -573,16 +708,35 @@
                     controls.target.set(0, 1.5, 0);
                     controls.update();
                 }
+                if (placementCursor) placementCursor.visible = false;
                 if (crosshair) crosshair.style.display = 'none';
                 if (joystick) joystick.style.display = 'none';
+                if (lookArea) lookArea.style.display = 'none';
+                if (jumpBtn) jumpBtn.style.display = 'none';
+                if (placeBtn) placeBtn.style.display = 'none';
+                if (destroyBtn) destroyBtn.style.display = 'none';
                 document.exitPointerLock();
             } else {
                 document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
                 if (controls) controls.enabled = false;
                 camera.position.set(0, eyeHeight, 4.5);
                 yaw = -Math.PI / 2; pitch = 0;
+                
+                if (placementCursor) placementCursor.visible = true;
                 if (crosshair) crosshair.style.display = 'block';
-                if (joystick && ('ontouchstart' in window)) joystick.style.display = 'block';
+                
+                // Show Roblox-style mobile controls on mobile devices
+                if (isTouch) {
+                    if (joystick) joystick.style.display = 'block';
+                    if (lookArea) lookArea.style.display = 'block';
+                    if (jumpBtn) jumpBtn.style.display = 'flex';
+                    if (placeBtn) placeBtn.style.display = 'flex';
+                    if (destroyBtn) destroyBtn.style.display = 'flex';
+                } else {
+                    if (jumpBtn) jumpBtn.style.display = 'flex';
+                    if (placeBtn) placeBtn.style.display = 'flex';
+                    if (destroyBtn) destroyBtn.style.display = 'flex';
+                }
             }
         }
 
@@ -799,7 +953,7 @@
 
             itemsWithMPI.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'p-3 rounded-2xl bg-white/50 dark:bg-slate-900/40 border border-gray-150 dark:border-slate-800 flex items-center justify-between text-xs transition hover:scale-[1.01]';
+                card.className = 'p-3 rounded-2xl bg-white/50 dark:bg-slate-900/40 border border-gray-150 dark:border-slate-800 flex items-center justify-between text-xs transition hover:scale-[1.01] animate-pop-in';
                 card.innerHTML = `
                     <div class="space-y-0.5">
                         <div class="flex items-center gap-1.5">
@@ -817,11 +971,15 @@
             });
         }
 
-        function setupMobileJoystick() {
+        function setupMobileControls() {
             const joystick = document.getElementById('virtualJoystick');
             const handle = document.getElementById('joystickHandle');
-            if (!joystick || !handle) return;
+            const lookArea = document.getElementById('mobileLookArea');
+            const jumpBtn = document.getElementById('btnJump');
+            const placeBtn = document.getElementById('btnPlace');
+            const destroyBtn = document.getElementById('btnDestroy');
 
+            // Left Joystick Movement
             let dragStart = null;
             joystick.addEventListener('touchstart', (e) => {
                 dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -840,6 +998,33 @@
                 dragStart = null; handle.style.transform = 'translate(0px,0px)';
                 moveForward = moveBackward = moveLeft = moveRight = false;
             });
+
+            // Right Camera Swipe Look
+            let lookStart = null;
+            lookArea.addEventListener('touchstart', (e) => {
+                lookStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            });
+            lookArea.addEventListener('touchmove', (e) => {
+                if (!lookStart) return;
+                const touch = e.touches[0];
+                const dx = touch.clientX - lookStart.x;
+                const dy = touch.clientY - lookStart.y;
+                yaw -= dx * 0.007;
+                pitch -= dy * 0.007;
+                pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+                lookStart = { x: touch.clientX, y: touch.clientY };
+            });
+            lookArea.addEventListener('touchend', () => { lookStart = null; });
+
+            // Action Buttons
+            jumpBtn.addEventListener('click', triggerJump);
+            placeBtn.addEventListener('click', triggerPlaceAtCrosshair);
+            destroyBtn.addEventListener('click', triggerDestroyAtCrosshair);
+            
+            // Allow touch triggers too
+            jumpBtn.addEventListener('touchstart', (e) => { triggerJump(); e.preventDefault(); });
+            placeBtn.addEventListener('touchstart', (e) => { triggerPlaceAtCrosshair(); e.preventDefault(); });
+            destroyBtn.addEventListener('touchstart', (e) => { triggerDestroyAtCrosshair(); e.preventDefault(); });
         }
 
         function animate() {
@@ -866,36 +1051,66 @@
                 if (moveBackward) direction.add(front.negate());
                 if (moveLeft) direction.add(right.negate());
                 if (moveRight) direction.add(right);
-                
                 direction.normalize();
                 
-                // Ground collision velocity dampening
-                velocity.x -= velocity.x * 10.0 * 0.016;
-                velocity.z -= velocity.z * 10.0 * 0.016;
+                velocity.x -= velocity.x * 10 * 0.016; velocity.z -= velocity.z * 10 * 0.016;
+                if (moveForward || moveBackward || moveLeft || moveRight) velocity.addScaledVector(direction, 4.0 * 0.016);
                 
-                if (moveForward || moveBackward || moveLeft || moveRight) {
-                    velocity.addScaledVector(direction, 4.0 * 0.016);
+                // Gravity & Jump Physics update
+                if (isJumping) {
+                    playerVelocityY += gravity * 0.016;
+                    camera.position.y += playerVelocityY * 0.08;
+                    if (camera.position.y <= eyeHeight) {
+                        camera.position.y = eyeHeight;
+                        playerVelocityY = 0;
+                        isJumping = false;
+                    }
                 }
-
+                
                 camera.position.addScaledVector(velocity, 0.5);
-                camera.position.y = eyeHeight; // Force ground level height constraint
-
-                // Target camera viewing vector
-                const target = new THREE.Vector3(0, 0, -1);
-                target.applyAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
-                target.applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                target.add(camera.position);
+                if (!isJumping) camera.position.y = eyeHeight;
+                
+                const target = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(1,0,0), pitch).applyAxisAngle(new THREE.Vector3(0,1,0), yaw).add(camera.position);
                 camera.lookAt(target);
 
-                // Update targeted proximity item readouts
+                // Target Snapping & Raycasting inside FPS room
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+                
+                // Raycast ground floor
+                const groundIntersects = raycaster.intersectObject(floorMesh);
+                if (groundIntersects.length > 0) {
+                    const p = groundIntersects[0].point;
+                    snappedTargetPos.x = Math.round(p.x * 2) / 2;
+                    snappedTargetPos.z = Math.round(p.z * 2) / 2;
+                    if (placementCursor) {
+                        placementCursor.position.set(snappedTargetPos.x, 0.03, snappedTargetPos.z);
+                    }
+                }
+
+                // Raycast placed objects to destroy
+                const objectIntersects = raycaster.intersectObjects(sandboxGroup.children, true);
+                if (objectIntersects.length > 0) {
+                    const hitObj = objectIntersects[0].object;
+                    let rootObj = hitObj;
+                    while (rootObj.parent && rootObj.parent !== sandboxGroup) {
+                        rootObj = rootObj.parent;
+                    }
+                    if (hoveredObject && hoveredObject !== rootObj) {
+                        resetHoverColor();
+                    }
+                    hoveredObject = rootObj;
+                    highlightHoverObject(hoveredObject);
+                } else {
+                    resetHoverColor();
+                    hoveredObject = null;
+                }
+
                 checkProximityObject();
             } else {
                 if (controls) controls.update();
             }
-
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
-            }
+            if (renderer && scene && camera) renderer.render(scene, camera);
         }
 
         // Instructions Modal handlers
