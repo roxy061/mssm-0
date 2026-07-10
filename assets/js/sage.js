@@ -238,6 +238,63 @@ async function send() {
     }
 }
 
+function injectMemberPhotos(text) {
+    const mappings = [
+        { keys: ["วุฒิภัทร", "อาม", "wuttiphar", "wuttiphat"], img: "assets/images/member2.jpg", name: "นายวุฒิภัทร มากด้วง (อาม)" },
+        { keys: ["กวินธิดา", "นิก", "kawinthida"], img: "assets/images/member4.jpg", name: "นางสาวกวินธิดา คชรัตน์ (นิก)" },
+        { keys: ["ศิรภัสสร", "ปังปอนด์", "ปอนด์", "sirapassorn"], img: "assets/images/member5.jpg", name: "นางสาวศิรภัสสร สิทธิพิทักษ์" },
+        { keys: ["ทานุฑัต", "ฟาม", "thanututt", "thanutut"], img: "assets/images/member1.jpg", name: "นายทานุฑัต ทิพย์เสภา (ฟาม)" },
+        { keys: ["สัณห์", "โต๊ะ", "san", "thoezaab"], img: "assets/images/member3.jpg", name: "นายสัณห์ สังขพงศ์ (โต๊ะ)" }
+    ];
+    
+    let injected = '';
+    mappings.forEach(m => {
+        const found = m.keys.some(k => text.includes(k));
+        if (found) {
+            injected += `
+            <div class="mt-3 block border-t border-gray-155 dark:border-gray-700/50 pt-2.5">
+                <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">รูปภาพผู้จัดทำ/ที่ปรึกษา: ${m.name}</span>
+                <img src="${m.img}" alt="${m.name}" class="max-h-44 w-auto rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover hover:scale-[1.02] transition-all">
+            </div>`;
+        }
+    });
+    
+    return injected;
+}
+
+function injectExperimentPhotos(text) {
+    const keywords = ["ภาพการทดลอง", "รูปการทดลอง", "รูปทดลอง", "ภาพทดลอง", "ภาพในแล็บ", "ภาพในห้องปฏิบัติการ", "ห้องปฏิบัติการ", "ขั้นตอนการทดลอง"];
+    const found = keywords.some(k => text.includes(k));
+    if (!found) return '';
+
+    return `
+    <div class="mt-3 block border-t border-gray-155 dark:border-gray-700/50 pt-2.5 space-y-3">
+        <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">📸 ภาพบรรยากาศการทดลองในห้องปฏิบัติการ:</span>
+        <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1">
+                <img src="assets/images/exp1.jpg" alt="บรรจุก้อนขี้เลื่อย" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
+                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">บรรจุวัสดุเพาะ</span>
+            </div>
+            <div class="space-y-1">
+                <img src="assets/images/exp2.jpg" alt="หยอดเชื้อ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
+                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">หยอดหัวเชื้อเห็ด</span>
+            </div>
+            <div class="space-y-1">
+                <img src="assets/images/exp3.jpg" alt="ปิดฝาก้อนเชื้อ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
+                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">สวมคอขวดและปิดฝา</span>
+            </div>
+            <div class="space-y-1">
+                <img src="assets/images/exp4.jpg" alt="คณะผู้จัดทำ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
+                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">ผู้จัดทำในห้องแล็บ</span>
+            </div>
+        </div>
+        <div class="space-y-1">
+            <img src="assets/images/exp5.jpg" alt="ชั่งน้ำหนักขี้เลื่อย" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-32 hover:scale-[1.02] transition-all">
+            <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">ชั่งน้ำหนักส่วนผสมตามอัตราส่วนสูตรชุมชน (650 กรัม)</span>
+        </div>
+    </div>`;
+}
+
 function addMsg(sender, text) {
     const box = document.getElementById('chatHistory');
     if (!box) return;
@@ -245,11 +302,17 @@ function addMsg(sender, text) {
     row.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-pop-in`;
     const plainText = text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').replace(/\s+/g, ' ').trim();
     const currentMode = document.getElementById('studyMode')?.value || 'General';
+    
+    let displayHtml = text;
+    if (sender === 'ai') {
+        displayHtml = text + injectMemberPhotos(text) + injectExperimentPhotos(text);
+    }
+    
     row.innerHTML = `<div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed ${
         sender === 'user'
             ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-br-md shadow-lg'
             : 'bg-gray-100 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-md'
-    }">${text}${
+    }">${displayHtml}${
         sender === 'ai'
             ? `<div class="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
                   <button onclick="speak(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง</button>
