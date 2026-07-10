@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Interactive 3D Mushroom House Builder - MSSM</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Three.js and OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        body {
+            font-family: 'Outfit', 'Sarabun', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(31, 41, 55, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen text-gray-800 dark:text-gray-100 flex">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-gray-200 dark:border-gray-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cubes"></i></span>
+                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">MSSM Core</span>
+            </div>
+            <button onclick="document.documentElement.classList.toggle('dark')" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition flex items-center justify-center cursor-pointer">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block text-amber-500"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
+            </a>
+            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
+            </a>
+            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
+            </a>
+            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
+            </a>
+            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
+            </a>
+            <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold transition-all text-xs">
+                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 3D
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="fixed top-0 inset-x-0 h-14 glass-panel border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
+        <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-cubes"></i></span>
+            <span class="font-extrabold text-sm text-gray-800 dark:text-gray-200">MSSM Builder 3D</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="document.documentElement.classList.toggle('dark')" class="w-8 h-8 rounded-full hover:bg-gray-150 dark:hover:bg-gray-800 transition flex items-center justify-center cursor-pointer">
+                <i class="fas fa-moon dark:hidden"></i>
+                <i class="fas fa-sun hidden dark:block text-amber-500"></i>
+            </button>
+            <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-gray-150 dark:hover:bg-gray-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU DRAWER -->
+    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
+        <div class="w-64 glass-panel border-r border-gray-200 dark:border-gray-800 h-full flex flex-col p-4 animate-slide-in">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-800">
+                <span class="font-black text-sm text-gray-800 dark:text-gray-100 uppercase">เมนูหลัก</span>
+                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center cursor-pointer"><i class="fas fa-times"></i></button>
+            </div>
+            <nav class="space-y-1.5 flex-grow">
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 text-xs">แดชบอร์ดผลการทดลอง</a>
+                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 text-xs">ห้องปฏิบัติการวิจัย</a>
+                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
+                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 text-xs">คลังข้อมูลดิบ Dataset</a>
+                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-gray-800/50 hover:text-emerald-600 text-xs">คู่มือและเอกสารโครงงาน</a>
+                <a href="builder3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-emerald-500/10 text-emerald-600 text-xs">ออกแบบโรงเรือน 3D</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6">
+        <header class="text-center px-4 py-4 md:py-6 shrink-0 relative overflow-hidden">
+            <h1 class="text-xl md:text-2xl font-black text-gray-800 dark:text-gray-100">Interactive 3D Mushroom House Builder</h1>
+            <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400">จำลองการออกแบบโรงเรือนเพาะเห็ด 3D ปรับสเปกวัสดุ คำนวณความจุ และประมาณการต้นทุน-ผลตอบแทนวิจัย</p>
+        </header>
+
+        <!-- 3D WORKSPACE GRID -->
+        <div class="flex-grow w-full max-w-[99%] mx-auto px-2 md:px-6 pb-6 flex flex-col xl:flex-row gap-6 overflow-hidden">
+            
+            <!-- LEFT: 3D Canvas Viewport -->
+            <div class="flex-grow flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-md overflow-hidden relative min-h-[350px] md:min-h-[480px] flex flex-col">
+                <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 shrink-0 flex items-center justify-between">
+                    <span class="text-xs font-bold text-gray-600 dark:text-gray-300"><i class="fas fa-eye mr-1.5 text-blue-500"></i> มุมมองจำลอง 3D (ใช้นิ้วลากหมุน/ซูม)</span>
+                    <button onclick="resetCamera()" class="px-2.5 py-1 rounded bg-white hover:bg-gray-150 border border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700 text-[10px] font-bold text-gray-600 dark:text-gray-200 transition cursor-pointer shadow-sm"><i class="fas fa-arrows-to-dot mr-1"></i> รีเซ็ตกล้อง</button>
+                </div>
+                <!-- 3D Canvas container -->
+                <div id="canvasContainer" class="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing">
+                    <!-- Three.js Canvas will be appended here -->
+                    <div id="loading3d" class="absolute inset-0 flex items-center justify-center bg-gray-50/50 dark:bg-gray-950/50 z-10 text-xs font-bold text-emerald-500">
+                        <i class="fas fa-circle-notch animate-spin mr-2"></i> กำลังเตรียมเวที 3D...
+                    </div>
+                </div>
+                <!-- Controls overlay -->
+                <div class="absolute bottom-4 left-4 p-2 rounded-xl bg-black/60 backdrop-blur-sm text-white text-[9px] sm:text-xs pointer-events-none space-y-1">
+                    <div><span class="font-bold text-amber-400">หมุน:</span> คลิกขวา/ลากนิ้วเดียว</div>
+                    <div><span class="font-bold text-amber-400">ซูม:</span> Scroll Wheel/สองนิ้วจีบ</div>
+                    <div><span class="font-bold text-amber-400">แพนมุมกล้อง:</span> Ctrl+ลาก หรือสองนิ้วลาก</div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Controls & Stats Panel -->
+            <div class="w-full xl:w-[480px] shrink-0 flex flex-col gap-6">
+                <!-- Customization Panel -->
+                <div class="bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-md p-5 flex flex-col shrink-0">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-6.5 h-6.5 rounded-lg bg-emerald-500 text-white flex items-center justify-center text-xs shadow-md"><i class="fas fa-sliders"></i></span>
+                        <h3 class="text-sm font-extrabold text-gray-800 dark:text-gray-100">แผงควบคุมสเปกโรงเรือน</h3>
+                    </div>
+
+                    <div class="space-y-4 text-xs sm:text-sm">
+                        <!-- Dimension controls -->
+                        <div class="space-y-3">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">1. มิติขนาดโครงสร้าง (เมตร)</span>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-500 block mb-1">ความกว้าง: <span id="valWidth" class="text-emerald-500">4.0</span> ม.</label>
+                                    <input type="range" id="paramWidth" min="2" max="6" step="0.5" value="4" oninput="update3DModel()" class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-500 block mb-1">ความยาว: <span id="valLength" class="text-emerald-500">6.0</span> ม.</label>
+                                    <input type="range" id="paramLength" min="3" max="10" step="0.5" value="6" oninput="update3DModel()" class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-500 block mb-1">ความสูง: <span id="valHeight" class="text-emerald-500">2.5</span> ม.</label>
+                                    <input type="range" id="paramHeight" min="2" max="4" step="0.25" value="2.5" oninput="update3DModel()" class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Roof & Wall material selector -->
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">2. วัสดุหลังคาและผนังโรงเรือน</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <label class="border border-gray-200 dark:border-gray-700 rounded-xl p-2.5 flex items-start gap-2 cursor-pointer hover:bg-emerald-50/30 dark:hover:bg-gray-800/40 transition">
+                                    <input type="radio" name="paramMaterial" value="thatch" checked onchange="update3DModel()" class="mt-1 accent-emerald-500">
+                                    <div>
+                                        <strong class="text-[10.5px] block font-bold text-gray-700 dark:text-gray-200">มุงจาก + ซาแรน</strong>
+                                        <span class="text-[9px] text-gray-400 dark:text-gray-500 block leading-tight mt-0.5">ลดความร้อน ปรับชื้นสูง (เหมาะกับนางฟ้า/นางรม)</span>
+                                    </div>
+                                </label>
+                                <label class="border border-gray-200 dark:border-gray-700 rounded-xl p-2.5 flex items-start gap-2 cursor-pointer hover:bg-emerald-50/30 dark:hover:bg-gray-800/40 transition">
+                                    <input type="radio" name="paramMaterial" value="zinc" onchange="update3DModel()" class="mt-1 accent-emerald-500">
+                                    <div>
+                                        <strong class="text-[10.5px] block font-bold text-gray-700 dark:text-gray-200">สังกะสี + เปิดผนัง</strong>
+                                        <span class="text-[9px] text-gray-400 dark:text-gray-500 block leading-tight mt-0.5">สะสมความร้อนสูงขึ้น (เหมาะกับเห็ดแครง 30-32°C)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Shelf Style & Capacity parameter -->
+                        <div class="space-y-3">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">3. รูปแบบชั้นวางและจำนวน</span>
+                            <div class="grid grid-cols-2 gap-3 items-center">
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-500 block mb-1">ทรงชั้นวาง:</label>
+                                    <select id="paramShelfStyle" onchange="update3DModel()" class="w-full h-8 rounded-lg px-2 text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer font-bold shadow-sm">
+                                        <option value="A-Shape">โครงสามเหลี่ยม A-Shape</option>
+                                        <option value="Hanging">ก้อนแขวนแนวดิ่ง (Hanging)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-gray-500 block mb-1">จำนวนแถวชั้นวาง: <span id="valRacks" class="text-emerald-500">2</span> แถว</label>
+                                    <input type="range" id="paramRacks" min="1" max="4" step="1" value="2" oninput="update3DModel()" class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Misting Sprinkler toggler -->
+                        <div class="flex items-center justify-between border-t border-gray-155 dark:border-gray-800 pt-3">
+                            <div>
+                                <strong class="text-xs font-bold text-gray-700 dark:text-gray-200 flex items-center gap-1.5"><i class="fas fa-droplet text-blue-500"></i> ติดตั้งระบบพ่นหมอกอัตโนมัติ</strong>
+                                <span class="text-[9px] text-gray-400 dark:text-gray-500 block">เปิดแอนิเมชันละอองหมอก และยกระดับความชื้นสัมพัทธ์ (RH)</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="paramMisting" onchange="toggleMistingSystem()" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Metrics & CBA Predictions -->
+                <div class="bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-3xl shadow-md p-5 flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-6.5 h-6.5 rounded-lg bg-blue-500 text-white flex items-center justify-center text-xs shadow-md"><i class="fas fa-chart-line"></i></span>
+                        <h3 class="text-sm font-extrabold text-gray-800 dark:text-gray-100">ตัวชี้วัดการประเมินวิจัยจำลอง</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Simulated temp & humidity status -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="p-2.5 rounded-xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 text-center">
+                                <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wider block">อุณหภูมิภายในจำลอง</span>
+                                <strong id="simTemp" class="text-sm font-black text-orange-600 dark:text-orange-400">27.5 °C</strong>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-center">
+                                <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wider block">ความชื้นสัมพัทธ์จำลอง</span>
+                                <strong id="simHum" class="text-sm font-black text-blue-600 dark:text-blue-400">62% RH</strong>
+                            </div>
+                        </div>
+
+                        <!-- Capacity and Cost Summary -->
+                        <div class="grid grid-cols-2 gap-3 border-t border-b border-gray-155 dark:border-gray-800 py-3">
+                            <div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">ความจุก้อนเชื้อสูงสุด:</span>
+                                <div class="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-0.5"><span id="lblCapacity" class="text-emerald-500 text-base font-black">0</span> ก้อน</div>
+                                <span class="text-[8px] text-gray-400 block mt-0.5">(ถุงก้อนเชื้อขนาด 650 กรัม)</span>
+                            </div>
+                            <div>
+                                <span class="text-[9px] font-bold text-gray-400 uppercase">ค่าวัสดุและก้อนเชื้อ:</span>
+                                <div class="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-0.5"><span id="lblCost" class="text-blue-500 text-base font-black">0</span> บาท</div>
+                                <span class="text-[8px] text-gray-400 block mt-0.5">(รวมต้นทุนโรงเรือนและก้อนเชื้อ)</span>
+                            </div>
+                        </div>
+
+                        <!-- Yield Prognosis for all 4 species -->
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">พยากรณ์ผลตอบแทนจำลอง (เปรียบเทียบ 4 สายพันธุ์)</span>
+                            
+                            <div id="cbaList" class="space-y-1.5">
+                                <!-- Populated dynamically by script -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script Section -->
+    <script>
+        let scene, camera, renderer, controls;
+        let houseStructure = null;
+        let racksGroup = null;
+        let mistParticles = null;
+        let mistingActive = false;
+
+        // Mushroom research values per bag (based on 650g bag averages)
+        const MUSHROOM_DATA = [
+            { id: 'แครง', name: 'เห็ดแครง (อันดับ 1)', profitPerBag: 30.375, bcr: 2.47, paybackDays: 33.49, suitability: 'สูง', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' },
+            { id: 'นางฟ้า', name: 'เห็ดนางฟ้าภูฐาน', profitPerBag: 17.65, bcr: 1.83, paybackDays: 47.96, suitability: 'สูง', badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400' },
+            { id: 'นางรม', name: 'เห็ดนางรมฮังการี', profitPerBag: 15.30, bcr: 1.70, paybackDays: 52.88, suitability: 'ปานกลาง', badge: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-400' },
+            { id: 'หูหนู', name: 'เห็ดหูหนู', profitPerBag: 7.42, bcr: 1.34, paybackDays: 67.43, suitability: 'ต่ำ', badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' }
+        ];
+
+        // Thai Provinces mobile drawer toggle helper
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobileMenu');
+            if (drawer) drawer.classList.toggle('hidden');
+        }
+
+        // Initialize 3D Engine on load
+        window.addEventListener('DOMContentLoaded', () => {
+            init3D();
+            update3DModel();
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const container = document.getElementById('canvasContainer');
+                if (container && camera && renderer) {
+                    const w = container.clientWidth;
+                    const h = container.clientHeight;
+                    camera.aspect = w / h;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(w, h);
+                }
+            });
+        });
+
+        function init3D() {
+            const container = document.getElementById('canvasContainer');
+            const loading = document.getElementById('loading3d');
+            if (!container) return;
+
+            const w = container.clientWidth;
+            const h = container.clientHeight || 450;
+
+            // Scene & Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf1f5f9); // Light theme bg initially
+            // Check dark mode
+            if (document.documentElement.classList.contains('dark')) {
+                scene.background = new THREE.Color(0x0f172a);
+            }
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+            camera.position.set(10, 8, 12);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(w, h);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            if (loading) loading.classList.add('hidden');
+
+            // Orbit Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxPolarAngle = Math.PI / 2 - 0.05; // Prevent camera going below floor
+            controls.minDistance = 3;
+            controls.maxDistance = 25;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(15, 20, 10);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            scene.add(dirLight);
+
+            const dirLight2 = new THREE.DirectionalLight(0x90e0ef, 0.3); // Sky fill light
+            dirLight2.position.set(-10, 10, -10);
+            scene.add(dirLight2);
+
+            // Ground Floor Grid
+            const gridHelper = new THREE.GridHelper(30, 30, 0x10b981, 0xcbd5e1);
+            gridHelper.position.y = -0.01;
+            scene.add(gridHelper);
+
+            // Ground plane
+            const floorGeo = new THREE.PlaneGeometry(35, 35);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // Add basic reference axis helper (small)
+            const axes = new THREE.AxesHelper(1.5);
+            axes.position.set(-7, 0.05, -7);
+            scene.add(axes);
+
+            // Initialize groups
+            houseStructure = new THREE.Group();
+            racksGroup = new THREE.Group();
+            scene.add(houseStructure);
+            scene.add(racksGroup);
+
+            // Start animation loop
+            animate();
+        }
+
+        function resetCamera() {
+            if (camera && controls) {
+                camera.position.set(10, 8, 12);
+                controls.target.set(0, 1.5, 0);
+                controls.update();
+            }
+        }
+
+        // Main Draw & Scale loop
+        function update3DModel() {
+            // Read inputs
+            const width = parseFloat(document.getElementById('paramWidth').value);
+            const length = parseFloat(document.getElementById('paramLength').value);
+            const height = parseFloat(document.getElementById('paramHeight').value);
+            const racksCount = parseInt(document.getElementById('paramRacks').value);
+            const shelfStyle = document.getElementById('paramShelfStyle').value;
+            const materialType = document.querySelector('radio[name="paramMaterial"]:checked')?.value || document.querySelector('input[name="paramMaterial"]:checked')?.value || 'thatch';
+
+            // Update UI Labels
+            document.getElementById('valWidth').textContent = width.toFixed(1);
+            document.getElementById('valLength').textContent = length.toFixed(1);
+            document.getElementById('valHeight').textContent = height.toFixed(2);
+            document.getElementById('valRacks').textContent = racksCount;
+
+            // Sync Scene Background color on dark theme changes
+            if (scene) {
+                if (document.documentElement.classList.contains('dark')) {
+                    scene.background.setHex(0x0f172a);
+                } else {
+                    scene.background.setHex(0xf1f5f9);
+                }
+            }
+
+            // Draw House Structure
+            drawHouse(width, length, height, materialType);
+
+            // Draw racks and calculate capacity
+            const spawnedBagsCount = drawRacks(width, length, height, racksCount, shelfStyle);
+
+            // Calculate costs & update metrics
+            updateCalculations(width, length, height, materialType, spawnedBagsCount);
+        }
+
+        // Draw the Greenhouse box
+        function drawHouse(w, l, h, mat) {
+            // Clear previous house model elements
+            while(houseStructure.children.length > 0){
+                const obj = houseStructure.children[0];
+                houseStructure.remove(obj);
+            }
+
+            // Design parameters depending on material
+            let pillarColor = 0x854d0e; // Wood post
+            let wallColor = 0x15803d;   // Green shading net
+            let roofColor = 0xb45309;   // Brown thatch
+            let wallOpacity = 0.25;
+            let roofMat;
+
+            if (mat === 'zinc') {
+                pillarColor = 0x64748b; // Galvanized metal post
+                wallColor = 0xffffff;
+                wallOpacity = 0.0; // Open walls
+                roofColor = 0x94a3b8;   // Silver metallic zinc sheets
+            }
+
+            const pillarMaterial = new THREE.MeshStandardMaterial({ color: pillarColor, roughness: 0.7 });
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: wallColor, 
+                transparent: true, 
+                opacity: wallOpacity, 
+                side: THREE.DoubleSide,
+                roughness: 0.9
+            });
+
+            // 1. Pillars (Four corner posts)
+            const postGeo = new THREE.BoxGeometry(0.12, h, 0.12);
+            const corners = [
+                { x: -w/2, z: -l/2 },
+                { x: w/2, z: -l/2 },
+                { x: -w/2, z: l/2 },
+                { x: w/2, z: l/2 }
+            ];
+
+            corners.forEach(pos => {
+                const pillar = new THREE.Mesh(postGeo, pillarMaterial);
+                pillar.position.set(pos.x, h/2, pos.z);
+                pillar.castShadow = true;
+                pillar.receiveShadow = true;
+                houseStructure.add(pillar);
+            });
+
+            // 2. Net Shading Walls (Back, Left, Right, Front with entrance gap)
+            if (mat === 'thatch') {
+                const wallGeoH = new THREE.PlaneGeometry(w, h);
+                const wallGeoL = new THREE.PlaneGeometry(l, h);
+
+                // Back Wall
+                const backWall = new THREE.Mesh(wallGeoH, wallMaterial);
+                backWall.position.set(0, h/2, -l/2);
+                houseStructure.add(backWall);
+
+                // Left Wall
+                const leftWall = new THREE.Mesh(wallGeoL, wallMaterial);
+                leftWall.rotation.y = Math.PI / 2;
+                leftWall.position.set(-w/2, h/2, 0);
+                houseStructure.add(leftWall);
+
+                // Right Wall
+                const rightWall = new THREE.Mesh(wallGeoL, wallMaterial);
+                rightWall.rotation.y = -Math.PI / 2;
+                rightWall.position.set(w/2, h/2, 0);
+                houseStructure.add(rightWall);
+            }
+
+            // 3. Gable Roof (Triangle prisms)
+            const roofOverhang = 0.3;
+            const roofWidth = w + roofOverhang * 2;
+            const roofLength = l + roofOverhang * 2;
+            const roofHeight = 1.0; // Ridge height from eaves
+
+            const roofShape = new THREE.Shape();
+            roofShape.moveTo(-roofWidth/2, 0);
+            roofShape.lineTo(0, roofHeight);
+            roofShape.lineTo(roofWidth/2, 0);
+            roofShape.closePath();
+
+            const extrudeSettings = {
+                depth: roofLength,
+                bevelEnabled: false
+            };
+
+            const roofExtrudeGeo = new THREE.ExtrudeGeometry(roofShape, extrudeSettings);
+            let roofMaterial;
+            if (mat === 'thatch') {
+                roofMaterial = new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.95 });
+            } else {
+                // Shiny metallic zinc roof
+                roofMaterial = new THREE.MeshStandardMaterial({ color: roofColor, metalness: 0.8, roughness: 0.3 });
+            }
+
+            const roofMesh = new THREE.Mesh(roofExtrudeGeo, roofMaterial);
+            // Extrude goes along positive Z direction, let's offset it to center
+            roofMesh.position.set(0, h, -roofLength/2);
+            roofMesh.castShadow = true;
+            houseStructure.add(roofMesh);
+
+            // Eaves trusses (support timber beams)
+            const trussGeo = new THREE.BoxGeometry(roofWidth, 0.08, 0.08);
+            const truss = new THREE.Mesh(trussGeo, pillarMaterial);
+            truss.position.set(0, h, 0);
+            houseStructure.add(truss);
+        }
+
+        // Draw internal racks and populate with mushroom bags
+        function drawRacks(w, l, h, numRacks, style) {
+            while(racksGroup.children.length > 0){
+                const obj = racksGroup.children[0];
+                racksGroup.remove(obj);
+            }
+
+            // Distribute racks along the width (X axis)
+            const spacing = w / (numRacks + 1);
+            let totalBags = 0;
+
+            const rackMaterial = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.5 }); // Metal bars
+            const bagMaterial = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 }); // White plastic mycelium bag
+            const capMaterial = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.9 }); // Brown rubber band/cap
+
+            for (let i = 0; i < numRacks; i++) {
+                const xPos = -w/2 + spacing * (i + 1);
+                
+                // Add rack structure
+                const rackLen = l * 0.85; // 85% of house length
+                const rackZStart = -rackLen / 2;
+
+                if (style === 'A-Shape') {
+                    // Draw A-Shape frames along length
+                    const frameHeight = h * 0.75;
+                    const frameWidth = 1.0; // base width of A shape
+
+                    // Draw front, middle, back frames
+                    const zSteps = [rackZStart, 0, rackZStart + rackLen];
+                    zSteps.forEach(z => {
+                        // Left leg
+                        const legL = new THREE.Mesh(new THREE.BoxGeometry(0.04, frameHeight * 1.1, 0.04), rackMaterial);
+                        legL.position.set(xPos - frameWidth/3, frameHeight/2, z);
+                        legL.rotation.z = -0.18;
+                        racksGroup.add(legL);
+
+                        // Right leg
+                        const legR = new THREE.Mesh(new THREE.BoxGeometry(0.04, frameHeight * 1.1, 0.04), rackMaterial);
+                        legR.position.set(xPos + frameWidth/3, frameHeight/2, z);
+                        legR.rotation.z = 0.18;
+                        racksGroup.add(legR);
+                    });
+
+                    // Horizontal support pipes (3 tiers of shelves on each side)
+                    const numTiers = 3;
+                    const tierHeights = [frameHeight * 0.25, frameHeight * 0.55, frameHeight * 0.85];
+
+                    tierHeights.forEach(ty => {
+                        const tierW = frameWidth * (1.0 - (ty / frameHeight) * 0.7); // narrows towards top
+                        
+                        // Left shelf bar
+                        const barL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, rackLen), rackMaterial);
+                        barL.position.set(xPos - tierW/2, ty, 0);
+                        racksGroup.add(barL);
+
+                        // Right shelf bar
+                        const barR = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, rackLen), rackMaterial);
+                        barR.position.set(xPos + tierW/2, ty, 0);
+                        racksGroup.add(barR);
+
+                        // Spawn bags along the shelf length
+                        const bagSpacing = 0.22; // 22cm per bag
+                        const bagsPerBar = Math.floor(rackLen / bagSpacing);
+
+                        for (let b = 0; b < bagsPerBar; b++) {
+                            const zB = rackZStart + (b * bagSpacing) + bagSpacing/2;
+
+                            // Left bag
+                            const bagL = createMushroomBagModel(bagMaterial, capMaterial);
+                            bagL.position.set(xPos - tierW/2, ty + 0.1, zB);
+                            bagL.rotation.x = Math.PI / 2; // lie down on rack
+                            racksGroup.add(bagL);
+
+                            // Right bag
+                            const bagR = createMushroomBagModel(bagMaterial, capMaterial);
+                            bagR.position.set(xPos + tierW/2, ty + 0.1, zB);
+                            bagR.rotation.x = Math.PI / 2;
+                            racksGroup.add(bagR);
+
+                            totalBags += 2;
+                        }
+                    });
+
+                } else {
+                    // Hanging model: vertical chains of bags
+                    // Horizontal ceiling hanging frame
+                    const supportBar = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, rackLen), rackMaterial);
+                    supportBar.position.set(xPos, h * 0.85, 0);
+                    racksGroup.add(supportBar);
+
+                    // Support vertical string hangers
+                    const hangerSpacing = 0.35;
+                    const hangersCount = Math.floor(rackLen / hangerSpacing);
+
+                    for (let hg = 0; hg < hangersCount; hg++) {
+                        const zH = rackZStart + (hg * hangerSpacing) + hangerSpacing/2;
+
+                        // Vertical wire line
+                        const wireGeo = new THREE.BoxGeometry(0.005, h * 0.7, 0.005);
+                        const wire = new THREE.Mesh(wireGeo, rackMaterial);
+                        wire.position.set(xPos, h * 0.5, zH);
+                        racksGroup.add(wire);
+
+                        // 4 bags hung vertically per wire
+                        const bagsPerWire = 4;
+                        for (let bg = 0; bg < bagsPerWire; bg++) {
+                            const yB = h * 0.2 + (bg * 0.18);
+                            
+                            const bag = createMushroomBagModel(bagMaterial, capMaterial);
+                            bag.position.set(xPos, yB, zH);
+                            // Hanging bags hang vertically
+                            racksGroup.add(bag);
+                            totalBags++;
+                        }
+                    }
+                }
+            }
+
+            return totalBags;
+        }
+
+        // Helper to construct a single cylinder 650g mushroom bag
+        function createMushroomBagModel(bagMat, capMat) {
+            const bagGroup = new THREE.Group();
+
+            // White cylinder bag
+            const cylGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.14, 8);
+            const cyl = new THREE.Mesh(cylGeo, bagMat);
+            cyl.castShadow = true;
+            cyl.receiveShadow = true;
+            bagGroup.add(cyl);
+
+            // Brown cap neck
+            const capGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.025, 8);
+            const cap = new THREE.Mesh(capGeo, capMat);
+            cap.position.y = 0.08; // offset to top of cylinder
+            cap.castShadow = true;
+            bagGroup.add(cap);
+
+            return bagGroup;
+        }
+
+        // Misting Water particles system toggler
+        function toggleMistingSystem() {
+            const toggle = document.getElementById('paramMisting');
+            mistingActive = toggle.checked;
+
+            if (mistingActive) {
+                // Create particle system
+                const particleCount = 250;
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+
+                const width = parseFloat(document.getElementById('paramWidth').value);
+                const length = parseFloat(document.getElementById('paramLength').value);
+                const height = parseFloat(document.getElementById('paramHeight').value);
+
+                for (let i = 0; i < particleCount; i++) {
+                    const x = (Math.random() - 0.5) * (width * 0.8);
+                    const y = height * 0.4 + Math.random() * (height * 0.45);
+                    const z = (Math.random() - 0.5) * (length * 0.8);
+                    positions.push(x, y, z);
+                }
+
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+                // Soft blue particle dots
+                const material = new THREE.PointsMaterial({
+                    color: 0x90e0ef,
+                    size: 0.06,
+                    transparent: true,
+                    opacity: 0.6
+                });
+
+                mistParticles = new THREE.Points(geometry, material);
+                scene.add(mistParticles);
+            } else {
+                if (mistParticles) {
+                    scene.remove(mistParticles);
+                    mistParticles = null;
+                }
+            }
+
+            // Triggers statistics update
+            const matType = document.querySelector('input[name="paramMaterial"]:checked')?.value || 'thatch';
+            const width = parseFloat(document.getElementById('paramWidth').value);
+            const length = parseFloat(document.getElementById('paramLength').value);
+            const height = parseFloat(document.getElementById('paramHeight').value);
+            const spawnedBags = drawRacks(width, length, height, parseInt(document.getElementById('paramRacks').value), document.getElementById('paramShelfStyle').value);
+            updateCalculations(width, length, height, matType, spawnedBags);
+        }
+
+        // Live Cost & CBA predictions calculations
+        function updateCalculations(w, l, h, mat, bagsCount) {
+            // 1. Simulated environmental metrics
+            let temp = 27.5;
+            let humidity = 62;
+
+            if (mat === 'thatch') {
+                temp = 26.2; // Eaves thatch cools down
+                humidity = 67;
+            } else {
+                temp = 31.4; // Zinc roof cooks up
+                humidity = 53;
+            }
+
+            if (mistingActive) {
+                // Sprinkler boosts humidity, drops temperature
+                humidity += 18;
+                temp -= 1.8;
+            }
+
+            document.getElementById('simTemp').textContent = `${temp.toFixed(1)} °C`;
+            document.getElementById('simHum').textContent = `${humidity}% RH`;
+
+            // 2. Maximum physical capacity
+            // Display total generated bags count
+            document.getElementById('lblCapacity').textContent = bagsCount.toLocaleString();
+
+            // 3. Structural Costing Analysis
+            // Base construction materials fee based on dimensions + material type
+            let structureRate = 120; // THB per cubic meter
+            if (mat === 'zinc') structureRate = 150; // metal structure more expensive
+            
+            const volume = w * l * h;
+            const houseCost = Math.round(volume * structureRate);
+            
+            // Bags cost: 10 THB per mushroom bag
+            const bagsCost = bagsCount * 10;
+            const totalCost = houseCost + bagsCost;
+
+            document.getElementById('lblCost').textContent = totalCost.toLocaleString();
+
+            // 4. Update dynamic economic yield projections list
+            const listContainer = document.getElementById('cbaList');
+            if (!listContainer) return;
+
+            listContainer.innerHTML = '';
+            MUSHROOM_DATA.forEach(item => {
+                const totalProfit = Math.round(bagsCount * item.profitPerBag);
+                
+                const card = document.createElement('div');
+                card.className = 'p-3 rounded-2xl bg-white/50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800 flex items-center justify-between text-xs transition hover:scale-[1.01]';
+                card.innerHTML = `
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <strong class="font-extrabold text-gray-700 dark:text-gray-200 text-[11px]">${item.name}</strong>
+                            <span class="px-1.5 py-0.2 rounded text-[7.5px] font-black ${item.badge}">${item.suitability}</span>
+                        </div>
+                        <span class="text-[9px] text-gray-400 block">BCR: <span class="font-bold text-gray-600 dark:text-gray-300">${item.bcr}</span> | คืนทุน: <span class="font-bold text-gray-600 dark:text-gray-300">${item.paybackDays} วัน</span></span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[9px] text-gray-400 block">กำไรจำลองสะสม</span>
+                        <strong class="text-xs font-black text-emerald-600 dark:text-emerald-400">+${totalProfit.toLocaleString()} บ.</strong>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // Animation rendering loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate controls if active
+            if (controls) controls.update();
+
+            // Animate mist particles falling downwards
+            if (mistingActive && mistParticles) {
+                const positions = mistParticles.geometry.attributes.position.array;
+                const height = parseFloat(document.getElementById('paramHeight').value);
+
+                for (let i = 1; i < positions.length; i += 3) {
+                    positions[i] -= 0.015; // move downwards
+
+                    // Reset particle to top if it hits the ground
+                    if (positions[i] < 0.1) {
+                        positions[i] = height * 0.4 + Math.random() * (height * 0.45);
+                    }
+                }
+                mistParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+    </script>
+</body>
+</html>
