@@ -219,35 +219,60 @@
 
                     <div class="space-y-4">
                         <!-- Structural items selection -->
-                        <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectSandboxTool('wood')" id="toolWood" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
-                                <span class="text-base">🪵</span>
-                                <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">เสาไม้</span>
-                            </button>
-                            <button onclick="selectSandboxTool('concrete')" id="toolConcrete" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
-                                <span class="text-base">🧱</span>
-                                <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">เสาปูน</span>
-                            </button>
-                            <button onclick="selectSandboxTool('fan')" id="toolFan" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
-                                <span class="text-base">💨</span>
-                                <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">พัดลมดูด</span>
-                            </button>
-                            <button onclick="selectSandboxTool('bag')" id="toolBag" class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
-                                <span class="text-base">🍄</span>
-                                <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">ก้อนเห็ด</span>
-                            </button>
-                        </div>
-
-                        <!-- Soil style select -->
-                        <div class="flex items-center justify-between border-t border-gray-150 dark:border-slate-800 pt-3 text-xs">
-                            <span class="font-bold text-gray-600 dark:text-gray-400">วัสดุปูพื้นดิน:</span>
-                            <div class="flex gap-1.5">
-                                <button onclick="setFloorMaterial('soil')" id="btnFloorSoil" class="px-2.5 py-1 rounded bg-amber-800 text-white font-bold text-[9px] shadow cursor-pointer">ดินทราย</button>
-                                <button onclick="setFloorMaterial('cement')" id="btnFloorCement" class="px-2.5 py-1 rounded bg-gray-200 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer">ปูนซิเมนต์</button>
+                        <div>
+                            <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">1. บล็อกโครงสร้าง (เสา & อุปกรณ์ฟาร์ม)</span>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="selectSandboxTool('wood')" id="toolWood" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">🪵</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">เสาไม้ (50 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('concrete')" id="toolConcrete" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">🧱</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">เสาปูน (120 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('steel')" id="toolSteel" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">🔩</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">โครงเหล็ก (220 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('fan')" id="toolFan" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">💨</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">พัดลมดูด (350 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('mist')" id="toolMist" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">💧</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">หัวพ่นหมอก (150 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('sensor')" id="toolSensor" class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-base">🌡️</span>
+                                    <span class="text-[8.5px] font-bold text-gray-600 dark:text-gray-400 mt-1 block">เซนเซอร์ (250 บ.)</span>
+                                </button>
+                                <button onclick="selectSandboxTool('bag')" id="toolBag" class="col-span-3 flex items-center justify-center gap-2 py-2 rounded-xl border border-gray-200 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-800/40 text-center transition cursor-pointer">
+                                    <span class="text-sm">🍄</span>
+                                    <span class="text-[10px] font-bold text-gray-700 dark:text-gray-300">ก้อนเพาะเชื้อเห็ด 650 กรัม (18.00 บ.)</span>
+                                </button>
                             </div>
                         </div>
 
-                        <div class="flex gap-2">
+                        <!-- Soil & Roof Matrix -->
+                        <div class="space-y-2 border-t border-gray-150 dark:border-slate-800 pt-3">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-gray-650 dark:text-gray-400">วัสดุปูพื้นดิน:</span>
+                                <div class="flex gap-1">
+                                    <button onclick="setFloorMaterial('soil')" id="btnFloorSoil" class="px-2 py-0.5 rounded bg-amber-800 text-white font-bold text-[9px] shadow cursor-pointer">ดิน (+5% RH)</button>
+                                    <button onclick="setFloorMaterial('sand')" id="btnFloorSand" class="px-2 py-0.5 rounded bg-gray-200 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer">ทราย (+2% RH)</button>
+                                    <button onclick="setFloorMaterial('cement')" id="btnFloorCement" class="px-2 py-0.5 rounded bg-gray-200 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer">ปูน (0% RH)</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="font-bold text-gray-650 dark:text-gray-400">วัสดุหลังคา:</span>
+                                <div class="flex gap-1.5">
+                                    <button onclick="setRoofMaterial('thatch')" id="btnRoofThatch" class="px-2.5 py-0.5 rounded bg-amber-700 text-white font-bold text-[9px] shadow cursor-pointer">มุงจาก (+1°C)</button>
+                                    <button onclick="setRoofMaterial('metal')" id="btnRoofMetal" class="px-2.5 py-0.5 rounded bg-gray-200 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer">เมทัลชีท (+5°C)</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 border-t border-gray-150 dark:border-slate-800 pt-3">
                             <button onclick="autoFillBags()" class="flex-1 py-1.5 text-xs font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 rounded-lg hover:shadow-sm transition cursor-pointer"><i class="fas fa-cubes"></i> เติมเห็ดเต็มแผง</button>
                             <button onclick="clearSandbox()" class="px-3 py-1.5 text-xs font-bold text-red-500 bg-red-50 dark:bg-red-950/20 rounded-lg hover:shadow-sm transition cursor-pointer"><i class="fas fa-trash"></i> ล้างออก</button>
                         </div>
@@ -275,11 +300,7 @@
                             <div class="p-2 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-center">
                                 <span class="text-[7.5px] font-bold text-gray-400 uppercase tracking-wider block">งบประมาณสะสม</span>
                                 <strong id="lblCost" class="text-xs font-black text-emerald-600 dark:text-emerald-400">0 บ.</strong>
-                            </div>
-                        </div>
-
-                        <!-- Capacity summary -->
-                        <div class="text-xs bg-gray-50/50 dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800 p-3 rounded-2xl flex items-center justify-between">
+<div class="text-xs bg-gray-50/50 dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800 p-3 rounded-2xl flex items-center justify-between">
                             <div>
                                 <span class="text-[8.5px] font-bold text-gray-400 uppercase">ก้อนเชื้อติดตั้งแล้ว:</span>
                                 <div class="text-sm font-extrabold text-gray-800 dark:text-gray-200 mt-0.5"><span id="lblCapacity" class="text-emerald-500 text-base font-black">0</span> / 650 ก้อน</div>
@@ -317,9 +338,13 @@
         
         let weatherMode = 'sunny'; // 'sunny', 'rainy', 'night'
         let cameraView = 'orbit'; // 'orbit', 'fps'
-        let selectedSandboxTool = 'wood'; // 'wood', 'concrete', 'fan', 'bag'
+        let selectedSandboxTool = 'wood'; // 'wood', 'concrete', 'steel', 'fan', 'mist', 'sensor', 'bag'
+        let floorMaterial = 'soil'; // 'soil', 'sand', 'cement'
+        let roofMaterial = 'thatch'; // 'thatch', 'metal'
+        
         let placedBags = [];
-        let placedProps = [];
+        let placedProps = []; // { type: 'wood'|'concrete'|'steel'|'fan'|'mist'|'sensor', mesh: THREE.Mesh }
+        let occupiedCoords = {}; // "x,z" -> mesh/group
 
         // First Person Navigation State
         let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
@@ -328,30 +353,25 @@
         let direction = new THREE.Vector3();
         const eyeHeight = 1.6;
 
-        // Custom floor textures
         let floorMesh;
 
-        // Mushroom research values per bag (based on 650g bag averages)
         const MUSHROOM_DATA = [
-            { id: 'แครง', name: 'เห็ดแครง (อันดับ 1)', baseProfit: 30.375, bcr: 2.47, paybackDays: 33.49, optimalTempMin: 30, optimalTempMax: 32, badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400' },
-            { id: 'นางฟ้า', name: 'เห็ดนางฟ้าภูฐาน', baseProfit: 17.65, bcr: 1.83, paybackDays: 47.96, optimalTempMin: 20, optimalTempMax: 32, badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400' },
-            { id: 'นางรม', name: 'เห็ดนางรมฮังการี', baseProfit: 15.30, bcr: 1.70, paybackDays: 52.88, optimalTempMin: 25, optimalTempMax: 30, badge: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-400' },
-            { id: 'หูหนู', name: 'เห็ดหูหนู', baseProfit: 7.42, bcr: 1.34, paybackDays: 67.43, optimalTempMin: 25, optimalTempMax: 32, badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400' }
+            { id: 'แครง', name: 'เห็ดแครง (อันดับ 1)', baseProfit: 30.375, bcr: 2.47, paybackDays: 33.49, optimalTempMin: 30, optimalTempMax: 32, badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400', suitability: 'สูง' },
+            { id: 'นางฟ้า', name: 'เห็ดนางฟ้าภูฐาน', baseProfit: 17.65, bcr: 1.83, paybackDays: 47.96, optimalTempMin: 20, optimalTempMax: 32, badge: 'bg-blue-100 text-blue-800 dark:bg-blue-950/40 dark:text-blue-400', suitability: 'สูง' },
+            { id: 'นางรม', name: 'เห็ดนางรมฮังการี', baseProfit: 15.30, bcr: 1.70, paybackDays: 52.88, optimalTempMin: 25, optimalTempMax: 30, badge: 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-400', suitability: 'ปานกลาง' },
+            { id: 'หูหนู', name: 'เห็ดหูหนู', baseProfit: 7.42, bcr: 1.34, paybackDays: 67.43, optimalTempMin: 25, optimalTempMax: 32, badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400', suitability: 'ต่ำ' }
         ];
 
-        // Thai Provinces mobile drawer toggle helper
         function toggleMobileMenu() {
             const drawer = document.getElementById('mobileMenu');
             if (drawer) drawer.classList.toggle('hidden');
         }
 
-        // Initialize 3D Engine on load
         window.addEventListener('DOMContentLoaded', () => {
             init3D();
-            autoFillBags(); // Pre-populate some sandbox items
+            autoFillBags();
             updateCalculations();
             
-            // Handle window resize
             window.addEventListener('resize', () => {
                 const container = document.getElementById('canvasContainer');
                 if (container && camera && renderer) {
@@ -363,7 +383,6 @@
                 }
             });
 
-            // Keyboard binds
             document.addEventListener('keydown', (e) => {
                 if (cameraView !== 'fps') return;
                 switch (e.code) {
@@ -383,14 +402,11 @@
                 }
             });
 
-            // Joystick & touch interaction logic
             setupMobileJoystick();
 
-            // Handle tool placement clicks inside the scene
             const canvasContainer = document.getElementById('canvasContainer');
             canvasContainer.addEventListener('mousedown', (e) => {
                 if (e.button === 0 && cameraView === 'orbit') {
-                    // Perform raycast placement only in Orbit view
                     tryPlaceSandboxItem(e);
                 }
             });
@@ -404,15 +420,12 @@
             const w = container.clientWidth;
             const h = container.clientHeight || 450;
 
-            // Scene & Setup
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x90e0ef); // Light blue sky initially
+            scene.background = new THREE.Color(0x90e0ef);
 
-            // Camera
             camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
             camera.position.set(10, 8, 12);
 
-            // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(w, h);
             renderer.shadowMap.enabled = true;
@@ -421,7 +434,6 @@
 
             if (loading) loading.classList.add('hidden');
 
-            // Orbit Controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
@@ -429,7 +441,6 @@
             controls.minDistance = 3;
             controls.maxDistance = 35;
 
-            // Lighting
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
 
@@ -440,45 +451,38 @@
             dirLight.shadow.mapSize.height = 1024;
             scene.add(dirLight);
 
-            // Floor Plane
             const floorGeo = new THREE.PlaneGeometry(40, 40);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.9 }); // Sand/Soil brown
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x7c2d12, roughness: 0.9 });
             floorMesh = new THREE.Mesh(floorGeo, floorMat);
             floorMesh.rotation.x = -Math.PI / 2;
             floorMesh.receiveShadow = true;
             scene.add(floorMesh);
 
-            // Add Ground Grid
             const gridHelper = new THREE.GridHelper(40, 40, 0x10b981, 0x94a3b8);
             gridHelper.position.y = 0.01;
             scene.add(gridHelper);
 
-            // Groups
             houseStructure = new THREE.Group();
             sandboxGroup = new THREE.Group();
             scene.add(houseStructure);
             scene.add(sandboxGroup);
 
-            // Build structural house framework
             drawBasicGreenhouse();
+            animate();
 
-            // Pointer lock controls for mouse looking in FPS mode
-            canvasContainer.addEventListener('click', () => {
+            container.addEventListener('click', () => {
                 if (cameraView === 'fps') {
-                    canvasContainer.requestPointerLock();
+                    container.requestPointerLock();
                 }
             });
 
             document.addEventListener('pointerlockchange', () => {
-                if (document.pointerLockElement === canvasContainer) {
+                if (document.pointerLockElement === container) {
                     document.addEventListener('mousemove', onMouseMoveLook, false);
                 } else {
                     document.removeEventListener('mousemove', onMouseMoveLook, false);
                 }
             });
-
-            // Start animation loop
-            animate();
         }
 
         function onMouseMoveLook(e) {
@@ -487,34 +491,27 @@
             pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
         }
 
-        // Draw dynamic background weather colors
         function setWeather(mode) {
             weatherMode = mode;
-            
-            // Remove active classes
-            document.getElementById('btnWeatherSunny').className = 'w-8 h-8 rounded-xl bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
-            document.getElementById('btnWeatherRainy').className = 'w-8 h-8 rounded-xl bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
-            document.getElementById('btnWeatherNight').className = 'w-8 h-8 rounded-xl bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
+            document.getElementById('btnWeatherSunny').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
+            document.getElementById('btnWeatherRainy').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
+            document.getElementById('btnWeatherNight').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
 
-            const lightColor = new THREE.Color();
             const skyColor = new THREE.Color();
             let label = 'กลางวัน (Sunny)';
 
             if (mode === 'sunny') {
                 document.getElementById('btnWeatherSunny').className = 'w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xs transition shadow-lg cursor-pointer';
                 skyColor.setHex(0x90e0ef);
-                lightColor.setHex(0xffffff);
                 stopRainEffect();
             } else if (mode === 'rainy') {
                 document.getElementById('btnWeatherRainy').className = 'w-8 h-8 rounded-xl bg-slate-700 text-white flex items-center justify-center text-xs transition shadow-lg cursor-pointer';
                 skyColor.setHex(0x5c677d);
-                lightColor.setHex(0xa2a2a2);
                 label = 'พายุฝน (Rainy)';
                 startRainEffect();
             } else if (mode === 'night') {
                 document.getElementById('btnWeatherNight').className = 'w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-xs transition shadow-lg cursor-pointer';
                 skyColor.setHex(0x0f172a);
-                lightColor.setHex(0x1e293b);
                 label = 'กลางคืน (Night)';
                 stopRainEffect();
             }
@@ -524,88 +521,45 @@
             updateCalculations();
         }
 
-        // Rain particles and Audio effect
         function startRainEffect() {
             if (rainParticles) return;
-
-            const particleCount = 1000;
+            const particleCount = 1200;
             const geometry = new THREE.BufferGeometry();
             const positions = [];
 
             for (let i = 0; i < particleCount; i++) {
-                const x = (Math.random() - 0.5) * 35;
-                const y = Math.random() * 20;
-                const z = (Math.random() - 0.5) * 35;
-                positions.push(x, y, z);
+                positions.push((Math.random() - 0.5) * 35, Math.random() * 20, (Math.random() - 0.5) * 35);
             }
 
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-            const material = new THREE.PointsMaterial({
-                color: 0x90e0ef,
-                size: 0.08,
-                transparent: true,
-                opacity: 0.5
-            });
-
-            rainParticles = new THREE.Points(geometry, material);
+            rainParticles = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0x90e0ef, size: 0.08, transparent: true, opacity: 0.5 }));
             scene.add(rainParticles);
 
-            // Synth rain sound using Web Audio API
             try {
                 if (window.AudioContext || window.webkitAudioContext) {
-                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                    const ctx = new AudioCtx();
-                    
-                    const bufferSize = ctx.sampleRate * 2;
-                    const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                    const output = noiseBuffer.getChannelData(0);
-                    
-                    for (let i = 0; i < bufferSize; i++) {
-                        output[i] = Math.random() * 2 - 1;
-                    }
-                    
-                    const whiteNoise = ctx.createBufferSource();
-                    whiteNoise.buffer = noiseBuffer;
-                    whiteNoise.loop = true;
-                    
-                    const filter = ctx.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.value = 1000;
-                    
-                    const gain = ctx.createGain();
-                    gain.gain.value = 0.08; // very soft background sound
-                    
-                    whiteNoise.connect(filter);
-                    filter.connect(gain);
-                    gain.connect(ctx.destination);
-                    whiteNoise.start();
-                    
-                    rainAudio = { source: whiteNoise, context: ctx };
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const buffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+                    const out = buffer.getChannelData(0);
+                    for (let i = 0; i < buffer.length; i++) out[i] = Math.random() * 2 - 1;
+                    const src = ctx.createBufferSource();
+                    src.buffer = buffer; src.loop = true;
+                    const gain = ctx.createGain(); gain.gain.value = 0.06;
+                    src.connect(gain); gain.connect(ctx.destination);
+                    src.start();
+                    rainAudio = { source: src, context: ctx };
                 }
-            } catch (err) {}
+            } catch(e){}
         }
 
         function stopRainEffect() {
-            if (rainParticles) {
-                scene.remove(rainParticles);
-                rainParticles = null;
-            }
-            if (rainAudio) {
-                try {
-                    rainAudio.source.stop();
-                    rainAudio.context.close();
-                } catch(e) {}
-                rainAudio = null;
-            }
+            if (rainParticles) { scene.remove(rainParticles); rainParticles = null; }
+            if (rainAudio) { try { rainAudio.source.stop(); rainAudio.context.close(); } catch(e){} rainAudio = null; }
         }
 
-        // Switch Camera views
         function setCameraView(view) {
             cameraView = view;
-            
-            document.getElementById('btnViewOrbit').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
-            document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
+            document.getElementById('btnViewOrbit').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-150 text-gray-700 dark:bg-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
+            document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-gray-150 text-gray-700 dark:bg-slate-800 dark:text-gray-200 transition cursor-pointer flex items-center gap-1.5';
             
             const crosshair = document.getElementById('fpsCrosshair');
             const joystick = document.getElementById('virtualJoystick');
@@ -624,241 +578,175 @@
             } else {
                 document.getElementById('btnViewFPS').className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow transition cursor-pointer flex items-center gap-1.5';
                 if (controls) controls.enabled = false;
-                
-                // Position camera inside the doorway at ground level
                 camera.position.set(0, eyeHeight, 4.5);
-                yaw = -Math.PI / 2; // look forwards
-                pitch = 0;
-                
+                yaw = -Math.PI / 2; pitch = 0;
                 if (crosshair) crosshair.style.display = 'block';
                 if (joystick && ('ontouchstart' in window)) joystick.style.display = 'block';
             }
         }
 
-        // Toggle selected tool inside the Sandbox builder
         function selectSandboxTool(tool) {
             selectedSandboxTool = tool;
-
-            document.getElementById('toolWood').classList.remove('active-tool');
-            document.getElementById('toolConcrete').classList.remove('active-tool');
-            document.getElementById('toolFan').classList.remove('active-tool');
-            document.getElementById('toolBag').classList.remove('active-tool');
-
-            if (tool === 'wood') document.getElementById('toolWood').classList.add('active-tool');
-            if (tool === 'concrete') document.getElementById('toolConcrete').classList.add('active-tool');
-            if (tool === 'fan') document.getElementById('toolFan').classList.add('active-tool');
-            if (tool === 'bag') document.getElementById('toolBag').classList.add('active-tool');
+            ['wood', 'concrete', 'steel', 'fan', 'mist', 'sensor', 'bag'].forEach(t => {
+                const el = document.getElementById('tool' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (el) el.classList.toggle('active-tool', tool === t);
+            });
         }
 
         function setFloorMaterial(type) {
-            document.getElementById('btnFloorSoil').className = 'px-2.5 py-1 rounded bg-gray-200 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
-            document.getElementById('btnFloorCement').className = 'px-2.5 py-1 rounded bg-gray-200 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
+            floorMaterial = type;
+            document.getElementById('btnFloorSoil').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
+            document.getElementById('btnFloorSand').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
+            document.getElementById('btnFloorCement').className = 'px-2 py-0.5 rounded bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
 
             if (type === 'soil') {
-                document.getElementById('btnFloorSoil').className = 'px-2.5 py-1 rounded bg-amber-800 text-white font-bold text-[9px] shadow cursor-pointer';
-                if (floorMesh) floorMesh.material.color.setHex(0x7c2d12); // brown soil
+                document.getElementById('btnFloorSoil').className = 'px-2 py-0.5 rounded bg-amber-800 text-white font-bold text-[9px] shadow cursor-pointer';
+                if (floorMesh) floorMesh.material.color.setHex(0x7c2d12);
+            } else if (type === 'sand') {
+                document.getElementById('btnFloorSand').className = 'px-2 py-0.5 rounded bg-amber-600 text-white font-bold text-[9px] shadow cursor-pointer';
+                if (floorMesh) floorMesh.material.color.setHex(0xd97706);
             } else {
-                document.getElementById('btnFloorCement').className = 'px-2.5 py-1 rounded bg-gray-500 text-white font-bold text-[9px] shadow cursor-pointer';
-                if (floorMesh) floorMesh.material.color.setHex(0x64748b); // grey cement
+                document.getElementById('btnFloorCement').className = 'px-2 py-0.5 rounded bg-gray-500 text-white font-bold text-[9px] shadow cursor-pointer';
+                if (floorMesh) floorMesh.material.color.setHex(0x64748b);
             }
+            updateCalculations();
         }
 
-        // Draw basic greenhouse structural frames
-        function drawBasicGreenhouse() {
-            // Clear previous house model elements
-            while(houseStructure.children.length > 0){
-                const obj = houseStructure.children[0];
-                houseStructure.remove(obj);
+        function setRoofMaterial(type) {
+            roofMaterial = type;
+            document.getElementById('btnRoofThatch').className = 'px-2.5 py-0.5 rounded bg-gray-100 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
+            document.getElementById('btnRoofMetal').className = 'px-2.5 py-0.5 rounded bg-gray-100 text-gray-750 dark:bg-slate-800 dark:text-gray-300 font-bold text-[9px] cursor-pointer';
+
+            if (type === 'thatch') {
+                document.getElementById('btnRoofThatch').className = 'px-2.5 py-0.5 rounded bg-amber-700 text-white font-bold text-[9px] shadow cursor-pointer';
+            } else {
+                document.getElementById('btnRoofMetal').className = 'px-2.5 py-0.5 rounded bg-blue-600 text-white font-bold text-[9px] shadow cursor-pointer';
             }
+            drawBasicGreenhouse();
+            updateCalculations();
+        }
 
-            const pillarMaterial = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.7 });
+        function drawBasicGreenhouse() {
+            while(houseStructure.children.length > 0) houseStructure.remove(houseStructure.children[0]);
             const postGeo = new THREE.BoxGeometry(0.12, 2.5, 0.12);
-
-            // Pillars
-            const corners = [
-                { x: -2, z: -3 },
-                { x: 2, z: -3 },
-                { x: -2, z: 3 },
-                { x: 2, z: 3 }
-            ];
-
-            corners.forEach(pos => {
-                const pillar = new THREE.Mesh(postGeo, pillarMaterial);
-                pillar.position.set(pos.x, 1.25, pos.z);
+            const mat = new THREE.MeshStandardMaterial({ color: 0x854d0e });
+            [{x:-2,z:-3},{x:2,z:-3},{x:-2,z:3},{x:2,z:3}].forEach(p => {
+                const pillar = new THREE.Mesh(postGeo, mat);
+                pillar.position.set(p.x, 1.25, p.z);
                 houseStructure.add(pillar);
             });
-
-            // Roof
             const roofShape = new THREE.Shape();
-            roofShape.moveTo(-2.3, 0);
-            roofShape.lineTo(0, 0.8);
-            roofShape.lineTo(2.3, 0);
-            roofShape.closePath();
-
-            const extrudeSettings = { depth: 6.6, bevelEnabled: false };
-            const roofExtrudeGeo = new THREE.ExtrudeGeometry(roofShape, extrudeSettings);
-            const roofMaterial = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.95 });
-            const roofMesh = new THREE.Mesh(roofExtrudeGeo, roofMaterial);
+            roofShape.moveTo(-2.3, 0); roofShape.lineTo(0, 0.8); roofShape.lineTo(2.3, 0); roofShape.closePath();
+            const roofMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(roofShape, { depth: 6.6, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: roofMaterial === 'thatch' ? 0xb45309 : 0x94a3b8 }));
             roofMesh.position.set(0, 2.5, -3.3);
             houseStructure.add(roofMesh);
         }
 
-        // Raycast placement of sandbox items
         function tryPlaceSandboxItem(e) {
-            const container = document.getElementById('canvasContainer');
             const rect = renderer.domElement.getBoundingClientRect();
-            
-            const mouse = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-            );
-
+            const mouse = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
             const raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, camera);
-
-            // Raycast against ground floor
             const intersects = raycaster.intersectObject(floorMesh);
-
             if (intersects.length > 0) {
-                const point = intersects[0].point;
-                
-                // Snap to a grid of 0.5 meters
-                const gridX = Math.round(point.x * 2) / 2;
-                const gridZ = Math.round(point.z * 2) / 2;
-
-                if (Math.abs(gridX) < 10 && Math.abs(gridZ) < 10) {
-                    placeItem(gridX, gridZ);
-                }
+                const p = intersects[0].point;
+                const gridX = Math.round(p.x * 2) / 2;
+                const gridZ = Math.round(p.z * 2) / 2;
+                if (Math.abs(gridX) < 10 && Math.abs(gridZ) < 10) placeItem(gridX, gridZ);
             }
         }
 
         function placeItem(x, z) {
-            if (selectedSandboxTool === 'wood' || selectedSandboxTool === 'concrete') {
-                const height = 2.5;
-                const color = selectedSandboxTool === 'wood' ? 0x854d0e : 0x64748b;
-                const mat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 });
-                const geo = new THREE.BoxGeometry(0.12, height, 0.12);
-                const mesh = new THREE.Mesh(geo, mat);
-                mesh.position.set(x, height/2, z);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-                sandboxGroup.add(mesh);
-                placedProps.push(mesh);
+            const key = `${x.toFixed(1)},${z.toFixed(1)}`;
+            if (occupiedCoords[key]) return;
+
+            let placedMesh = null;
+            if (selectedSandboxTool === 'wood' || selectedSandboxTool === 'concrete' || selectedSandboxTool === 'steel') {
+                let color = 0x854d0e;
+                let metal = 0.0;
+                if (selectedSandboxTool === 'concrete') color = 0x64748b;
+                else if (selectedSandboxTool === 'steel') { color = 0x475569; metal = 0.8; }
+                placedMesh = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.5, 0.12), new THREE.MeshStandardMaterial({ color, metalness: metal, roughness: 0.4 }));
+                placedMesh.position.set(x, 1.25, z);
+                sandboxGroup.add(placedMesh);
+                placedProps.push({ type: selectedSandboxTool, mesh: placedMesh });
             } else if (selectedSandboxTool === 'fan') {
-                // Exhaust fan
-                const fanGroup = new THREE.Group();
-                
-                // Outer ring
-                const ringGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16);
-                const ringMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5 });
-                const ring = new THREE.Mesh(ringGeo, ringMat);
-                ring.rotation.x = Math.PI / 2;
-                fanGroup.add(ring);
-
-                // Blade
-                const bladeGeo = new THREE.BoxGeometry(0.04, 0.38, 0.01);
-                const bladeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0 });
-                const blade = new THREE.Mesh(bladeGeo, bladeMat);
+                const group = new THREE.Group();
+                const outer = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.1, 16), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+                outer.rotation.x = Math.PI / 2;
+                group.add(outer);
+                const blade = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.38, 0.01), new THREE.MeshStandardMaterial({ color: 0xe2e8f0 }));
                 blade.name = 'blade';
-                fanGroup.add(blade);
-
-                fanGroup.position.set(x, 1.8, z);
-                sandboxGroup.add(fanGroup);
-                placedProps.push(fanGroup);
+                group.add(blade);
+                group.position.set(x, 1.8, z);
+                sandboxGroup.add(group);
+                placedMesh = group;
+                placedProps.push({ type: 'fan', mesh: group });
+            } else if (selectedSandboxTool === 'mist') {
+                const group = new THREE.Group();
+                group.add(new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0x475569 })));
+                group.position.set(x, 0.6, z);
+                sandboxGroup.add(group);
+                placedMesh = group;
+                placedProps.push({ type: 'mist', mesh: group });
+            } else if (selectedSandboxTool === 'sensor') {
+                const group = new THREE.Group();
+                group.add(new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.0, 8), new THREE.MeshStandardMaterial({ color: 0x3b82f6 })));
+                group.position.set(x, 0.5, z);
+                sandboxGroup.add(group);
+                placedMesh = group;
+                placedProps.push({ type: 'sensor', mesh: group });
             } else if (selectedSandboxTool === 'bag') {
-                // Mushroom bag
-                if (placedBags.length >= 650) return; // Cap at 650 max
-
-                const bagMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 });
-                const capMat = new THREE.MeshStandardMaterial({ color: 0xd97706 });
-                
-                const bag = new THREE.Group();
-                const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 8), bagMat);
-                cyl.castShadow = true;
-                bag.add(cyl);
-
-                const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.02, 8), capMat);
-                cap.position.y = 0.08;
-                bag.add(cap);
-
-                // Setup dynamic biology values for hovering proximity readout
-                const speciesOptions = ['เห็ดแครง', 'เห็ดนางฟ้าภูฐาน', 'เห็ดนางรมฮังการี', 'เห็ดหูหนู'];
-                const randomSpecies = speciesOptions[Math.floor(Math.random() * speciesOptions.length)];
-                const randomMoisture = Math.floor(65 + Math.random() * 25);
-                const randomDays = Math.floor(1 + Math.random() * 5);
-                const bagId = `#B-${Math.floor(100 + Math.random() * 900)}`;
-
-                bag.userData = {
-                    id: bagId,
-                    species: randomSpecies,
-                    moisture: randomMoisture,
-                    daysToHarvest: randomDays
-                };
-
-                bag.position.set(x, 0.1, z);
-                sandboxGroup.add(bag);
-                placedBags.push(bag);
+                if (placedBags.length >= 650) return;
+                const group = new THREE.Group();
+                group.add(new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 8), new THREE.MeshStandardMaterial({ color: 0xf8fafc })));
+                group.userData = { id: `#B-${Math.floor(100+Math.random()*900)}`, species: MUSHROOM_DATA[Math.floor(Math.random()*4)].name, moisture: Math.floor(65+Math.random()*25), daysToHarvest: Math.floor(1+Math.random()*5) };
+                group.position.set(x, 0.07, z);
+                sandboxGroup.add(group);
+                placedMesh = group;
+                placedBags.push(group);
             }
 
+            if (placedMesh) occupiedCoords[key] = placedMesh;
             updateCalculations();
         }
 
-        // Fill all empty grid coordinates within the greenhouse frame with mushroom bags
         function autoFillBags() {
             clearSandbox();
-            
-            // Generate rows of bags along Z axis
             for (let x = -1.2; x <= 1.2; x += 0.6) {
-                if (Math.abs(x) < 0.2) continue; // Walkway gap down center
-                
+                if (Math.abs(x) < 0.2) continue;
                 for (let z = -2.5; z <= 2.5; z += 0.3) {
                     selectedSandboxTool = 'bag';
                     placeItem(x, z);
                 }
             }
-
-            // Put a fan on the back wall
-            selectedSandboxTool = 'fan';
-            placeItem(0, 2.5);
-            
-            // Reset to wood tool
-            selectedSandboxTool = 'wood';
-            selectSandboxTool('wood');
+            selectedSandboxTool = 'fan'; placeItem(0, 2.5);
+            selectedSandboxTool = 'wood'; selectSandboxTool('wood');
         }
 
         function clearSandbox() {
-            while(sandboxGroup.children.length > 0){
-                sandboxGroup.remove(sandboxGroup.children[0]);
-            }
-            placedBags = [];
-            placedProps = [];
+            while(sandboxGroup.children.length > 0) sandboxGroup.remove(sandboxGroup.children[0]);
+            placedBags = []; placedProps = []; occupiedCoords = {};
             updateCalculations();
         }
 
-        // Proximity detection for target hovering in First-Person view
         function checkProximityObject() {
             if (cameraView !== 'fps') {
                 document.getElementById('objectTooltip').style.display = 'none';
                 return;
             }
-
             let targetedBag = null;
-            let minDistance = 2.2; // Maximum interaction reach (meters)
-
+            let minDistance = 2.2;
             placedBags.forEach(bag => {
                 const dist = camera.position.distanceTo(bag.position);
-                if (dist < minDistance) {
-                    targetedBag = bag;
-                    minDistance = dist;
-                }
+                if (dist < minDistance) { targetedBag = bag; minDistance = dist; }
             });
-
             const tooltip = document.getElementById('objectTooltip');
             if (targetedBag) {
                 document.getElementById('ttTitle').textContent = `ตรวจพบ: ก้อนเชื้อหมายเลข ${targetedBag.userData.id}`;
                 document.getElementById('ttContent').innerHTML = `
                     สายพันธุ์: <strong>${targetedBag.userData.species}</strong><br>
-                    ปริมาณน้ำคงเหลือ: <strong>${targetedBag.userData.moisture}%</strong> (เหมาะสำหรับเปิดดอก)<br>
+                    ปริมาณน้ำคงเหลือ: <strong>${targetedBag.userData.moisture}%</strong><br>
                     ระยะเวลาพร้อมเก็บเกี่ยว: <strong>อีก ${targetedBag.userData.daysToHarvest} วัน</strong>
                 `;
                 tooltip.style.display = 'block';
@@ -867,69 +755,46 @@
             }
         }
 
-        // Dynamic MPI matching simulator
         function updateCalculations() {
-            // 1. Environmental calculations based on weather & sandbox assets
-            let baseTemp = 27.5;
-            let baseHumidity = 62;
+            let baseTemp = (weatherMode === 'sunny' ? 32 : (weatherMode === 'rainy' ? 25 : 22)) + (roofMaterial === 'thatch' ? 1 : 5);
+            let baseHum = (weatherMode === 'sunny' ? 50 : (weatherMode === 'rainy' ? 85 : 70)) + (floorMaterial === 'soil' ? 5 : (floorMaterial === 'sand' ? 2 : 0));
+            
+            let fanCount = placedProps.filter(p => p.type === 'fan').length;
+            let mistCount = placedProps.filter(p => p.type === 'mist').length;
+            baseTemp -= (fanCount * 1.5 + mistCount * 0.5);
+            baseHum += (mistCount * 15 - fanCount * 8);
 
-            if (weatherMode === 'sunny') {
-                baseTemp = 32.1; // Hot sun
-                baseHumidity = 54;
-            } else if (weatherMode === 'rainy') {
-                baseTemp = 24.8; // Cool rain
-                baseHumidity = 84;
-            } else if (weatherMode === 'night') {
-                baseTemp = 23.2; // Night cool
-                baseHumidity = 71;
-            }
-
-            // Exhaust fans drop temperature
-            let fanCount = placedProps.filter(p => p.name === '').length; // simplistic fan filter check
-            baseTemp -= (fanCount * 0.4);
+            baseTemp = Math.max(15, Math.min(50, baseTemp));
+            baseHum = Math.max(10, Math.min(100, baseHum));
 
             document.getElementById('simTemp').textContent = `${baseTemp.toFixed(1)} °C`;
-            document.getElementById('simHumidity')?.setAttribute('text', `${baseHumidity}% RH`);
-            document.getElementById('simHum').textContent = `${baseHumidity}% RH`;
-
-            // 2. Budget / cost calculation
-            // Base structural greenhouse framework is 3,500 THB
-            let totalCost = 3500;
-            totalCost += (placedBags.length * 10); // 10 THB per bag
-            totalCost += (placedProps.length * 80); // Average 80 THB per post/fan
-
-            document.getElementById('lblCost').textContent = `${totalCost.toLocaleString()} บ.`;
+            document.getElementById('simHum').textContent = `${baseHum.toFixed(0)}% RH`;
+            
+            let cost = 3500 + (floorMaterial === 'soil' ? 100 : (floorMaterial === 'sand' ? 150 : 500)) + (roofMaterial === 'thatch' ? 1500 : 3000) + (placedBags.length * 18);
+            placedProps.forEach(p => {
+                if (p.type === 'wood') cost += 50;
+                else if (p.type === 'concrete') cost += 120;
+                else if (p.type === 'steel') cost += 220;
+                else if (p.type === 'fan') cost += 350;
+                else if (p.type === 'mist') cost += 150;
+                else if (p.type === 'sensor') cost += 250;
+            });
+            document.getElementById('lblCost').textContent = `${cost.toLocaleString()} บ.`;
             document.getElementById('lblCapacity').textContent = placedBags.length;
 
-            // 3. Dynamic MPI Calculation per species
-            const listContainer = document.getElementById('cbaList');
-            if (!listContainer) return;
-
-            listContainer.innerHTML = '';
-
-            // Compute temporary MPI index based on how close the temperature matches each mushroom's sweet spot
+            const list = document.getElementById('cbaList');
+            list.innerHTML = '';
+            
             const itemsWithMPI = MUSHROOM_DATA.map(item => {
                 let tempFactor = 1.0;
-                if (baseTemp < item.optimalTempMin) {
-                    tempFactor = 1.0 - ((item.optimalTempMin - baseTemp) / 10);
-                } else if (baseTemp > item.optimalTempMax) {
-                    tempFactor = 1.0 - ((baseTemp - item.optimalTempMax) / 10);
-                }
+                if (baseTemp < item.optimalTempMin) tempFactor = 1.0 - ((item.optimalTempMin - baseTemp) / 10);
+                else if (baseTemp > item.optimalTempMax) tempFactor = 1.0 - ((baseTemp - item.optimalTempMax) / 10);
                 tempFactor = Math.max(0.1, Math.min(1.0, tempFactor));
-
-                // Compute dynamic MPI score
                 const mpi = (item.bcr / 2.5) * 0.5 + tempFactor * 0.5;
                 const totalProfit = Math.round(placedBags.length * item.baseProfit * tempFactor);
-
-                return {
-                    ...item,
-                    mpi: mpi,
-                    totalProfit: totalProfit
-                };
+                return { ...item, mpi, totalProfit };
             });
-
-            // Sort by MPI descending
-            itemsWithMPI.sort((a, b) => b.mpi - a.mpi);
+            itemsWithMPI.sort((a,b) => b.mpi - a.mpi);
 
             itemsWithMPI.forEach((item, index) => {
                 const card = document.createElement('div');
@@ -947,85 +812,54 @@
                         <strong class="text-xs font-black text-emerald-600 dark:text-emerald-400">+${item.totalProfit.toLocaleString()} บ.</strong>
                     </div>
                 `;
-                listContainer.appendChild(card);
+                list.appendChild(card);
             });
         }
 
-        // Touch Joystick implementation for mobile devices
         function setupMobileJoystick() {
             const joystick = document.getElementById('virtualJoystick');
             const handle = document.getElementById('joystickHandle');
             if (!joystick || !handle) return;
 
             let dragStart = null;
-
             joystick.addEventListener('touchstart', (e) => {
-                const touch = e.touches[0];
-                dragStart = { x: touch.clientX, y: touch.clientY };
+                dragStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
             });
-
             joystick.addEventListener('touchmove', (e) => {
                 if (!dragStart) return;
                 const touch = e.touches[0];
-                
-                const deltaX = touch.clientX - dragStart.x;
-                const deltaY = touch.clientY - dragStart.y;
-                
-                const distance = Math.min(30, Math.sqrt(deltaX * deltaX + deltaY * deltaY));
-                const angle = Math.atan2(deltaY, deltaX);
-                
-                const handleX = Math.cos(angle) * distance;
-                const handleY = Math.sin(angle) * distance;
-                
-                handle.style.transform = `translate(${handleX}px, ${handleY}px)`;
-
-                // Map to movement directions
-                moveForward = handleY < -10;
-                moveBackward = handleY > 10;
-                moveLeft = handleX < -10;
-                moveRight = handleX > 10;
+                const dx = touch.clientX - dragStart.x, dy = touch.clientY - dragStart.y;
+                const dist = Math.min(30, Math.sqrt(dx*dx + dy*dy));
+                const angle = Math.atan2(dy, dx);
+                handle.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+                moveForward = dy < -10; moveBackward = dy > 10;
+                moveLeft = dx < -10; moveRight = dx > 10;
             });
-
             joystick.addEventListener('touchend', () => {
-                dragStart = null;
-                handle.style.transform = 'translate(0px, 0px)';
-                moveForward = false;
-                moveBackward = false;
-                moveLeft = false;
-                moveRight = false;
+                dragStart = null; handle.style.transform = 'translate(0px,0px)';
+                moveForward = moveBackward = moveLeft = moveRight = false;
             });
         }
 
-        // Animation rendering loop
         function animate() {
             requestAnimationFrame(animate);
-
-            // 1. Rotate exhaust fan blades
-            placedProps.forEach(prop => {
-                const blade = prop.getObjectByName('blade');
-                if (blade) {
-                    blade.rotation.z += 0.15; // spin blade
+            placedProps.forEach(p => {
+                if (p.type === 'fan') {
+                    const blade = p.mesh.getObjectByName('blade');
+                    if (blade) blade.rotation.z += 0.15;
                 }
             });
-
-            // 2. Animate rain falling down
             if (rainParticles) {
-                const positions = rainParticles.geometry.attributes.position.array;
-                for (let i = 1; i < positions.length; i += 3) {
-                    positions[i] -= 0.25; // drop speed
-                    if (positions[i] < 0.1) {
-                        positions[i] = 20; // reset to sky
-                    }
+                const pos = rainParticles.geometry.attributes.position.array;
+                for (let i = 1; i < pos.length; i += 3) {
+                    pos[i] -= 0.25;
+                    if (pos[i] < 0.1) pos[i] = 20;
                 }
                 rainParticles.geometry.attributes.position.needsUpdate = true;
             }
-
-            // 3. First person movement updates
             if (cameraView === 'fps') {
-                // Apply rotation angles to camera direction
-                const front = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-                
+                const front = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+                const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
                 direction.set(0, 0, 0);
                 if (moveForward) direction.add(front);
                 if (moveBackward) direction.add(front.negate());
