@@ -94,21 +94,21 @@
         </div>
     </header>
 
-    <div class="flex-grow w-full max-w-[99%] mx-auto px-1 md:px-6 pb-6 flex flex-row gap-2 sm:gap-4 overflow-hidden h-[calc(100vh-165px)] min-h-[460px] md:min-h-[550px]">
+    <div class="flex-grow w-full max-w-[99%] mx-auto px-2 md:px-6 pb-6 flex flex-col lg:flex-row gap-6 overflow-y-auto lg:overflow-hidden lg:h-[calc(100vh-165px)]">
         <!-- LEFT: Chat Interface -->
-        <div class="flex-grow flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md flex flex-col overflow-hidden min-w-[140px]">
+        <div class="flex-grow flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md flex flex-col overflow-hidden h-[500px] lg:h-auto min-h-[400px]">
             <!-- Chat Header with Mute Switch -->
-            <div class="flex items-center justify-between px-2 sm:px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 shrink-0">
+            <div class="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 shrink-0">
                 <div class="flex items-center gap-1 sm:gap-2">
                     <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span class="text-[10px] sm:text-xs font-bold text-gray-600 dark:text-gray-300">ห้องสนทนา AI</span>
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button onclick="resetChat()" class="px-2 py-1 rounded-full text-[9px] sm:text-xs font-bold bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-red-500 hover:text-red-600 transition-all flex items-center gap-1 cursor-pointer shadow-sm border border-gray-200 dark:border-gray-700">
-                        <i class="fas fa-trash-can"></i> <span class="hidden xs:inline">รีเซ็ตแชท</span>
+                        <i class="fas fa-trash-can"></i> <span>รีเซ็ตแชท</span>
                     </button>
                     <button id="muteToggleBtn" onclick="toggleMute()" class="px-2 py-1 rounded-full text-[9px] sm:text-xs font-bold bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-all flex items-center gap-1 cursor-pointer shadow-sm border border-gray-200 dark:border-gray-700">
-                        <span id="muteIcon">🔊</span> <span id="muteText" class="hidden xs:inline">เปิดเสียง</span>
+                        <span id="muteIcon">🔊</span> <span id="muteText">เปิดเสียง</span>
                     </button>
                 </div>
             </div>
@@ -128,31 +128,39 @@
                 <span class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-[8px]"><i class="fas fa-robot"></i></span> AI MSSM กำลังคิด<span class="dot-blink">.</span><span class="dot-blink">.</span><span class="dot-blink">.</span></span>
             </div>
 
-            <div class="p-3 sm:p-4 md:p-6 bg-white/80 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-                <div id="imagePreview" class="hidden mb-3 relative inline-block">
+            <!-- Two-row beautiful, responsive and spacious input controls -->
+            <div class="p-3 sm:p-4 bg-white/80 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 space-y-2.5 shrink-0">
+                <div id="imagePreview" class="hidden mb-1 relative inline-block">
                     <img id="previewImg" class="h-14 w-14 md:h-20 md:w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                     <button onclick="clearImage()" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-bold shadow-md hover:bg-red-600 transition-all cursor-pointer">&times;</button>
                 </div>
-                <div class="flex gap-1.5 sm:gap-3 items-end">
-                    <button id="attachBtn" onclick="document.getElementById('imageInput').click()" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:border-emerald-500 transition-all flex items-center justify-center cursor-pointer" title="แนบภาพเห็ด"><i class="fas fa-camera text-xs sm:text-sm md:text-base"></i></button>
-                    <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:border-red-500 transition-all flex items-center justify-center cursor-pointer" title="พูดแทนการพิมพ์"><i id="micIcon" class="fas fa-microphone text-xs sm:text-sm md:text-base"></i></button>
-                    <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(event)">
-                    
-                    <select id="studyMode" class="h-9 sm:h-10 rounded-xl px-1.5 text-[10px] sm:text-xs border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer focus:border-emerald-500 transition shadow-sm font-semibold">
-                        <option value="General">General</option>
-                        <option value="Researcher">Researcher</option>
-                        <option value="Economics">Economics</option>
-                        <option value="Zero Waste">Zero Waste</option>
-                    </select>
-
-                    <textarea id="userInput" class="flex-1 rounded-xl px-3 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none resize-none min-h-[36px] max-h-[100px] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="พิมพ์คำถาม..." rows="1" onkeydown="handleEnter(event)"></textarea>
-                    <button id="sendBtn" onclick="send()" class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105 hover:rotate-12 transition-all flex items-center justify-center cursor-pointer"><i class="fas fa-paper-plane text-xs sm:text-sm"></i></button>
+                <!-- Action Row: Camera, Mic, and Study Mode Selection -->
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <button id="attachBtn" onclick="document.getElementById('imageInput').click()" class="w-9 h-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:border-emerald-500 transition-all flex items-center justify-center cursor-pointer" title="แนบภาพเห็ด"><i class="fas fa-camera text-sm"></i></button>
+                        <button id="micBtn" onclick="toggleSpeechRecognition()" class="w-9 h-9 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-red-500 hover:border-red-500 transition-all flex items-center justify-center cursor-pointer" title="พูดแทนการพิมพ์"><i id="micIcon" class="fas fa-microphone text-sm"></i></button>
+                        <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(event)">
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">โหมดการเรียนรู้:</span>
+                        <select id="studyMode" class="h-9 rounded-xl px-2 text-[10px] sm:text-xs border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer focus:border-emerald-500 transition shadow-sm font-semibold">
+                            <option value="General">General</option>
+                            <option value="Researcher">Researcher</option>
+                            <option value="Economics">Economics</option>
+                            <option value="Zero Waste">Zero Waste</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Input Row: Full width Textarea and Send Button -->
+                <div class="flex gap-2 items-center">
+                    <textarea id="userInput" class="flex-grow rounded-2xl px-3 py-2 text-xs sm:text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none resize-none min-h-[38px] max-h-[100px] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="พิมพ์คำถามของคุณที่นี่..." rows="1" onkeydown="handleEnter(event)"></textarea>
+                    <button id="sendBtn" onclick="send()" class="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center cursor-pointer"><i class="fas fa-paper-plane text-xs sm:text-sm"></i></button>
                 </div>
             </div>
         </div>
 
         <!-- RIGHT: Table Logs & Analytics -->
-        <div class="w-[170px] xs:w-[220px] sm:w-[280px] md:w-[380px] lg:w-[480px] xl:w-[540px] shrink-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md p-2 sm:p-5 flex flex-col overflow-hidden">
+        <div class="w-full lg:w-[480px] xl:w-[540px] shrink-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md p-3 sm:p-5 flex flex-col overflow-hidden h-[450px] lg:h-auto min-h-[350px]">
             <div class="flex items-center justify-between gap-1 mb-2.5 shrink-0">
                 <div class="flex items-center gap-1.5 min-w-0">
                     <span class="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-[10px] shrink-0"><i class="fas fa-table"></i></span>
