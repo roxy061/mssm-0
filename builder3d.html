@@ -543,10 +543,8 @@
                 if (cameraView === 'orbit') {
                     if (e.button === 0) tryPlaceSandboxItem(e);
                 } else if (cameraView === 'fps') {
-                    if (document.pointerLockElement === canvasContainer) {
-                        if (e.button === 0) triggerPlaceAtCrosshair();
-                        else if (e.button === 2) triggerDestroyAtCrosshair();
-                    }
+                    if (e.button === 0) triggerPlaceAtCrosshair();
+                    else if (e.button === 2) triggerDestroyAtCrosshair();
                 }
             });
 
