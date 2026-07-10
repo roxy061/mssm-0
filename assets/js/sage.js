@@ -453,7 +453,7 @@ function filterLogs() {
     if (filtered.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-6 text-center text-gray-400 dark:text-gray-500 italic">
+                <td colspan="7" class="p-6 text-center text-gray-400 dark:text-gray-500 italic">
                     <i class="fas fa-search-minus mb-1 block text-lg"></i> ไม่พบข้อมูลที่ตรงกับตัวกรอง
                 </td>
             </tr>
@@ -484,6 +484,11 @@ function filterLogs() {
             </td>
             <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400 hidden md:table-cell">${item.latency ? item.latency.toLocaleString() : '0'} ms</td>
             <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400 hidden md:table-cell">${item.tokens || 0}</td>
+            <td class="p-2 text-center">
+                <button onclick="openLogModal(${item.originalIndex})" class="w-6 h-6 rounded-lg bg-emerald-50 hover:bg-emerald-500 text-emerald-600 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto">
+                    <i class="fas fa-magnifying-glass text-[10px]"></i>
+                </button>
+            </td>
             <td class="p-2 text-center">
                 <button onclick="deleteLog(${item.originalIndex})" class="w-6 h-6 rounded-lg bg-red-50 hover:bg-red-500 text-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto">
                     <i class="fas fa-trash text-[10px]"></i>
@@ -660,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMuteUI();
     loadAICache();
     renderAIChatTable();
+    fetchWeather();
 });
 
 window.addEventListener('themechanged', () => {
@@ -793,5 +799,105 @@ function toggleSpeechRecognition() {
             micIcon.classList.add('fa-microphone');
             micIcon.classList.remove('fa-microphone-slash');
         }
+    }
+}
+
+function openLogModal(idx) {
+    const item = aiSavedLogs[idx];
+    if (!item) return;
+
+    const modeEl = document.getElementById('modalLogMode');
+    const promptEl = document.getElementById('modalLogPrompt');
+    const replyEl = document.getElementById('modalLogReply');
+    const latencyEl = document.getElementById('modalLogLatency');
+    const tokensEl = document.getElementById('modalLogTokens');
+
+    if (modeEl) modeEl.textContent = item.mode || 'General';
+    if (promptEl) promptEl.textContent = item.prompt || '';
+    if (replyEl) replyEl.textContent = item.reply || '';
+    if (latencyEl) latencyEl.textContent = (item.latency ? item.latency.toLocaleString() : '0') + ' ms';
+    if (tokensEl) tokensEl.textContent = item.tokens || '0';
+
+    const imgArea = document.getElementById('modalLogImageArea');
+    const imgEl = document.getElementById('modalLogImg');
+    if (imgArea && imgEl) {
+        if (item.image) {
+            imgEl.src = item.image;
+            imgArea.classList.remove('hidden');
+        } else {
+            imgEl.src = '';
+            imgArea.classList.add('hidden');
+        }
+    }
+
+    const modal = document.getElementById('logDetailModal');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeLogModal() {
+    const modal = document.getElementById('logDetailModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+async function fetchWeather() {
+    const selector = document.getElementById('weatherProvince');
+    if (!selector) return;
+    
+    const option = selector.options[selector.selectedIndex];
+    const lat = option.getAttribute('data-lat');
+    const lon = option.getAttribute('data-lon');
+    
+    const tempEl = document.getElementById('weatherTemp');
+    const humEl = document.getElementById('weatherHum');
+    const humStatusEl = document.getElementById('weatherHumStatus');
+    const forecastEl = document.getElementById('weatherForecast');
+    
+    if (tempEl) tempEl.textContent = 'กำลังโหลด...';
+    if (humEl) humEl.textContent = 'กำลังโหลด...';
+    if (humStatusEl) humStatusEl.textContent = '';
+    if (forecastEl) forecastEl.textContent = 'กำลังโหลด...';
+    
+    try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code`);
+        if (!res.ok) throw new Error('API Error');
+        const data = await res.json();
+        
+        const temp = data.current.temperature_2m;
+        const hum = data.current.relative_humidity_2m;
+        const code = data.current.weather_code;
+        
+        if (tempEl) tempEl.textContent = `${temp.toFixed(1)} °C`;
+        if (humEl) humEl.textContent = `${hum}% RH`;
+        
+        if (humStatusEl) {
+            if (hum >= 70 && hum <= 90) {
+                humStatusEl.textContent = '🟢 เหมาะสมกับการเพาะ (70-90%)';
+                humStatusEl.className = 'text-[7px] font-bold block text-emerald-500 mt-0.5';
+            } else if (hum < 70) {
+                humStatusEl.textContent = '⚠️ แห้งเกินไป (ควรฉีดน้ำเพิ่ม)';
+                humStatusEl.className = 'text-[7px] font-bold block text-amber-500 mt-0.5';
+            } else {
+                humStatusEl.textContent = '⚠️ ชื้นเกินไป (ระวังราปนเปื้อน)';
+                humStatusEl.className = 'text-[7px] font-bold block text-blue-500 mt-0.5';
+            }
+        }
+        
+        let desc = 'ไม่ทราบ';
+        if (code === 0) desc = '☀️ แดดจัด / ฟ้าใส';
+        else if ([1, 2, 3].includes(code)) desc = '⛅ มีเมฆบางส่วน';
+        else if ([45, 48].includes(code)) desc = '🌫️ มีหมอกหนา';
+        else if ([51, 53, 55].includes(code)) desc = '🌧️ ฝนตกละออง';
+        else if ([61, 63, 65].includes(code)) desc = '🌧️ ฝนตก';
+        else if ([80, 81, 82].includes(code)) desc = '🌦️ ฝนโปรยปราย';
+        else if ([95, 96, 99].includes(code)) desc = '⛈️ พายุฝนฟ้าคะนอง';
+        else desc = '☁️ ครึ้มฟ้าครึ้มฝน';
+        
+        if (forecastEl) forecastEl.textContent = desc;
+        
+    } catch (e) {
+        console.error("Error fetching weather data", e);
+        if (tempEl) tempEl.textContent = 'ล้มเหลว';
+        if (humEl) humEl.textContent = 'ล้มเหลว';
+        if (forecastEl) forecastEl.textContent = 'เชื่อมต่อล้มเหลว';
     }
 }

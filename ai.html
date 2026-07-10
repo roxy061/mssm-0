@@ -94,7 +94,59 @@
         </div>
     </header>
 
-    <div class="flex-grow w-full max-w-[99%] mx-auto px-2 md:px-6 pb-6 flex flex-col lg:flex-row gap-6 overflow-y-auto lg:overflow-hidden lg:h-[calc(100vh-165px)]">
+    <!-- Local Climate Monitor (สภาวะแวดล้อมในพื้นที่) -->
+    <div class="max-w-[99%] w-full mx-auto px-2 md:px-6 mb-4 shrink-0 animate-pop-in">
+        <div class="p-4 rounded-2xl bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-sky-600 text-white flex items-center justify-center text-lg shadow-md shrink-0"><i class="fas fa-cloud-sun-rain"></i></div>
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-xs font-black text-gray-800 dark:text-gray-200">สภาวะแวดล้อมในพื้นที่ (Local Climate Monitor)</h3>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">จังหวัด:</span>
+                        <select id="weatherProvince" onchange="fetchWeather()" class="h-6 rounded-lg px-2 text-[10px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer font-bold shadow-sm">
+                            <option value="NakhonSiThammarat" data-lat="8.4333" data-lon="99.9667">นครศรีธรรมราช (โรงเรือนจริง)</option>
+                            <option value="Bangkok" data-lat="13.7563" data-lon="100.5018">กรุงเทพมหานคร</option>
+                            <option value="ChiangMai" data-lat="18.7883" data-lon="98.9853">เชียงใหม่</option>
+                            <option value="Phuket" data-lat="7.8804" data-lon="98.3923">ภูเก็ต</option>
+                            <option value="KhonKaen" data-lat="16.4322" data-lon="102.8236">ขอนแก่น</option>
+                            <option value="Chonburi" data-lat="13.3611" data-lon="100.9847">ชลบุรี</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Details Cards -->
+            <div class="grid grid-cols-3 gap-2 w-full md:w-auto md:flex items-center">
+                <!-- Temp Card -->
+                <div class="p-2 md:p-2.5 rounded-xl bg-orange-50/50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 text-center md:text-left min-w-[80px] md:min-w-[110px] shadow-sm flex flex-col md:flex-row items-center gap-1.5 md:gap-2">
+                    <span class="text-base md:text-lg">🌡️</span>
+                    <div>
+                        <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wider block">อุณหภูมิปัจจุบัน</span>
+                        <strong id="weatherTemp" class="text-xs md:text-sm font-black text-orange-600 dark:text-orange-400 font-mono">กำลังโหลด...</strong>
+                    </div>
+                </div>
+                <!-- Humidity Card -->
+                <div class="p-2 md:p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-center md:text-left min-w-[80px] md:min-w-[130px] shadow-sm flex flex-col md:flex-row items-center gap-1.5 md:gap-2">
+                    <span class="text-base md:text-lg">💧</span>
+                    <div>
+                        <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wider block">ความชื้นสัมพัทธ์</span>
+                        <strong id="weatherHum" class="text-xs md:text-sm font-black text-blue-600 dark:text-blue-400 font-mono">กำลังโหลด...</strong>
+                        <span id="weatherHumStatus" class="text-[7px] font-bold block text-gray-500 mt-0.5"></span>
+                    </div>
+                </div>
+                <!-- Forecast Card -->
+                <div class="p-2 md:p-2.5 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/40 text-center md:text-left min-w-[80px] md:min-w-[120px] shadow-sm flex flex-col md:flex-row items-center gap-1.5 md:gap-2">
+                    <span class="text-base md:text-lg">🔮</span>
+                    <div>
+                        <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wider block">พยากรณ์อากาศ</span>
+                        <strong id="weatherForecast" class="text-[9px] md:text-xs font-black text-purple-600 dark:text-purple-400 block truncate">กำลังโหลด...</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-grow w-full max-w-[99%] mx-auto px-2 md:px-6 pb-6 flex flex-col lg:flex-row gap-6 overflow-y-auto lg:overflow-hidden lg:h-[calc(100vh-235px)]">
         <!-- LEFT: Chat Interface -->
         <div class="flex-grow flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md flex flex-col overflow-hidden h-[500px] lg:h-auto min-h-[400px]">
             <!-- Chat Header with Mute Switch -->
@@ -213,12 +265,13 @@
                             <th class="p-1.5 md:p-2.5 font-bold">คำถาม/คำตอบ</th>
                             <th class="p-1.5 md:p-2.5 font-bold w-[50px] md:w-[65px] text-center hidden md:table-cell">เวลา</th>
                             <th class="p-1.5 md:p-2.5 font-bold w-[40px] md:w-[50px] text-center hidden md:table-cell">Tokens</th>
+                            <th class="p-1.5 md:p-2.5 font-bold w-[30px] md:w-[40px] text-center">ดู</th>
                             <th class="p-1.5 md:p-2.5 font-bold w-[30px] md:w-[40px] text-center">ลบ</th>
                         </tr>
                     </thead>
                     <tbody id="aiLogBody">
                         <tr>
-                            <td colspan="6" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก</td>
+                            <td colspan="7" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก</td>
                         </tr>
                     </tbody>
                 </table>
@@ -269,6 +322,49 @@
             <div class="flex justify-end gap-3 pt-2">
                 <button onclick="closeSettings()" class="px-4 py-2 text-sm font-semibold rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition cursor-pointer">ยกเลิก</button>
                 <button onclick="saveSettings()" class="px-5 py-2 text-sm font-semibold rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg transition cursor-pointer">บันทึก</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div id="logDetailModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" onclick="closeLogModal()"></div>
+    <div class="relative bg-white dark:bg-gray-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-700 animate-pop-in flex flex-col max-h-[85vh] z-10">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex items-center justify-between">
+            <h3 class="text-sm font-extrabold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> รายละเอียดบันทึกการเรียนรู้
+            </h3>
+            <button onclick="closeLogModal()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-red-500 hover:text-white dark:bg-gray-700 dark:hover:bg-red-650 transition-all flex items-center justify-center text-xs cursor-pointer"><i class="fas fa-times"></i></button>
+        </div>
+        <!-- Modal Body -->
+        <div class="px-6 py-5 overflow-y-auto space-y-4 text-xs sm:text-sm">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">โหมดการเรียนรู้</span>
+                <span id="modalLogMode" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400">General</span>
+            </div>
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">คำถาม (Prompt)</span>
+                <p id="modalLogPrompt" class="p-3 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800 font-semibold text-gray-850 dark:text-gray-200 whitespace-pre-line leading-relaxed"></p>
+            </div>
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">คำตอบ (AI Response)</span>
+                <p id="modalLogReply" class="p-3 rounded-xl bg-gray-50 dark:bg-gray-900/30 border border-gray-150 dark:border-gray-800 text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed"></p>
+            </div>
+            <div id="modalLogImageArea" class="hidden">
+                <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">รูปภาพที่แนบ</span>
+                <img id="modalLogImg" class="max-h-48 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm object-contain">
+            </div>
+            <div class="grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-gray-800/80 pt-4">
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">เวลาประมวลผล</span>
+                    <strong id="modalLogLatency" class="text-sm font-black text-blue-600 dark:text-blue-400 font-mono">0 ms</strong>
+                </div>
+                <div>
+                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block">จำนวน Tokens</span>
+                    <strong id="modalLogTokens" class="text-sm font-black text-amber-600 dark:text-amber-400 font-mono">0</strong>
+                </div>
             </div>
         </div>
     </div>
