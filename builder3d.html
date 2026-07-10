@@ -507,7 +507,25 @@
                     camera.aspect = w / h;
                     camera.updateProjectionMatrix();
                     renderer.setSize(w, h);
+                    needsRender = true;
                 }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                setTimeout(() => {
+                    const container = document.getElementById('canvasContainer');
+                    if (container && camera && renderer) {
+                        const w = container.clientWidth;
+                        const h = container.clientHeight;
+                        camera.aspect = w / h;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(w, h);
+                        needsRender = true;
+                    }
+                    if (!document.fullscreenElement && cameraView === 'fps') {
+                        setCameraView('orbit');
+                    }
+                }, 150);
             });
 
             document.addEventListener('keydown', (e) => {
