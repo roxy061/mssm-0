@@ -607,6 +607,7 @@
             if (cameraView === 'fps' && hoveredObject) {
                 // Find and delete from arrays
                 let found = false;
+                let refundPrice = 0;
                 
                 // Check placedBags
                 const bagIdx = placedBags.findIndex(b => b === hoveredObject || b.uuid === hoveredObject.uuid || b.children.includes(hoveredObject));
@@ -615,6 +616,7 @@
                     sandboxGroup.remove(bag);
                     placedBags.splice(bagIdx, 1);
                     found = true;
+                    refundPrice = 18;
                 }
 
                 // Check placedProps
@@ -625,6 +627,14 @@
                         sandboxGroup.remove(prop.mesh);
                         placedProps.splice(propIdx, 1);
                         found = true;
+                        
+                        const type = prop.type;
+                        if (type === 'wood') refundPrice = 50;
+                        else if (type === 'concrete') refundPrice = 120;
+                        else if (type === 'steel') refundPrice = 220;
+                        else if (type === 'fan') refundPrice = 350;
+                        else if (type === 'mist') refundPrice = 150;
+                        else if (type === 'sensor') refundPrice = 250;
                     }
                 }
 
@@ -636,6 +646,12 @@
                             break;
                         }
                     }
+                    
+                    // Refund to budget
+                    let currentCash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+                    currentCash += refundPrice;
+                    localStorage.setItem('virtualWalletCash', currentCash);
+
                     hoveredObject = null;
                     updateSandboxMetrics();
                 }
@@ -644,6 +660,7 @@
 
         function setWeather(mode) {
             weatherMode = mode;
+            localStorage.setItem('sandboxWeatherMode', mode);
             document.getElementById('btnWeatherSunny').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
             document.getElementById('btnWeatherRainy').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
             document.getElementById('btnWeatherNight').className = 'w-8 h-8 rounded-xl bg-slate-250 text-slate-700 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center text-xs transition cursor-pointer';
@@ -852,6 +869,28 @@
             const key = `${x.toFixed(1)},${z.toFixed(1)}`;
             if (occupiedCoords[key]) return;
 
+            // Budget pricing
+            const toolPrices = {
+                'wood': 50,
+                'concrete': 120,
+                'steel': 220,
+                'fan': 350,
+                'mist': 150,
+                'sensor': 250,
+                'bag': 18
+            };
+            const price = toolPrices[selectedSandboxTool] || 0;
+            let currentCash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+
+            if (currentCash < price) {
+                alert(`❌ งบประมาณจำลองไม่เพียงพอ! (ต้องการ ${price} บ. แต่เหลือ ${currentCash.toLocaleString()} บ.)\nกรุณาไปเปิดแอปเก็งกำไรและเทรดขายเห็ดที่หน้าตลาดราคากลางสด (market.html) เพื่อเพิ่มพอร์ตเงินทุน`);
+                return;
+            }
+
+            // Deduct budget
+            currentCash -= price;
+            localStorage.setItem('virtualWalletCash', currentCash);
+
             let placedMesh = null;
             if (selectedSandboxTool === 'wood' || selectedSandboxTool === 'concrete' || selectedSandboxTool === 'steel') {
                 let color = 0x854d0e;
@@ -971,7 +1010,8 @@
                 else if (p.type === 'mist') cost += 150;
                 else if (p.type === 'sensor') cost += 250;
             });
-            document.getElementById('lblCost').textContent = `${cost.toLocaleString()} บ.`;
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+            document.getElementById('lblCost').innerHTML = `${cost.toLocaleString()} บ.<br><span class="text-[9px] text-gray-400 font-normal">เงินทุนเหลือ: ${cash.toLocaleString()} บ.</span>`;
             document.getElementById('lblCapacity').textContent = placedBags.length;
 
             const list = document.getElementById('cbaList');
@@ -1020,6 +1060,7 @@
                 else if (sp.includes('หูหนู')) speciesCounts['เห็ดหูหนู']++;
             });
             localStorage.setItem('sandboxSpeciesCounts', JSON.stringify(speciesCounts));
+            localStorage.setItem('sandboxTotalObjects', (placedBags.length + placedProps.length).toString());
         }
 
         function setupMobileControls() {

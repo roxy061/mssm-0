@@ -142,6 +142,12 @@
             </div>
         </div>
 
+        <!-- BREAKING NEWS / CRISIS ALERT BAR -->
+        <div id="breakingNewsBar" class="bg-red-950/80 border-b border-red-800 text-white font-extrabold text-[11px] py-2.5 px-6 flex items-center justify-between shadow-lg hidden shrink-0 relative overflow-hidden animate-pulse">
+            <span class="flex items-center gap-2"><i class="fas fa-bullhorn text-red-500 animate-bounce"></i> <span id="lblNewsText">ข่าวด่วนสะเทือนตลาด: ...</span></span>
+            <span class="text-[8.5px] bg-red-900/60 border border-red-700/65 px-2 py-0.5 rounded-full shrink-0 font-bold ml-2">Market Crisis Alert</span>
+        </div>
+
         <header class="text-left px-6 py-5 shrink-0 border-b border-slate-800/80 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
             <div>
                 <h1 class="text-base md:text-xl font-black text-white flex items-center gap-2"><i class="fas fa-chart-line text-emerald-500 animate-pulse"></i> Financial Trading Center & Live Market</h1>
@@ -212,6 +218,115 @@
                     </div>
                 </div>
 
+                <!-- Virtual Mushroom Stock Broker -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex flex-col gap-5">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-wallet text-emerald-400"></i> Virtual Mushroom Broker & Holdings (พอร์ตลงทุน & เก็งกำไรสด)</h2>
+                        <span class="text-[9px] text-slate-400">เงินลงทุนแชร์กับงบประมาณสร้างฟาร์ม 3D</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <!-- Left: Order Form -->
+                        <div class="lg:col-span-2 bg-slate-900/65 border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-3">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block"><i class="fas fa-coins text-yellow-500"></i> ยอดเงินสดในบัญชี: <span id="lblWalletCash" class="text-white font-black">100,000.00 บ.</span></span>
+                            
+                            <div>
+                                <label class="text-[9.5px] font-bold text-slate-400 block mb-1">เลือกเห็ดเก็งกำไร:</label>
+                                <select id="tradeSpecies" onchange="updateEstimatedCost()" class="w-full h-9 rounded-xl px-2.5 text-xs border border-slate-700 bg-slate-950 text-white outline-none cursor-pointer focus:border-emerald-500 transition">
+                                    <option value="เห็ดแครง">เห็ดแครง</option>
+                                    <option value="เห็ดนางฟ้าภูฐาน">เห็ดนางฟ้าภูฐาน</option>
+                                    <option value="เห็ดนางรมฮังการี">เห็ดนางรมฮังการี</option>
+                                    <option value="เห็ดหูหนู">เห็ดหูหนู</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="text-[9.5px] font-bold text-slate-400 block mb-1">จำนวนที่ต้องการซื้อ/ขาย (กก.):</label>
+                                <div class="relative flex items-center">
+                                    <input type="number" id="tradeQty" value="10" min="1" oninput="updateEstimatedCost()" class="w-full h-9 rounded-xl pl-3 pr-10 text-xs border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition">
+                                    <span class="absolute right-3 text-[10px] text-slate-500 font-bold">กก.</span>
+                                </div>
+                            </div>
+
+                            <div class="text-[9.5px] text-slate-400 flex justify-between px-1">
+                                <span>ยอดประมาณการรวม:</span>
+                                <strong id="lblEstTotal" class="text-white font-black">0.00 บ.</strong>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <button onclick="executeOrder('BUY')" class="h-9.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"><i class="fas fa-arrow-circle-up"></i> BUY (ซื้อ)</button>
+                                <button onclick="executeOrder('SELL')" class="h-9.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs shadow-md transition hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"><i class="fas fa-arrow-circle-down"></i> SELL (ขาย)</button>
+                            </div>
+                        </div>
+
+                        <!-- Right: Holdings Table -->
+                        <div class="lg:col-span-3 overflow-x-auto">
+                            <table class="w-full text-[10px] sm:text-xs text-left border-collapse">
+                                <thead>
+                                    <tr class="text-slate-500 border-b border-slate-800 pb-1">
+                                        <th class="py-2 font-bold">เห็ดในพอร์ต</th>
+                                        <th class="py-2 font-bold text-center">ถือครอง (กก.)</th>
+                                        <th class="py-2 font-bold text-right">ทุนเฉลี่ย</th>
+                                        <th class="py-2 font-bold text-right">ราคาปัจจุบัน</th>
+                                        <th class="py-2 font-bold text-right">กำไร / ขาดทุน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="holdingsTableBody">
+                                    <!-- Populated by script -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mushroom Futures Contract Panel -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex flex-col gap-4">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-clock text-yellow-500"></i> Mushroom Futures Contract (สัญญาซื้อขายล่วงหน้าเพื่อป้องกันความเสี่ยง)</h2>
+                        <span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 font-extrabold text-[8px]">HEDGING</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                        <div class="lg:col-span-2 bg-slate-900/65 border border-slate-800/80 p-4 rounded-2xl flex flex-col gap-3">
+                            <div>
+                                <label class="text-[9.5px] font-bold text-slate-400 block mb-1">เลือกเห็ดส่งสัญญา:</label>
+                                <select id="futuresSpecies" class="w-full h-9 rounded-xl px-2.5 text-xs border border-slate-700 bg-slate-950 text-white outline-none cursor-pointer focus:border-emerald-500 transition">
+                                    <option value="เห็ดแครง">เห็ดแครง</option>
+                                    <option value="เห็ดนางฟ้าภูฐาน">เห็ดนางฟ้าภูฐาน</option>
+                                    <option value="เห็ดนางรมฮังการี">เห็ดนางรมฮังการี</option>
+                                    <option value="เห็ดหูหนู">เห็ดหูหนู</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9.5px] font-bold text-slate-400 block mb-1">สัญญา (สัญญาละ):</label>
+                                    <input type="number" id="futuresQty" value="10" min="1" class="w-full h-9 rounded-xl px-3 text-xs border border-slate-700 bg-slate-950 text-white outline-none focus:border-emerald-500 transition">
+                                </div>
+                                <div>
+                                    <label class="text-[9.5px] font-bold text-slate-400 block mb-1">อายุสัญญา (วิ):</label>
+                                    <select id="futuresDuration" class="w-full h-9 rounded-xl px-1 text-xs border border-slate-700 bg-slate-950 text-white outline-none cursor-pointer focus:border-emerald-500 transition">
+                                        <option value="45">45 วินาที</option>
+                                        <option value="90">90 วินาที</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <button onclick="createFuturesContract('LONG')" class="h-9 rounded-xl bg-emerald-650 hover:bg-emerald-600 text-white font-bold text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1.5"><i class="fas fa-chart-line"></i> LONG (ซื้อล่วงหน้า)</button>
+                                <button onclick="createFuturesContract('SHORT')" class="h-9 rounded-xl bg-rose-650 hover:bg-rose-600 text-white font-bold text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1.5"><i class="fas fa-chart-line rotate-180"></i> SHORT (ขายล่วงหน้า)</button>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-3">
+                            <span class="text-[10px] font-bold text-slate-500 block mb-2">รายการสัญญาฟิวเจอร์สที่เปิดอยู่:</span>
+                            <div class="space-y-2 max-h-[220px] overflow-y-auto" id="futuresList">
+                                <!-- Populated dynamically by script -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- RIGHT COL: AI Forecast & sentiment -->
@@ -226,6 +341,28 @@
 
                     <div class="space-y-3" id="forecastList">
                         <!-- Forecast Cards -->
+                    </div>
+                </div>
+
+                <!-- Daily Financial Quests Panel -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-3 mb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-tasks text-emerald-450"></i> Daily Financial Quests (ภารกิจสั้นล่ารางวัล)</h2>
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-extrabold text-[8px]">DAILY</span>
+                    </div>
+                    <div class="space-y-2.5" id="questsList">
+                        <!-- Quests items will be populated by script -->
+                    </div>
+                </div>
+
+                <!-- Leaderboard Panel -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between border-b border-slate-800/60 pb-3 mb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-crown text-amber-500 animate-pulse"></i> Whale Trader Leaderboard (จัดอันดับเศรษฐีเห็ด)</h2>
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-extrabold text-[8px]">PROVINCIAL</span>
+                    </div>
+                    <div class="space-y-2" id="leaderboardList">
+                        <!-- Leaderboard items populated by script -->
                     </div>
                 </div>
 
@@ -250,12 +387,25 @@
             if (drawer) drawer.classList.toggle('hidden');
         }
 
+        // Initialize simulation holdings
+        if (!localStorage.getItem('virtualWalletCash')) {
+            localStorage.setItem('virtualWalletCash', '100000');
+        }
+        if (!localStorage.getItem('virtualHoldings')) {
+            localStorage.setItem('virtualHoldings', JSON.stringify({
+                'เห็ดแครง': { qty: 0, avgPrice: 0 },
+                'เห็ดนางฟ้าภูฐาน': { qty: 0, avgPrice: 0 },
+                'เห็ดนางรมฮังการี': { qty: 0, avgPrice: 0 },
+                'เห็ดหูหนู': { qty: 0, avgPrice: 0 }
+            }));
+        }
+
         // Live prices
         let currentPrices = {
             'เห็ดแครง': 165.0,
             'เห็ดนางฟ้าภูฐาน': 95.0,
             'เห็ดนางรมฮังการี': 85.0,
-            'เห็ดหูหนู': 58.5 // Below 60 to trigger stop-loss warning!
+            'เห็ดหูหนู': 58.5
         };
 
         let mushroomYields = {
@@ -272,17 +422,55 @@
             'เห็ดหูหนู': { score: 45, note: 'มีภาวะสินค้าล้นตลาดในระยะสั้น', range: '55-65 บ.' }
         };
 
+        // Breaking News Event Database
+        const MARKET_EVENTS = [
+            { text: "📰 ข่าวด่วน: อินฟลูเอนเซอร์ชื่อดังรีวิว เมนูเบอร์เกอร์สเต๊กจากเห็ดแครงสูตรชุมชน ดันกระแส Plant-based ทั่วประเทศ! (ราคาเห็ดแครงพุ่งชั่วคราว +30%)", target: "เห็ดแครง", change: 1.30, duration: 25 },
+            { text: "📰 ข่าวด่วน: สำนักวิจัยทางการแพทย์ยืนยัน สารอะดีโนซีนในเห็ดหูหนูช่วยบำรุงหลอดเลือดอย่างมีนัยสำคัญ ดันดีมานด์ตลาดพุ่ง! (ราคาเห็ดหูหนูทะยานขึ้น +25%)", target: "เห็ดหูหนู", change: 1.25, duration: 25 },
+            { text: "📰 ข่าวด่วน: พายุดีเปรสชันเข้าถล่มภาคใต้ ทำโรงเรือนเพาะเห็ดนางฟ้าแถบพัทลุงเสียหายเป็นวงกว้าง! (ผลผลิตขาดตลาด ดันราคาพุ่งขึ้น +20%)", target: "เห็ดนางฟ้าภูฐาน", change: 1.20, duration: 25 },
+            { text: "📰 ข่าวด่วน: เกิดภาวะผลผลิตเห็ดนางรมฮังการีล้นตลาดหัวอิฐนครศรีฯ ส่งผลให้ราคากลางปรับฐานลง! (ราคาหุ้นดิ่งลง −20%)", target: "เห็ดนางรมฮังการี", change: 0.80, duration: 25 }
+        ];
+
+        let activeMarketEvent = null;
+        let activeEventTimeLeft = 0;
+
+        // Futures Contracts State
+        let activeFutures = [];
+
+        // Daily Quests State
+        let dailyQuests = [
+            { id: 'q1', name: 'ราชาเห็ดแครง', desc: 'ทำกำไรสะสมจากการเทรดเห็ดแครงให้ได้ 5,000 บ.', target: 5000, current: 0, completed: false, reward: 2500 },
+            { id: 'q2', name: 'วิศวกร Smart Farm', desc: 'ติดตั้งอุปกรณ์ในฟาร์ม 3D รวมครบ 15 ชิ้น', target: 15, current: 0, completed: false, reward: 3500 }
+        ];
+
+        // Provincial Leaderboard
+        const LEADERBOARD_DATA = [
+            { rank: 1, name: "ฟาร์มโกทวี นครศรีฯ", netWorth: 245000, active: false },
+            { rank: 2, name: "กลุ่มวิจัย ม.วลัยลักษณ์", netWorth: 185000, active: false },
+            { rank: 3, name: "ฟาร์มป้าแก้ว พัทลุง", netWorth: 120000, active: false },
+            { rank: 4, name: "พอร์ตของคุณ (You)", netWorth: 100000, active: true },
+            { rank: 5, name: "กลุ่มเกษตรกรทุ่งสง", netWorth: 92000, active: false }
+        ];
+
         window.addEventListener('DOMContentLoaded', () => {
             initChart();
             startTicker();
             updateLiveValuation();
             renderForecasts();
+            renderHoldingsTable();
+            updateEstimatedCost();
+            renderLeaderboard();
+            renderQuests();
             
             // Loop updates every 3 seconds to simulate fluctuations
             setInterval(() => {
                 simulateMarketTicks();
                 updateLiveValuation();
+                updateFuturesTimers();
+                checkQuestStatus();
             }, 3000);
+
+            // Trigger breaking news every 18 seconds (40% chance)
+            setInterval(triggerRandomNewsEvent, 18000);
         });
 
         // Initialize 24h dynamic chart
@@ -290,7 +478,6 @@
         function initChart() {
             const ctx = document.getElementById('marketChart').getContext('2d');
             
-            // Generate mock 24h data
             const labels = [];
             for (let i = 24; i >= 0; i--) {
                 const d = new Date();
@@ -331,12 +518,48 @@
             });
         }
 
+        function triggerRandomNewsEvent() {
+            if (activeMarketEvent) return;
+            if (Math.random() > 0.45) return; // 45% chance
+
+            const ev = MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+            activeMarketEvent = ev;
+            activeEventTimeLeft = ev.duration;
+
+            const bar = document.getElementById('breakingNewsBar');
+            const txt = document.getElementById('lblNewsText');
+            if (bar && txt) {
+                txt.textContent = `${ev.text} (ผลกระทบเหลืออีก ${activeEventTimeLeft} วินาที)`;
+                bar.classList.remove('hidden');
+            }
+        }
+
         function simulateMarketTicks() {
+            const weather = localStorage.getItem('sandboxWeatherMode') || 'sunny';
+            const weatherMultiplier = weather === 'rainy' ? 2.3 : 1.0;
+
             // Fluctuate prices slightly
             for (let key in currentPrices) {
-                const variance = key === 'เห็ดแครง' ? 0.8 : 0.4;
+                let variance = (key === 'เห็ดแครง' ? 0.8 : 0.4) * weatherMultiplier;
+                
+                // Apply news event multiplier
+                if (activeMarketEvent && activeMarketEvent.target === key) {
+                    variance = variance * activeMarketEvent.change;
+                }
+
                 currentPrices[key] += (Math.random() - 0.5) * variance;
                 currentPrices[key] = Math.max(10, currentPrices[key]);
+            }
+
+            // Handle news event timer countdown
+            if (activeMarketEvent) {
+                activeEventTimeLeft -= 3;
+                if (activeEventTimeLeft <= 0) {
+                    activeMarketEvent = null;
+                    document.getElementById('breakingNewsBar').classList.add('hidden');
+                } else {
+                    document.getElementById('lblNewsText').textContent = `${activeMarketEvent.text} (ผลกระทบเหลืออีก ${activeEventTimeLeft} วินาที)`;
+                }
             }
             
             // Check stop loss alert for Hed Hoo Nu
@@ -347,15 +570,16 @@
                 alertBox.classList.add('hidden');
             }
 
-            // Update ticker
+            // Update ticker & table
             startTicker();
+            renderHoldingsTable();
+            updateEstimatedCost();
         }
 
         function startTicker() {
             const ticker = document.getElementById('priceTicker');
             if (!ticker) return;
 
-            // Build double listing for infinite scroll effect
             let items = '';
             for (let i = 0; i < 2; i++) {
                 for (let key in currentPrices) {
@@ -376,10 +600,15 @@
         }
 
         function updateLiveValuation() {
-            // Read 3D Sandbox State
             const count = parseInt(localStorage.getItem('sandboxPlacedBags') || '0');
             const totalCost = parseFloat(localStorage.getItem('sandboxTotalCost') || '3500');
             const speciesCounts = JSON.parse(localStorage.getItem('sandboxSpeciesCounts') || '{"เห็ดแครง":0,"เห็ดนางฟ้าภูฐาน":0,"เห็ดนางรมฮังการี":0,"เห็ดหูหนู":0}');
+            
+            const cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+            const walletCashEl = document.getElementById('lblWalletCash');
+            if (walletCashEl) {
+                walletCashEl.textContent = `${cash.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บ.`;
+            }
 
             document.getElementById('lblSandboxBags').textContent = `${count.toLocaleString()} ก้อน`;
 
@@ -403,6 +632,332 @@
             } else {
                 profitEl.className = 'text-lg font-black text-rose-400';
             }
+
+            // Update user ranking on leaderboard based on net worth
+            const userHoldings = JSON.parse(localStorage.getItem('virtualHoldings') || '{}');
+            let holdingsValue = 0;
+            for (let sp in userHoldings) {
+                holdingsValue += userHoldings[sp].qty * currentPrices[sp];
+            }
+            const userNetWorth = cash + holdingsValue + netProfit;
+            const userRankObj = LEADERBOARD_DATA.find(x => x.active);
+            if (userRankObj) {
+                userRankObj.netWorth = userNetWorth;
+            }
+            LEADERBOARD_DATA.sort((a,b) => b.netWorth - a.netWorth);
+            LEADERBOARD_DATA.forEach((item, index) => {
+                item.rank = index + 1;
+            });
+            renderLeaderboard();
+        }
+
+        function updateEstimatedCost() {
+            const species = document.getElementById('tradeSpecies').value;
+            const qty = parseFloat(document.getElementById('tradeQty').value) || 0;
+            const price = currentPrices[species] || 0;
+            const total = qty * price;
+            document.getElementById('lblEstTotal').textContent = `${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บ.`;
+        }
+
+        function executeOrder(type) {
+            const species = document.getElementById('tradeSpecies').value;
+            const qty = parseFloat(document.getElementById('tradeQty').value) || 0;
+            if (qty <= 0) {
+                alert('❌ กรุณาระบุจำนวนที่ถูกต้องอย่างน้อย 1 กก.');
+                return;
+            }
+            const price = currentPrices[species] || 0;
+            const totalCost = qty * price;
+
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+            let holdings = JSON.parse(localStorage.getItem('virtualHoldings') || '{}');
+
+            if (type === 'BUY') {
+                if (cash < totalCost) {
+                    alert(`❌ ยอดเงินสดจำลองไม่เพียงพอ! ขาดอีก ${(totalCost - cash).toLocaleString()} บ.`);
+                    return;
+                }
+                cash -= totalCost;
+                
+                const currentHoldings = holdings[species] || { qty: 0, avgPrice: 0 };
+                const totalQty = currentHoldings.qty + qty;
+                const newAvg = ((currentHoldings.qty * currentHoldings.avgPrice) + totalCost) / totalQty;
+                
+                holdings[species] = { qty: totalQty, avgPrice: newAvg };
+                
+                localStorage.setItem('virtualWalletCash', cash.toString());
+                localStorage.setItem('virtualHoldings', JSON.stringify(holdings));
+                alert(`🟢 ซื้อสำเร็จ! ได้รับ ${qty} กก. เข้าพอร์ตของคุณแล้ว`);
+            } else if (type === 'SELL') {
+                const currentHoldings = holdings[species] || { qty: 0, avgPrice: 0 };
+                if (currentHoldings.qty < qty) {
+                    alert(`❌ คุณมีเห็ด ${species} สำหรับขายเพียง ${currentHoldings.qty.toFixed(1)} กก. (ต้องการขาย ${qty} กก.)`);
+                    return;
+                }
+
+                // Check quest profit accumulation for Hed Kraeng
+                if (species === 'เห็ดแครง') {
+                    const profit = (price - currentHoldings.avgPrice) * qty;
+                    if (profit > 0) {
+                        dailyQuests[0].current += profit;
+                    }
+                }
+
+                cash += totalCost;
+                currentHoldings.qty -= qty;
+                if (currentHoldings.qty === 0) currentHoldings.avgPrice = 0;
+                
+                holdings[species] = currentHoldings;
+                
+                localStorage.setItem('virtualWalletCash', cash.toString());
+                localStorage.setItem('virtualHoldings', JSON.stringify(holdings));
+                alert(`🔴 ขายสำเร็จ! ได้รับเงินสดจำลอง ${totalCost.toLocaleString()} บ. คืนเข้าพอร์ตสะสม`);
+            }
+
+            updateLiveValuation();
+            renderHoldingsTable();
+        }
+
+        function renderHoldingsTable() {
+            const holdings = JSON.parse(localStorage.getItem('virtualHoldings') || '{}');
+            const tbody = document.getElementById('holdingsTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            let hasHoldings = false;
+
+            for (let species in holdings) {
+                const item = holdings[species];
+                if (item.qty > 0) {
+                    hasHoldings = true;
+                    const currentPrice = currentPrices[species] || 0;
+                    const totalCost = item.qty * item.avgPrice;
+                    const currentValue = item.qty * currentPrice;
+                    const diff = currentValue - totalCost;
+                    const pnlPercent = item.avgPrice > 0 ? (diff / totalCost) * 100 : 0;
+                    
+                    const pnlColor = diff >= 0 ? 'text-emerald-450 font-bold' : 'text-rose-400 font-bold';
+                    const sign = diff >= 0 ? '+' : '';
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-slate-900/60 text-[11px]';
+                    tr.innerHTML = `
+                        <td class="py-2 text-white font-semibold">${species}</td>
+                        <td class="py-2 text-center text-slate-300 font-mono">${item.qty.toFixed(1)}</td>
+                        <td class="py-2 text-right text-slate-300 font-mono">${item.avgPrice.toFixed(2)} บ.</td>
+                        <td class="py-2 text-right text-white font-mono">${currentPrice.toFixed(2)} บ.</td>
+                        <td class="py-2 text-right ${pnlColor} font-mono">${sign}${pnlPercent.toFixed(1)}%</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            }
+
+            if (!hasHoldings) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-500 italic"><i class="fas fa-box-open mb-1 block text-lg"></i> ไม่มีเห็ดในพอร์ตการลงทุนของคุณ</td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Futures Contracts Engine
+        function createFuturesContract(type) {
+            const species = document.getElementById('futuresSpecies').value;
+            const qty = parseFloat(document.getElementById('futuresQty').value) || 0;
+            const duration = parseInt(document.getElementById('futuresDuration').value) || 45;
+
+            if (qty <= 0) {
+                alert('❌ กรุณาระบุจำนวนสัญญาที่ถูกต้องอย่างน้อย 1 กก.');
+                return;
+            }
+
+            const price = currentPrices[species] || 0;
+            const requiredMargin = qty * price; // Lock full margin for simplicity
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+
+            if (cash < requiredMargin) {
+                alert(`❌ วางหลักประกันไม่เพียงพอ! (ต้องการ ${requiredMargin.toLocaleString()} บ. สำหรับสัญญา ${type} ล่วงหน้า)`);
+                return;
+            }
+
+            // Deduct margin
+            cash -= requiredMargin;
+            localStorage.setItem('virtualWalletCash', cash.toString());
+
+            const contract = {
+                id: `F-${Math.floor(10000+Math.random()*90000)}`,
+                species: species,
+                type: type,
+                qty: qty,
+                entryPrice: price,
+                duration: duration,
+                timeLeft: duration
+            };
+
+            activeFutures.push(contract);
+            alert(`📝 สัญญาฟิวเจอร์ส ${type} เห็ด ${species} ขนาด ${qty} กก. เปิดสัญญาแล้วที่ราคา ${price.toFixed(2)} บ./กก.`);
+            
+            updateLiveValuation();
+            renderFuturesList();
+        }
+
+        function updateFuturesTimers() {
+            if (activeFutures.length === 0) return;
+
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+            const remainingContracts = [];
+
+            activeFutures.forEach(c => {
+                c.timeLeft -= 3;
+                if (c.timeLeft <= 0) {
+                    // Contract Expiration Settlement
+                    const currentPrice = currentPrices[c.species] || 0;
+                    let pnl = 0;
+                    if (c.type === 'LONG') {
+                        pnl = (currentPrice - c.entryPrice) * c.qty;
+                    } else {
+                        pnl = (c.entryPrice - currentPrice) * c.qty;
+                    }
+
+                    const marginRefund = c.qty * c.entryPrice;
+                    const finalPayback = marginRefund + pnl;
+                    cash += finalPayback;
+
+                    // Trigger toast notification
+                    const pnlColor = pnl >= 0 ? 'color: #10b981;' : 'color: #ef4444;';
+                    alert(`🔔 สัญญาฟิวเจอร์ส ${c.id} (${c.species}) สิ้นสุด!\nราคาเปิด: ${c.entryPrice.toFixed(2)} บ.\nราคาปิด: ${currentPrice.toFixed(2)} บ.\nผลลัพธ์: ${pnl >= 0 ? 'กำไร' : 'ขาดทุน'} ${Math.abs(pnl).toLocaleString()} บ.`);
+                } else {
+                    remainingContracts.push(c);
+                }
+            });
+
+            localStorage.setItem('virtualWalletCash', cash.toString());
+            activeFutures = remainingContracts;
+            renderFuturesList();
+        }
+
+        function renderFuturesList() {
+            const list = document.getElementById('futuresList');
+            if (!list) return;
+
+            list.innerHTML = '';
+            if (activeFutures.length === 0) {
+                list.innerHTML = `<p class="text-slate-500 italic text-[10px] text-center py-4">ไม่มีสัญญาฟิวเจอร์สที่กำลังทำงาน</p>`;
+                return;
+            }
+
+            activeFutures.forEach(c => {
+                const badgeClass = c.type === 'LONG' ? 'bg-emerald-950/60 text-emerald-400 border-emerald-800' : 'bg-rose-950/60 text-rose-400 border-rose-800';
+                const currentPrice = currentPrices[c.species] || 0;
+                let estimatePnl = 0;
+                if (c.type === 'LONG') {
+                    estimatePnl = (currentPrice - c.entryPrice) * c.qty;
+                } else {
+                    estimatePnl = (c.entryPrice - currentPrice) * c.qty;
+                }
+                const pnlText = estimatePnl >= 0 ? `+${estimatePnl.toFixed(1)} บ.` : `${estimatePnl.toFixed(1)} บ.`;
+                const pnlColor = estimatePnl >= 0 ? 'text-emerald-400' : 'text-rose-400';
+
+                const card = document.createElement('div');
+                card.className = 'p-2 rounded-xl bg-slate-900 border border-slate-800 flex justify-between items-center text-[10px]';
+                card.innerHTML = `
+                    <div class="space-y-0.5">
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-extrabold text-[9px] text-slate-500">${c.id}</span>
+                            <span class="px-1.5 py-0.5 rounded border text-[8px] font-black uppercase ${badgeClass}">${c.type}</span>
+                            <strong class="text-white">${c.species}</strong>
+                        </div>
+                        <span class="text-slate-400 block">เปิดที่: ${c.entryPrice.toFixed(1)} บ. | กก.: ${c.qty} | กำไรจำลอง: <span class="${pnlColor} font-bold">${pnlText}</span></span>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <span class="text-slate-500 block text-[8px]">หมดอายุใน</span>
+                        <strong class="text-yellow-400 font-mono text-[11px] font-black">${c.timeLeft} วิ</strong>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // Daily Quests Verification
+        function checkQuestStatus() {
+            // Quest 2 check sandbox objects
+            const totalObjects = parseInt(localStorage.getItem('sandboxTotalObjects') || '0');
+            dailyQuests[1].current = totalObjects;
+
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
+            let updated = false;
+
+            dailyQuests.forEach(q => {
+                if (!q.completed && q.current >= q.target) {
+                    q.completed = true;
+                    q.current = q.target;
+                    cash += q.reward;
+                    alert(`🏆 ภารกิจสำเร็จ: [${q.name}]!\nได้รับรางวัลเงินทุนพิเศษ +${q.reward.toLocaleString()} บ. คืนสู่บัญชีของคุณ`);
+                    updated = true;
+                }
+            });
+
+            if (updated) {
+                localStorage.setItem('virtualWalletCash', cash.toString());
+                updateLiveValuation();
+            }
+
+            renderQuests();
+        }
+
+        function renderQuests() {
+            const list = document.getElementById('questsList');
+            if (!list) return;
+
+            list.innerHTML = '';
+            dailyQuests.forEach(q => {
+                const progressPercent = Math.min(100, (q.current / q.target) * 100);
+                const progressText = q.completed ? 'สำเร็จแล้ว' : `${q.current.toFixed(0)} / ${q.target}`;
+                const card = document.createElement('div');
+                card.className = `p-2.5 rounded-2xl bg-slate-900 border ${q.completed ? 'border-emerald-800/80 bg-emerald-950/10' : 'border-slate-800'} text-xs relative overflow-hidden`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <div>
+                            <strong class="text-white block font-bold">${q.name}</strong>
+                            <p class="text-[10px] text-slate-400 leading-relaxed">${q.desc}</p>
+                        </div>
+                        <span class="text-[9px] text-emerald-400 shrink-0 font-extrabold">+${q.reward.toLocaleString()} บ.</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="flex-grow bg-slate-800 h-1 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-1" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <span class="text-[8.5px] text-slate-400 font-bold shrink-0">${progressText}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        function renderLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            if (!list) return;
+
+            list.innerHTML = '';
+            LEADERBOARD_DATA.forEach(item => {
+                const tr = document.createElement('div');
+                tr.className = `p-2 rounded-xl flex items-center justify-between text-xs transition ${item.active ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-900/60 border border-slate-800/40'}`;
+                
+                let medal = `#${item.rank}`;
+                if (item.rank === 1) medal = '🥇 #1';
+                else if (item.rank === 2) medal = '🥈 #2';
+                else if (item.rank === 3) medal = '🥉 #3';
+
+                tr.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="font-black text-slate-500 w-8 text-left">${medal}</span>
+                        <strong class="${item.active ? 'text-amber-400 font-black' : 'text-slate-300 font-bold'}">${item.name}</strong>
+                    </div>
+                    <strong class="font-mono text-white text-[11px]">${Math.round(item.netWorth).toLocaleString()} บ.</strong>
+                `;
+                list.appendChild(tr);
+            });
         }
 
         function renderForecasts() {
