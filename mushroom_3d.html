@@ -2,12 +2,12 @@
 <html lang="th" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>📐 MSSM 3D Creator - โปรแกรมออกแบบโรงเรือนเพาะเห็ด 3 มิติ</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;850&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -17,260 +17,217 @@
     <style>
         body {
             font-family: 'Outfit', 'Prompt', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-        .cad-sidebar {
-            background-color: #ffffff;
-            border-right: 1px solid #e5e7eb;
+            background-color: #0f172a;
+            color: #f8fafc;
+            touch-action: none; /* Prevent browser pinch-zoom */
         }
         .cad-header {
-            background-color: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
         }
-        .cad-viewport {
-            background-color: #f9fafb;
-            position: relative;
+        .cad-sidebar {
+            background-color: #1e293b;
+            border-right: 1px solid #334155;
+            transition: transform 0.3s ease;
         }
         .tool-btn {
+            background-color: #0f172a;
+            border: 1px solid #334155;
             transition: all 0.2s ease;
-            border: 1px solid #e5e7eb;
         }
         .tool-btn:hover {
             border-color: #10b981;
-            background-color: #f0fdf4;
+            background-color: rgba(16, 185, 129, 0.1);
         }
         .tool-btn.active {
             border-color: #10b981;
-            background-color: #dcfce7;
-            color: #047857;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* Fullscreen Landscape Warning Overlay */
+        #orientationOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: #0b0f19;
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
+        .rotate-phone-anim {
+            animation: rotatePhone 2s infinite ease-in-out;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
+        @keyframes rotatePhone {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
         }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- TOP CAD TOOLBAR -->
-    <header class="cad-header h-14 px-6 flex items-center justify-between shrink-0 z-20">
-        <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-base shadow"><i class="fas fa-drafting-compass"></i></span>
+    <!-- LANDSCAPE ORIENTATION GUARD -->
+    <div id="orientationOverlay">
+        <span class="text-6xl text-emerald-400 rotate-phone-anim mb-6"><i class="fas fa-mobile-alt"></i></span>
+        <h2 class="text-lg font-black text-white uppercase tracking-wider">กรุณาหมุนโทรศัพท์เป็นแนวตั้ง/แนวนอน</h2>
+        <p class="text-xs text-slate-400 mt-2 max-w-xs leading-relaxed">โปรแกรมออกแบบโรงเรือน 3 มิติ ต้องการพื้นที่มุมมองในแบบ **แนวนอน (Landscape Mode)** เพื่อแสดงผลแถบเครื่องมือเขียนแบบได้อย่างถูกต้อง</p>
+    </div>
+
+    <!-- TOP CAD HEADER -->
+    <header class="cad-header h-12 px-4 flex items-center justify-between shrink-0 z-20">
+        <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center text-white text-sm shadow-md"><i class="fas fa-drafting-compass"></i></span>
             <div>
-                <span class="font-extrabold text-sm text-slate-800 tracking-wider uppercase block">Coohom Architect (MSSM 3D)</span>
-                <span class="text-[9px] text-slate-400 font-bold block -mt-0.5">ระบบออกแบบแปลนโรงเรือนเพาะเห็ดมาตรฐานอุตสาหกรรม</span>
+                <span class="font-extrabold text-xs text-white tracking-wider uppercase block">Coohom 3D (MSSM)</span>
+                <span class="text-[8px] text-slate-400 font-bold block -mt-0.5">โปรแกรมเขียนแบบ 3 มิติมือถือแนวนอน</span>
             </div>
         </div>
 
-        <!-- Middle Quick Actions -->
+        <!-- Toolbar quick action controls -->
         <div class="flex items-center gap-1">
-            <button onclick="undoLastAction()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-bold transition flex items-center gap-1"><i class="fas fa-undo"></i> ย้อนกลับ</button>
-            <button onclick="clear3DScene()" class="p-2 text-red-500 hover:bg-red-50 rounded-lg text-xs font-bold transition flex items-center gap-1"><i class="fas fa-trash-alt"></i> ล้างห้อง</button>
+            <button onclick="undoLastAction()" class="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-bold rounded-lg hover:border-emerald-500 transition flex items-center gap-1"><i class="fas fa-undo"></i> ย้อนกลับ</button>
+            <button onclick="clear3DScene()" class="px-2.5 py-1.5 bg-red-950/40 border border-red-900/60 text-[10px] text-red-400 font-bold rounded-lg hover:bg-red-900/20 transition flex items-center gap-1"><i class="fas fa-trash-alt"></i> ล้าง</button>
         </div>
 
-        <!-- Back to main app / budget wallet tracker -->
-        <div class="flex items-center gap-4">
-            <div class="bg-emerald-50 text-emerald-800 px-3.5 py-1.5 rounded-xl border border-emerald-100 flex items-center gap-1.5 text-xs font-black">
-                <i class="fas fa-wallet text-emerald-600"></i>
+        <div class="flex items-center gap-3">
+            <!-- Sync cash wallet status -->
+            <div class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-xl flex items-center gap-1.5 text-[10px] font-black">
+                <i class="fas fa-wallet text-emerald-500"></i>
                 <span id="lblWalletCash">50,000 บาท</span>
             </div>
-            <a href="index.html" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow">ไปที่หน้าแรก</a>
+            <a href="index.html" class="bg-slate-950 border border-slate-800 text-slate-300 hover:text-white font-bold text-[9px] px-3 py-1.5 rounded-lg transition">หน้าหลัก</a>
         </div>
     </header>
 
-    <!-- MAIN CAD SPLIT WINDOW -->
-    <div class="flex-1 flex overflow-hidden">
+    <!-- MAIN INTERACTIVE CAD INTERFACE -->
+    <div class="flex-1 flex overflow-hidden relative">
         
-        <!-- LEFT SIDEBAR: Accordions for House Elements -->
-        <aside class="w-72 cad-sidebar flex flex-col shrink-0 z-10 overflow-y-auto">
+        <!-- COLLAPSIBLE LEFT DRAWER (Structure Panel) -->
+        <aside id="leftSidebar" class="w-60 cad-sidebar flex flex-col shrink-0 z-15 overflow-y-auto max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:pt-12 max-md:-translate-x-full">
             
-            <!-- Category: Main Structure -->
-            <div class="p-4 border-b border-gray-150">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                    <i class="fas fa-warehouse text-emerald-500"></i> โครงสร้างโรงเรือน
-                </h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="selectBuildTool('pillar')" id="toolPillar" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-columns text-amber-600"></i></span>
+            <!-- Category: Structural elements -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-warehouse text-emerald-400"></i> โครงสร้างโรงเรือน</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="selectBuildTool('pillar')" id="toolPillar" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300 active">
+                        <span class="text-sm"><i class="fas fa-columns text-amber-600"></i></span>
                         <span>เสาโรงเรือน</span>
-                        <span class="text-[9px] text-slate-400 font-bold">150 บ.</span>
+                        <span class="text-[8px] text-slate-400">150 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('wall')" id="toolWall" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-square text-slate-500"></i></span>
+                    <button onclick="selectBuildTool('wall')" id="toolWall" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-square text-slate-400"></i></span>
                         <span>กำแพงกั้น</span>
-                        <span class="text-[9px] text-slate-400 font-bold">300 บ.</span>
+                        <span class="text-[8px] text-slate-400">300 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('roof')" id="toolRoof" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700 col-span-2">
-                        <span class="text-lg"><i class="fas fa-home text-blue-500"></i></span>
-                        <span>ประกอบหลังคาคาปูชิโน่</span>
-                        <span class="text-[9px] text-slate-400 font-bold">1,200 บ.</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Category: Openings & Doors -->
-            <div class="p-4 border-b border-gray-150">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                    <i class="fas fa-door-open text-emerald-500"></i> ประตูและหน้าต่าง
-                </h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="selectBuildTool('door')" id="toolDoor" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-door-closed text-slate-600"></i></span>
-                        <span>ประตูทางเข้า</span>
-                        <span class="text-[9px] text-slate-400 font-bold">450 บ.</span>
-                    </button>
-                    <button onclick="selectBuildTool('window')" id="toolWindow" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-window-maximize text-cyan-500"></i></span>
-                        <span>บานเกล็ดระบาย</span>
-                        <span class="text-[9px] text-slate-400 font-bold">250 บ.</span>
+                    <button onclick="selectBuildTool('roof')" id="toolRoof" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300 col-span-2">
+                        <span class="text-sm"><i class="fas fa-home text-blue-500"></i></span>
+                        <span>หลังคาลาดชันคาปูชิโน่</span>
+                        <span class="text-[8px] text-slate-400">1,200 บ.</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Category: Mushroom racks and systems -->
-            <div class="p-4 border-b border-gray-150">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                    <i class="fas fa-tint text-emerald-500"></i> อุปกรณ์การเกษตรและก้อนเชื้อ
-                </h3>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="selectBuildTool('bag_hungarian')" id="toolBag_hungarian" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg">🍄</span>
+            <!-- Category: Openings -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-door-open text-emerald-400"></i> ประตู / หน้าต่าง</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="selectBuildTool('door')" id="toolDoor" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-door-closed text-slate-500"></i></span>
+                        <span>ประตูเข้า</span>
+                        <span class="text-[8px] text-slate-400">450 บ.</span>
+                    </button>
+                    <button onclick="selectBuildTool('window')" id="toolWindow" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-window-maximize text-cyan-400"></i></span>
+                        <span>บานระบาย</span>
+                        <span class="text-[8px] text-slate-400">250 บ.</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category: Agriculture items -->
+            <div class="p-3 border-b border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-tint text-emerald-400"></i> บล็อกเพาะเห็ด & อุปกรณ์</span>
+                <div class="grid grid-cols-2 gap-1.5">
+                    <button onclick="selectBuildTool('bag_hungarian')" id="toolBag_hungarian" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm">🍄</span>
                         <span>ก้อนเห็ดนางรม</span>
-                        <span class="text-[9px] text-emerald-500 font-extrabold">18 บ.</span>
+                        <span class="text-[8px] text-emerald-400 font-black">18 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('bag_splitgill')" id="toolBag_splitgill" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg">🧫</span>
+                    <button onclick="selectBuildTool('bag_splitgill')" id="toolBag_splitgill" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm">🧫</span>
                         <span>ก้อนเห็ดแครง</span>
-                        <span class="text-[9px] text-emerald-500 font-extrabold">25 บ.</span>
+                        <span class="text-[8px] text-emerald-400 font-black">25 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('mist')" id="toolMist" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-shower text-blue-400"></i></span>
+                    <button onclick="selectBuildTool('mist')" id="toolMist" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-shower text-blue-400"></i></span>
                         <span>หัวพ่นหมอก</span>
-                        <span class="text-[9px] text-slate-400 font-bold">150 บ.</span>
+                        <span class="text-[8px] text-slate-400">150 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('fan')" id="toolFan" class="tool-btn p-3 rounded-xl flex flex-col items-center justify-center text-center gap-1 bg-white text-xs font-bold text-slate-700">
-                        <span class="text-lg"><i class="fas fa-fan text-cyan-400"></i></span>
+                    <button onclick="selectBuildTool('fan')" id="toolFan" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-fan text-cyan-400"></i></span>
                         <span>พัดลมระบาย</span>
-                        <span class="text-[9px] text-slate-400 font-bold">350 บ.</span>
+                        <span class="text-[8px] text-slate-400">350 บ.</span>
                     </button>
                 </div>
-            </div>
-
-            <!-- Materials preview -->
-            <div class="p-4 flex-grow">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-2"><i class="fas fa-info-circle text-emerald-400"></i> คำอธิบายโปรแกรม</span>
-                <p class="text-[10px] text-slate-500 leading-relaxed">คลิกเลือกวัสดุชิ้นที่ต้องการ แล้วแตะพื้นที่ในตาราง Grid เพื่อวางระบบจำลอง สำหรับชิ้นงานที่วางไว้แล้ว การคลิกซ้ำที่ตัววัตถุจะเป็นการรื้อถอนและคืนงบประมาณให้</p>
             </div>
         </aside>
 
-        <!-- CENTER VIEWPORT: Three.js CAD Viewport -->
-        <main class="flex-grow cad-viewport flex flex-col relative">
+        <!-- VIEWPORT: The core 3D Canvas -->
+        <main class="flex-grow flex flex-col relative h-full">
             
-            <!-- Three.js Canvas Container -->
-            <div id="canvas3d" class="w-full flex-grow"></div>
-            
-            <!-- Dimensions HUD Overlay (top left compass direction) -->
-            <div class="absolute top-4 left-4 bg-white/90 border border-slate-200 p-3 rounded-2xl shadow flex items-center gap-2 pointer-events-none text-xs">
-                <span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-black"><i class="fas fa-compass"></i></span>
-                <div>
-                    <span class="font-extrabold block">พิกัดแกนระนาบ XZ</span>
-                    <span class="text-[9px] text-slate-400 font-bold block">ขนาดกริดจำลอง 8x8 เมตร ( snappable )</span>
-                </div>
+            <!-- Three.js viewport wrapper -->
+            <div id="canvas3d" class="w-full h-full"></div>
+
+            <!-- Hamburger Button for mobile landscape slide sidebar -->
+            <button onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 left-4 w-9 h-9 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl flex items-center justify-center z-30 cursor-pointer">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Bottom Floating HUD: view options, cleanly arranged -->
+            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-slate-800 px-4 py-2 rounded-full shadow-2xl flex items-center gap-2.5 z-10 shrink-0">
+                <button onclick="setCameraViewMode('3d')" id="btnView3D" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow">
+                    3D View
+                </button>
+                <button onclick="setCameraViewMode('2d')" id="btnView2D" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white">
+                    2D Plan
+                </button>
+                <div class="w-[1px] h-3 bg-slate-800"></div>
+                <button onclick="setControlMode('build')" id="btnCtrlBuild" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-slate-950 text-emerald-400 border border-emerald-500/20">
+                    🔨 วางวัสดุ
+                </button>
+                <button onclick="setControlMode('orbit')" id="btnCtrlOrbit" class="px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white">
+                    🔍 หมุนกล้อง
+                </button>
             </div>
 
-            <!-- Bottom Control HUD: 2D/3D Switches and camera zoom toggles -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white border border-slate-200 px-4 py-2.5 rounded-full shadow-lg flex items-center gap-3">
-                <button onclick="setCameraViewMode('3d')" id="btnView3D" class="px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-slate-900 text-white">
-                    <i class="fas fa-cube mr-1"></i> มุมมอง 3D
-                </button>
-                <div class="w-[1px] h-4 bg-slate-200"></div>
-                <button onclick="setCameraViewMode('2d')" id="btnView2D" class="px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50">
-                    <i class="fas fa-map mr-1"></i> แผงแบบแปลน 2D
-                </button>
-                <div class="w-[1px] h-4 bg-slate-200"></div>
-                <button onclick="setControlMode('build')" id="btnCtrlBuild" class="px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-emerald-500 text-white shadow">
-                    🔨 โหมดวางวัสดุ
-                </button>
-                <button onclick="setControlMode('orbit')" id="btnCtrlOrbit" class="px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50">
-                    🔍 โหมดหมุนกล้อง
-                </button>
+            <!-- Floor heights context panel (compact floating style) -->
+            <div class="absolute top-4 right-4 bg-slate-900/90 border border-slate-800 p-2.5 rounded-2xl shadow-xl flex items-center gap-2 z-10 max-sm:hidden">
+                <span class="text-[9px] text-slate-400 font-bold">สูงก้อนเชื้อ:</span>
+                <select id="floorHeightSelect" onchange="adjustFloorPlaneHeight()" class="bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-200 focus:outline-none">
+                    <option value="2.0">2000 mm</option>
+                    <option value="2.5" selected>2500 mm</option>
+                    <option value="3.0">3000 mm</option>
+                </select>
             </div>
         </main>
-
-        <!-- RIGHT SIDEBAR: Properties Panel (การตั้งค่าพื้น) -->
-        <aside class="w-64 bg-white border-l border-gray-200 flex flex-col shrink-0 overflow-y-auto">
-            <div class="p-4 border-b border-gray-150">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-sliders-h text-emerald-500"></i> การตั้งค่าระดับความสูง</h3>
-                
-                <div class="mt-4 space-y-4">
-                    <div>
-                        <label class="text-[10px] text-slate-500 font-bold block mb-1">ความสูงของพื้นก้อนเชื้อ (mm)</label>
-                        <select id="floorHeightSelect" onchange="adjustFloorPlaneHeight()" class="w-full bg-slate-50 border border-slate-200 p-2 rounded-xl text-xs font-bold text-slate-800">
-                            <option value="2.0">2000 mm</option>
-                            <option value="2.5" selected>2500 mm (มาตรฐาน)</option>
-                            <option value="3.0">3000 mm (โรงงานใหญ่)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 border-b border-gray-150 space-y-3">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest"><i class="fas fa-chart-bar text-emerald-500"></i> สรุปทรัพยากรที่ใช้สร้าง</h3>
-                
-                <div class="space-y-2.5 pt-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500">ก้อนเชื้อเห็ดรวม</span>
-                        <strong class="text-slate-800 font-bold" id="lblPlacedBags">0 ก้อน</strong>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500">พัดลมหมุนเหวี่ยง</span>
-                        <strong class="text-slate-800 font-bold" id="lblPlacedFans">0 ตัว</strong>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500">หัวพ่นหมอกอัจฉริยะ</span>
-                        <strong class="text-slate-800 font-bold" id="lblPlacedMists">0 หัว</strong>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-500">เสารองรับน้ำหนัก</span>
-                        <strong class="text-slate-800 font-bold" id="lblPlacedPillars">0 ต้น</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-4 flex-grow space-y-3">
-                <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">การวิเคราะห์ประสิทธิภาพ</span>
-                <div class="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100 text-[10px] text-emerald-800 leading-relaxed font-bold">
-                    💡 แนะนำ: วางพัดลมระบายอากาศด้านหลังและหัวพ่นหมอกด้านหน้าสลับช่อง เพื่อเพิ่มอัตราความหมุนเวียนก๊าซ CO2 และความชื้นสัมพัทธ์ในโรงเรือน
-                </div>
-            </div>
-        </aside>
-
     </div>
 
-    <!-- Script 3D CAD Builder Engine -->
+    <!-- Script CAD Engine -->
     <script>
         let scene, camera, renderer, controls;
         let gridHelper, planeMesh;
         let activeTool = 'pillar';
-        let controlMode = 'build'; // build or orbit
-        let viewMode = '3d'; // 3d or 2d
+        let controlMode = 'build';
+        let viewMode = '3d';
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
 
         let placedObjects = [];
-        let roofMesh = null;
+        let mobileSidebarOpen = false;
 
         const toolPrices = {
             'pillar': 150,
@@ -285,14 +242,14 @@
         };
 
         const toolMaterials = {
-            'pillar': new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 }), // wood pillar
-            'wall': new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.7 }), // white wall block
-            'roof': new THREE.MeshStandardMaterial({ color: 0x9a3412, roughness: 0.6 }), // reddish thatch roof
-            'door': new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5 }),
-            'window': new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.3, transparent: true, opacity: 0.8 }),
-            'bag_hungarian': new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5 }), // Green bag
-            'bag_splitgill': new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.5 }), // Pink bag
-            'mist': new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.3 }),
+            'pillar': new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 }),
+            'wall': new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.7 }),
+            'roof': new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.8 }),
+            'door': new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 }),
+            'window': new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.3, transparent: true, opacity: 0.8 }),
+            'bag_hungarian': new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5 }),
+            'bag_splitgill': new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.5 }),
+            'mist': new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.3 }),
             'fan': new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4 })
         };
 
@@ -314,7 +271,7 @@
             const height = container.clientHeight;
 
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xf1f5f9); // Light CAD background style
+            scene.background = new THREE.Color(0x0f172a); // Premium dark layout matching core theme
 
             camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
             camera.position.set(6, 6, 8);
@@ -334,42 +291,56 @@
             controls.maxDistance = 25;
 
             // Lights
-            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.4);
             scene.add(ambient);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
             dirLight.position.set(10, 15, 10);
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            // CAD Grid Helper (size=8, divisions=16, custom blue grid line style matching Coohom)
-            gridHelper = new THREE.GridHelper(8, 16, 0x3b82f6, 0xbfdbfe);
+            // Grid layout (size=8, divisions=16)
+            gridHelper = new THREE.GridHelper(8, 16, 0x10b981, 0x334155);
             gridHelper.position.y = 0.01;
             scene.add(gridHelper);
 
-            // Invisible Ground Plane for raycaster snapping
+            // Ground plane for raycast tracking
             const planeGeo = new THREE.PlaneGeometry(8, 8);
             planeGeo.rotateX(-Math.PI / 2);
             planeMesh = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({ visible: false }));
             scene.add(planeMesh);
 
-            // Add dimension border lines in 3D canvas (Coohom style)
             drawCADDimensionLines();
-
             syncWalletUI();
+            checkOrientation();
+
+            // Event Listeners
             renderer.domElement.addEventListener('pointerdown', onCanvasClick);
             window.addEventListener('resize', onWindowResize);
+            window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
 
-            // Default modes
+            // Default tools
             setControlMode('build');
             selectBuildTool('pillar');
 
             animate();
         }
 
-        // Draw dimension border guidelines matching the Coohom builder view
+        // Check if landscape or portrait and trigger warn overlay on mobile/tablets
+        function checkOrientation() {
+            const overlay = document.getElementById('orientationOverlay');
+            const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+            
+            if (isMobile && window.innerHeight > window.innerWidth) {
+                overlay.style.display = 'flex';
+            } else {
+                overlay.style.display = 'none';
+            }
+            onWindowResize();
+        }
+
         function drawCADDimensionLines() {
-            const material = new THREE.LineBasicMaterial({ color: 0x3b82f6 });
+            const material = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
             const points = [];
             points.push(new THREE.Vector3(-4, 0, -4));
             points.push(new THREE.Vector3(-4, 0, 4));
@@ -383,19 +354,29 @@
             scene.add(line);
         }
 
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('leftSidebar');
+            mobileSidebarOpen = !mobileSidebarOpen;
+            if (mobileSidebarOpen) {
+                sidebar.style.transform = 'translateX(0)';
+            } else {
+                sidebar.style.transform = 'translateX(-100%)';
+            }
+        }
+
         function setControlMode(mode) {
             controlMode = mode;
             const btnBuild = document.getElementById('btnCtrlBuild');
             const btnOrbit = document.getElementById('btnCtrlOrbit');
 
             if (mode === 'build') {
-                btnBuild.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-emerald-500 text-white shadow";
-                btnOrbit.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50";
-                controls.enabled = false; // Disable orbit rotation so clicks place components
+                btnBuild.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
+                btnOrbit.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                controls.enabled = false;
             } else {
-                btnOrbit.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-slate-900 text-white shadow";
-                btnBuild.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50";
-                controls.enabled = true; // Allow free rotation
+                btnOrbit.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-slate-950 text-emerald-400 border border-emerald-500/20";
+                btnBuild.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
+                controls.enabled = true;
             }
         }
 
@@ -405,16 +386,15 @@
             const btn2D = document.getElementById('btnView2D');
 
             if (mode === '2d') {
-                btn2D.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-slate-900 text-white";
-                btn3D.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50";
-                // Transition camera to top down
+                btn2D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
+                btn3D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
                 controls.reset();
                 camera.position.set(0, 10, 0);
                 controls.target.set(0, 0, 0);
-                controls.enableRotate = false; // Locks rotation in 2D blueprint mode
+                controls.enableRotate = false;
             } else {
-                btn3D.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer bg-slate-900 text-white";
-                btn2D.className = "px-4 py-1.5 rounded-full text-xs font-black transition cursor-pointer text-slate-600 hover:bg-slate-50";
+                btn3D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer bg-emerald-500 text-white shadow";
+                btn2D.className = "px-3.5 py-1.5 rounded-full text-[10px] font-black transition cursor-pointer text-slate-400 hover:text-white";
                 controls.enableRotate = true;
                 camera.position.set(6, 6, 8);
                 controls.target.set(0, 0, 0);
@@ -423,15 +403,16 @@
 
         function selectBuildTool(tool) {
             activeTool = tool;
-            // Highlight tool buttons
             const buttons = document.querySelectorAll('.tool-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
-            
+
             const activeBtn = document.getElementById('tool' + tool.charAt(0).toUpperCase() + tool.slice(1));
             if (activeBtn) activeBtn.classList.add('active');
 
-            // Force build mode
             setControlMode('build');
+            if (window.innerWidth < 768) {
+                toggleMobileSidebar(); // Auto-hide sidebar drawer on mobile after selection
+            }
         }
 
         function onCanvasClick(event) {
@@ -443,7 +424,7 @@
 
             raycaster.setFromCamera(mouse, camera);
 
-            // Check if user clicked an existing placed mesh to delete it
+            // Intersect placed items first for deletion
             const placedMeshes = placedObjects.map(obj => obj.mesh);
             const intersections = raycaster.intersectObjects(placedMeshes);
 
@@ -452,34 +433,29 @@
                 const idx = placedObjects.findIndex(obj => obj.mesh === hitMesh);
                 if (idx !== -1) {
                     const obj = placedObjects[idx];
-                    // Refund cost
                     adjustCash(toolPrices[obj.type]);
                     scene.remove(obj.mesh);
                     placedObjects.splice(idx, 1);
-                    updateCountersUI();
                 }
                 return;
             }
 
-            // Otherwise, check ground plane to place item
+            // Otherwise place item
             const groundIntersects = raycaster.intersectObject(planeMesh);
             if (groundIntersects.length > 0) {
                 const point = groundIntersects[0].point;
 
-                // Snap to 0.5m grid intervals within the 8x8 limit
                 const gridX = Math.round(point.x * 2) / 2;
                 const gridZ = Math.round(point.z * 2) / 2;
 
                 if (Math.abs(gridX) <= 4.0 && Math.abs(gridZ) <= 4.0) {
-                    // Check budget
                     const cost = toolPrices[activeTool];
                     let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
                     if (cash < cost) {
-                        alert('งบประมาณสะสมไม่เพียงพอสำหรับการซื้อชิ้นส่วนนี้!');
+                        alert('งบประมาณสะสมไม่เพียงพอ!');
                         return;
                     }
 
-                    // Height offsets according to item types
                     let heightVal = 0.25;
                     if (activeTool === 'pillar') heightVal = 1.25;
                     if (activeTool === 'wall') heightVal = 0.6;
@@ -497,9 +473,7 @@
 
                     placedObjects.push({ type: activeTool, mesh: mesh });
 
-                    // Deduct budget
                     adjustCash(-cost);
-                    updateCountersUI();
                 }
             }
         }
@@ -516,23 +490,10 @@
             document.getElementById('lblWalletCash').textContent = cash.toLocaleString() + ' บาท';
         }
 
-        function updateCountersUI() {
-            const bags = placedObjects.filter(o => o.type.startsWith('bag')).length;
-            const pillars = placedObjects.filter(o => o.type === 'pillar').length;
-            const fans = placedObjects.filter(o => o.type === 'fan').length;
-            const mists = placedObjects.filter(o => o.type === 'mist').length;
-
-            document.getElementById('lblPlacedBags').textContent = bags + ' ก้อน';
-            document.getElementById('lblPlacedPillars').textContent = pillars + ' ต้น';
-            document.getElementById('lblPlacedFans').textContent = fans + ' ตัว';
-            document.getElementById('lblPlacedMists').textContent = mists + ' หัว';
-        }
-
         function clear3DScene() {
             if (confirm('คุณต้องการรีเซ็ตรื้อถอนโครงสร้างทั้งหมดกลับสู่ห้องว่างหรือไม่?')) {
                 placedObjects.forEach(obj => scene.remove(obj.mesh));
                 placedObjects = [];
-                updateCountersUI();
             }
         }
 
@@ -541,15 +502,11 @@
                 const obj = placedObjects.pop();
                 adjustCash(toolPrices[obj.type]);
                 scene.remove(obj.mesh);
-                updateCountersUI();
             }
         }
 
         function adjustFloorPlaneHeight() {
             const height = parseFloat(document.getElementById('floorHeightSelect').value);
-            // Change grid helper height representing customizable floor heights
-            gridHelper.position.y = 0.01;
-            // Refresh geometry heights of pillars according to selected floor height
             placedObjects.forEach(obj => {
                 if (obj.type === 'pillar') {
                     scene.remove(obj.mesh);
@@ -567,7 +524,6 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            // Animate ventilations fans spinning
             placedObjects.forEach(obj => {
                 if (obj.type === 'fan') {
                     obj.mesh.rotation.z += 0.2;
