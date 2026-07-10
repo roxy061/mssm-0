@@ -253,6 +253,9 @@
 
                 <!-- 3D Canvas container -->
                 <div id="canvasContainer" class="flex-grow w-full h-full relative cursor-grab active:cursor-grabbing">
+                    <button id="btnExitFPS" onclick="setCameraView('orbit')" class="absolute top-4 right-4 z-[40] bg-red-600/80 hover:bg-red-700 text-white font-extrabold text-xs px-3.5 py-2 rounded-xl shadow-lg border border-red-500/30 transition hover:scale-105 active:scale-95 cursor-pointer hidden flex items-center gap-1.5">
+                        <i class="fas fa-sign-out-alt"></i> ออกจากโหมดเกม (Exit Game)
+                    </button>
                     <div id="loading3d" class="absolute inset-0 flex items-center justify-center bg-gray-50/50 dark:bg-slate-950/50 z-10 text-xs font-bold text-emerald-500">
                         <i class="fas fa-circle-notch animate-spin mr-2"></i> กำลังเตรียมห้องทดลอง 3D Sandbox...
                     </div>
@@ -801,6 +804,8 @@
                 if (placeBtn) placeBtn.style.display = 'none';
                 if (destroyBtn) destroyBtn.style.display = 'none';
                 if (hotbar) hotbar.classList.add('hidden');
+                const exitBtn = document.getElementById('btnExitFPS');
+                if (exitBtn) exitBtn.classList.add('hidden');
                 document.exitPointerLock();
 
                 // Exit fullscreen if active
@@ -816,13 +821,15 @@
                 if (placementCursor) placementCursor.visible = true;
                 if (crosshair) crosshair.style.display = 'block';
                 if (hotbar) hotbar.classList.remove('hidden');
+                const exitBtn = document.getElementById('btnExitFPS');
+                if (exitBtn) exitBtn.classList.remove('hidden');
 
-                // Enter fullscreen mode for immersive experience
-                const doc = document.documentElement;
-                if (doc.requestFullscreen) {
-                    doc.requestFullscreen().catch(() => {});
-                } else if (doc.webkitRequestFullscreen) {
-                    doc.webkitRequestFullscreen().catch(() => {});
+                // Enter fullscreen mode on canvasContainer for immersive gameplay
+                const gameContainer = document.getElementById('canvasContainer');
+                if (gameContainer.requestFullscreen) {
+                    gameContainer.requestFullscreen().catch(() => {});
+                } else if (gameContainer.webkitRequestFullscreen) {
+                    gameContainer.webkitRequestFullscreen().catch(() => {});
                 }
 
                 // Show Roblox-style mobile controls on mobile devices
