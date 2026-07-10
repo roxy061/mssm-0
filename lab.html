@@ -1,201 +1,596 @@
 <!DOCTYPE html>
 <html lang="th" class="dark">
-<head>
-<script>
-    (function() {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.remove('dark');
-        } else {
-            document.documentElement.classList.add('dark');
-        }
-    })();
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
-<title>MSSM Lab - Mush-Up NVC</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-    @theme { --font-prompt: 'Prompt', sans-serif; }
-    * { box-sizing: border-box; }
-    body { font-family: 'Prompt', sans-serif; }
-    #particleCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-    #reading-progress { position: fixed; top: 0; left: 0; width: 4px; height: 0%; z-index: 9999; transition: height .1s ease-out; background: linear-gradient(to bottom,#10b981,#f59e0b); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
-    .dark ::-webkit-scrollbar-thumb { background: #475569; }
-    @keyframes popIn { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-    @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
-    .animate-pop-in { animation: popIn .3s ease-out forwards; }
-    .no-spinner::-webkit-inner-spin-button,.no-spinner::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    .no-spinner[type=number] { -moz-appearance: textfield; }
-    .data-table th { background: rgba(16,185,129,0.1); }
-    .dark .data-table th { background: rgba(52,211,153,0.1); }
-    .nav-item { position: relative; overflow: hidden; }
-    .nav-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: #10b981; transform: scaleY(0); transition: transform .25s ease; border-radius: 0 3px 3px 0; }
-    .dark .nav-item::before { background: #34d399; }
-    .nav-item:hover::before, .nav-item.active::before { transform: scaleY(1); }
-    .nav-item.active { background: rgba(16,185,129,0.1); }
-    .dark .nav-item.active { background: rgba(52,211,153,0.1); }
-    .card-shine { position: relative; overflow: hidden; }
-    .card-shine::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%); transition: transform .6s; transform: translateX(-100%); }
-    .card-shine:hover::after { transform: translateX(100%); }
-</style>
+<head>
+    <script>
+        (function () {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'light' || (!theme && !window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0,user-scalable=yes">
+    <title>MSSM Lab - Mush-Up NVC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @theme {
+            --font-prompt: 'Prompt', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0%;
+            z-index: 9999;
+            transition: height .1s ease-out;
+            background: linear-gradient(to bottom, #10b981, #f59e0b);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px) scale(.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .animate-pop-in {
+            animation: popIn .3s ease-out forwards;
+        }
+
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .no-spinner[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .data-table th {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .dark .data-table th {
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .nav-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #10b981;
+            transform: scaleY(0);
+            transition: transform .25s ease;
+            border-radius: 0 3px 3px 0;
+        }
+
+        .dark .nav-item::before {
+            background: #34d399;
+        }
+
+        .nav-item:hover::before,
+        .nav-item.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-item.active {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .dark .nav-item.active {
+            background: rgba(52, 211, 153, 0.1);
+        }
+
+        .card-shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+            transition: transform .6s;
+            transform: translateX(-100%);
+        }
+
+        .card-shine:hover::after {
+            transform: translateX(100%);
+        }
+    </style>
 </head>
+
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 transition-colors duration-300">
 
-<button id="themeToggle" class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none" aria-label="Toggle Dark/Light Mode">
-    <i id="themeToggleIcon" class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
-</button>
+    <button id="themeToggle"
+        class="fixed top-3 right-3 md:top-5 md:right-6 z-[100] w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl md:rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 shadow-md hover:shadow-emerald-500/10 dark:hover:shadow-emerald-400/20 hover:scale-110 active:scale-95 hover:rotate-12 transition-all duration-300 cursor-pointer focus:outline-none"
+        aria-label="Toggle Dark/Light Mode">
+        <i id="themeToggleIcon"
+            class="fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0"></i>
+    </button>
 
-<div id="reading-progress"></div>
-<a href="#top" id="back-to-top" class="fixed bottom-5 right-5 w-11 h-11 md:w-12 md:h-12 z-50 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400 shadow-md hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all" style="opacity:0;pointer-events:none"><i class="fas fa-leaf"></i></a>
-<canvas id="particleCanvas"></canvas>
+    <div id="reading-progress"></div>
+    <a href="#top" id="back-to-top"
+        class="fixed bottom-5 right-5 w-11 h-11 md:w-12 md:h-12 z-50 flex items-center justify-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-emerald-600 dark:text-emerald-400 shadow-md hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500 transition-all"
+        style="opacity:0;pointer-events:none"><i class="fas fa-leaf"></i></a>
+    <canvas id="particleCanvas"></canvas>
 
-<!-- Hamburger -->
-<button onclick="toggleMenu()" class="lg:hidden fixed top-3 left-3 z-[100] w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer"><i class="fas fa-bars text-lg"></i></button>
-<div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
+    <!-- Hamburger -->
+    <button onclick="toggleMenu()"
+        class="lg:hidden fixed top-3 left-3 z-[100] w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all cursor-pointer"><i
+            class="fas fa-bars text-lg"></i></button>
+    <div id="menuOverlay" onclick="closeMenu()"
+        class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
 
-<!-- Sidebar -->
-<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
-    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
-        <div class="text-2xl mb-1">🧪</div>
-        <div class="text-lg font-extrabold text-white drop-shadow-lg">MSSM Lab</div>
-        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">Intelligence Workshop</div>
+    <!-- Sidebar -->
+    <aside id="mobileMenu"
+        class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+        <div
+            class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10"
+                style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+            <div class="text-2xl mb-1">🧪</div>
+            <div class="text-lg font-extrabold text-white drop-shadow-lg">MSSM Lab</div>
+            <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">Intelligence Workshop
+            </div>
+        </div>
+        <button onclick="closeMenu()"
+            class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i
+                class="fas fa-times text-sm"></i></button>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">
+                เมนูหลัก</div>
+            <a href="index.html"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
+                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i
+                        class="fas fa-home"></i></span> หน้าแรก</a>
+            <a href="index.html#products"
+                class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
+                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs"><i
+                        class="fas fa-seedling"></i></span> สายพันธุ์</a>
+            <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+                <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">
+                    เครื่องมือ</div>
+                <a href="#"
+                    class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all"><span
+                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i
+                            class="fas fa-flask"></i></span> MSSM Lab</a>
+                <a href="ai.html"
+                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
+                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i
+                            class="fas fa-robot"></i></span> AI Assistant</a>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform"
+                    target="_blank"
+                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span
+                        class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i
+                            class="fas fa-poll"></i></span> แบบสอบถาม</a>
+            </div>
+        </nav>
+    </aside>
+
+    <div class="lg:pl-[260px] transition-all duration-300">
+
+        <header id="top"
+            class="relative bg-gradient-to-br from-white via-gray-50 to-emerald-50/50 dark:from-gray-900 dark:via-gray-950 dark:to-emerald-900/20 border-b border-gray-200 dark:border-gray-800 text-center px-4 py-10 md:py-14 shadow-sm rounded-b-2xl md:rounded-b-3xl max-lg:pt-[70px] overflow-hidden">
+            <div
+                class="absolute w-60 h-60 rounded-full bg-emerald-400/10 dark:bg-emerald-500/10 blur-3xl -top-20 -right-20 pointer-events-none">
+            </div>
+            <div class="relative z-10">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-4">
+                    🧪 MSSM Intelligence Lab</div>
+                <h1 class="text-xl md:text-2xl font-black text-gray-800 dark:text-gray-100">Mush-Up Smart Selection
+                    Model</h1>
+                <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">ทดลองแต่งแบบจำลอง MSSM ในแบบของคุณ
+                </p>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-6">
+            <section class="grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] gap-4 md:gap-6">
+
+                <!-- LEFT -->
+                <div class="space-y-4">
+
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">
+                                ข้อมูลนำเข้า</h2>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div><label
+                                    class="text-xs font-semibold text-gray-500 dark:text-gray-400">จำนวนก้อนเพาะ</label><input
+                                    type="number" id="inGons" value="100"
+                                    class="w-full mt-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition no-spinner">
+                            </div>
+                            <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400">ต้นทุน/ก้อน
+                                    (บาท)</label><input type="number" id="inCostPerGon" value="18" step="0.5"
+                                    class="w-full mt-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition no-spinner">
+                            </div>
+                        </div>
+                        <p
+                            class="text-xs font-extrabold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1.5">
+                            <i class="fas fa-tags text-emerald-500"></i> ราคาขายเห็ด (บาท/กก.)
+                        </p>
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div><label class="text-[10px] text-gray-500 dark:text-gray-400">หูหนูดำ</label><input
+                                    type="number" id="inPriceHunu" value="60"
+                                    class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner">
+                            </div>
+                            <div><label class="text-[10px] text-gray-500 dark:text-gray-400">แครง</label><input
+                                    type="number" id="inPriceKraeng" value="120"
+                                    class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner">
+                            </div>
+                            <div><label class="text-[10px] text-gray-500 dark:text-gray-400">นางฟ้าภูฐาน</label><input
+                                    type="number" id="inPriceNangfa" value="70"
+                                    class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner">
+                            </div>
+                            <div><label class="text-[10px] text-gray-500 dark:text-gray-400">นางรมฮังการี</label><input
+                                    type="number" id="inPriceNangrom" value="75"
+                                    class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-weight-scale"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ค่าน้ำหนัก
+                            </h2>
+                        </div>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-3 ml-10">ผลรวมต้องเท่ากับ 100%</p>
+                        <div class="space-y-2">
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>🌱</span> อัตราเดินเส้นใย</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w1" value="15" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>🍄</span> ปริมาณผลผลิต</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w2" value="25" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>💰</span> กำไรสุทธิ</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w3" value="25" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>📊</span> ค่า BCR</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w4" value="15" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>⏰</span> วันออกดอกแรก</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w5" value="10" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm">
+                                <span class="flex items-center gap-1.5"><span>⌛</span> ระยะเวลาคืนทุน</span>
+                                <div class="flex items-center gap-2"><input type="number" id="w6" value="10" min="0"
+                                        max="100" oninput="validateWeights()"
+                                        class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span
+                                        class="font-bold text-gray-400 text-xs">%</span></div>
+                            </div>
+                        </div>
+                        <div id="weightAlert"
+                            class="hidden mt-2 p-2 text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 border-l-[3px] border-amber-500 rounded-r-lg">
+                            ⚠️ ผลรวมต้องเท่ากับ 100%</div>
+                        <div class="grid grid-cols-[1.8fr_1fr] gap-3 mt-4">
+                            <button onclick="calc()"
+                                class="py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"><i
+                                    class="fas fa-wand-magic-sparkles"></i> คำนวณ</button>
+                            <button onclick="resetAll()"
+                                class="py-3 rounded-full border border-gray-200 dark:border-gray-700 bg-transparent text-gray-600 dark:text-gray-400 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-all cursor-pointer"><i
+                                    class="fas fa-undo-alt"></i> รีเซ็ต</button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ฐานข้อมูล
+                            </h2>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                            <table class="w-full min-w-[350px] text-xs md:text-sm border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            สายพันธุ์</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            เส้นใย</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            ผลผลิต</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            ออกดอก</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10">
+                                        <td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">เห็ดหูหนูดำ
+                                        </td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.42</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">247.3</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">14.1</td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10">
+                                        <td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">เห็ดแครง</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.85</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">322.5</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">8.2</td>
+                                    </tr>
+                                    <tr
+                                        class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10">
+                                        <td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">นางฟ้าภูฐาน
+                                        </td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.61</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">428.6</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">9.6</td>
+                                    </tr>
+                                    <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10">
+                                        <td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">นางรมฮังการี
+                                        </td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.58</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">401.8</td>
+                                        <td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">10.4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT -->
+                <div class="space-y-4">
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">เศรษฐศาสตร์
+                            </h2>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                            <table class="w-full min-w-[500px] text-xs md:text-sm border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="p-2 md:p-3 font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            พันธุ์</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            ผลผลิต</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            ต้นทุน</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            รายได้</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            กำไร</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            BCR</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            คืนทุน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ecoResultsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">แดชบอร์ด
+                            </h2>
+                        </div>
+                        <div id="podiumList" class="space-y-2"></div>
+                    </div>
+
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-poll"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">
+                                คะแนนมาตรฐาน</h2>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                            <table class="w-full min-w-[450px] text-xs md:text-sm border-collapse data-table">
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="p-2 md:p-3 font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            ปัจจัย</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            หูหนู</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            แครง</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            นางฟ้า</th>
+                                        <th
+                                            class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">
+                                            นางรม</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scoreTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">
+                                กราฟวิเคราะห์</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="mpiBarChart"></canvas>
+                            </div>
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="profitChart"></canvas>
+                            </div>
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="bcrChart"></canvas>
+                            </div>
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="yieldChart"></canvas>
+                            </div>
+                            <div
+                                class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700">
+                                <canvas id="paybackChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="index.html"
+                        class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:translate-x-[-4px] transition-all px-4 py-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><i
+                            class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
+                </div>
+            </section>
+        </main>
+
+        <footer
+            class="text-center px-4 py-8 md:py-10 text-xs opacity-60 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-900/50">
+            &copy; 2026 Mush-up NVC. All rights reserved.</footer>
     </div>
-    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
-    <nav class="flex-1 px-3 py-4 space-y-1">
-        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
-        <a href="index.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i class="fas fa-home"></i></span> หน้าแรก</a>
-        <a href="index.html#products" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-xs"><i class="fas fa-seedling"></i></span> สายพันธุ์</a>
-        <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
-            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
-            <a href="#" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
-            <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform" target="_blank" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i class="fas fa-poll"></i></span> แบบสอบถาม</a>
-        </div>
-    </nav>
-</aside>
 
-<div class="lg:pl-[260px] transition-all duration-300">
-
-<header id="top" class="relative bg-gradient-to-br from-white via-gray-50 to-emerald-50/50 dark:from-gray-900 dark:via-gray-950 dark:to-emerald-900/20 border-b border-gray-200 dark:border-gray-800 text-center px-4 py-10 md:py-14 shadow-sm rounded-b-2xl md:rounded-b-3xl max-lg:pt-[70px] overflow-hidden">
-    <div class="absolute w-60 h-60 rounded-full bg-emerald-400/10 dark:bg-emerald-500/10 blur-3xl -top-20 -right-20 pointer-events-none"></div>
-    <div class="relative z-10">
-        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-4">🧪 MSSM Intelligence Lab</div>
-        <h1 class="text-xl md:text-2xl font-black text-gray-800 dark:text-gray-100">Mush-Up Smart Selection Model</h1>
-        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-1">ทดลองแต่งแบบจำลอง MSSM ในแบบของคุณ</p>
-    </div>
-</header>
-
-<main class="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-6">
-    <section class="grid grid-cols-1 lg:grid-cols-[1fr_1.8fr] gap-4 md:gap-6">
-
-        <!-- LEFT -->
-        <div class="space-y-4">
-
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
-                <div class="flex items-center gap-2 mb-4"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm"><i class="fas fa-edit"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ข้อมูลนำเข้า</h2></div>
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400">จำนวนก้อนเพาะ</label><input type="number" id="inGons" value="100" class="w-full mt-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition no-spinner"></div>
-                    <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400">ต้นทุน/ก้อน (บาท)</label><input type="number" id="inCostPerGon" value="18" step="0.5" class="w-full mt-1 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition no-spinner"></div>
-                </div>
-                <p class="text-xs font-extrabold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-1.5"><i class="fas fa-tags text-emerald-500"></i> ราคาขายเห็ด (บาท/กก.)</p>
-                <div class="grid grid-cols-2 gap-2 mb-3">
-                    <div><label class="text-[10px] text-gray-500 dark:text-gray-400">หูหนูดำ</label><input type="number" id="inPriceHunu" value="60" class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner"></div>
-                    <div><label class="text-[10px] text-gray-500 dark:text-gray-400">แครง</label><input type="number" id="inPriceKraeng" value="120" class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner"></div>
-                    <div><label class="text-[10px] text-gray-500 dark:text-gray-400">นางฟ้าภูฐาน</label><input type="number" id="inPriceNangfa" value="70" class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner"></div>
-                    <div><label class="text-[10px] text-gray-500 dark:text-gray-400">นางรมฮังการี</label><input type="number" id="inPriceNangrom" value="75" class="w-full mt-0.5 px-3 py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none focus:border-emerald-500 transition no-spinner"></div>
-                </div>
-            </div>
-
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm"><i class="fas fa-weight-scale"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ค่าน้ำหนัก</h2></div>
-                <p class="text-[10px] text-gray-500 dark:text-gray-400 mb-3 ml-10">ผลรวมต้องเท่ากับ 100%</p>
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>🌱</span> อัตราเดินเส้นใย</span><div class="flex items-center gap-2"><input type="number" id="w1" value="15" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>🍄</span> ปริมาณผลผลิต</span><div class="flex items-center gap-2"><input type="number" id="w2" value="25" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>💰</span> กำไรสุทธิ</span><div class="flex items-center gap-2"><input type="number" id="w3" value="25" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>📊</span> ค่า BCR</span><div class="flex items-center gap-2"><input type="number" id="w4" value="15" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>⏰</span> วันออกดอกแรก</span><div class="flex items-center gap-2"><input type="number" id="w5" value="10" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-emerald-50/50 to-transparent dark:from-emerald-900/10 dark:to-transparent border border-emerald-100 dark:border-emerald-800/20 text-xs md:text-sm"><span class="flex items-center gap-1.5"><span>⌛</span> ระยะเวลาคืนทุน</span><div class="flex items-center gap-2"><input type="number" id="w6" value="10" min="0" max="100" oninput="validateWeights()" class="w-14 text-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 py-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 outline-none focus:border-emerald-500 no-spinner"><span class="font-bold text-gray-400 text-xs">%</span></div></div>
-                </div>
-                <div id="weightAlert" class="hidden mt-2 p-2 text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 border-l-[3px] border-amber-500 rounded-r-lg">⚠️ ผลรวมต้องเท่ากับ 100%</div>
-                <div class="grid grid-cols-[1.8fr_1fr] gap-3 mt-4">
-                    <button onclick="calc()" class="py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"><i class="fas fa-wand-magic-sparkles"></i> คำนวณ</button>
-                    <button onclick="resetAll()" class="py-3 rounded-full border border-gray-200 dark:border-gray-700 bg-transparent text-gray-600 dark:text-gray-400 font-bold text-sm hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 transition-all cursor-pointer"><i class="fas fa-undo-alt"></i> รีเซ็ต</button>
-                </div>
-            </div>
-
-            <div class="p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm"><i class="fas fa-database"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">ฐานข้อมูล</h2></div>
-                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-                    <table class="w-full min-w-[350px] text-xs md:text-sm border-collapse data-table">
-                        <thead><tr><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">สายพันธุ์</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">เส้นใย</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">ผลผลิต</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">ออกดอก</th></tr></thead>
-                        <tbody>
-                            <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10"><td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">เห็ดหูหนูดำ</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.42</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">247.3</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">14.1</td></tr>
-                            <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10"><td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">เห็ดแครง</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.85</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">322.5</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">8.2</td></tr>
-                            <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10"><td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">นางฟ้าภูฐาน</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.61</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">428.6</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">9.6</td></tr>
-                            <tr class="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10"><td class="p-2 md:p-3 font-bold text-gray-700 dark:text-gray-200">นางรมฮังการี</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">0.58</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">401.8</td><td class="p-2 md:p-3 text-center text-gray-600 dark:text-gray-300">10.4</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="space-y-4">
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm"><i class="fas fa-calculator"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">เศรษฐศาสตร์</h2></div>
-                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-                    <table class="w-full min-w-[500px] text-xs md:text-sm border-collapse data-table">
-                        <thead><tr><th class="p-2 md:p-3 font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">พันธุ์</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">ผลผลิต</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">ต้นทุน</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">รายได้</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">กำไร</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">BCR</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">คืนทุน</th></tr></thead>
-                        <tbody id="ecoResultsBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-sm"><i class="fas fa-medal"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">แดชบอร์ด</h2></div>
-                <div id="podiumList" class="space-y-2"></div>
-            </div>
-
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-sm"><i class="fas fa-poll"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">คะแนนมาตรฐาน</h2></div>
-                <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-                    <table class="w-full min-w-[450px] text-xs md:text-sm border-collapse data-table">
-                        <thead><tr><th class="p-2 md:p-3 font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">ปัจจัย</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">หูหนู</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">แครง</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">นางฟ้า</th><th class="p-2 md:p-3 text-center font-bold text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-500">นางรม</th></tr></thead>
-                        <tbody id="scoreTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card-shine p-4 md:p-6 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="flex items-center gap-2 mb-3"><div class="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center text-white text-sm"><i class="fas fa-chart-pie"></i></div><h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">กราฟวิเคราะห์</h2></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="radarChart"></canvas></div>
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="mpiBarChart"></canvas></div>
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="profitChart"></canvas></div>
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="bcrChart"></canvas></div>
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="yieldChart"></canvas></div>
-                    <div class="h-[180px] md:h-[220px] bg-white/40 dark:bg-gray-900/40 rounded-xl p-2 border border-gray-200 dark:border-gray-700"><canvas id="paybackChart"></canvas></div>
-                </div>
-            </div>
-
-            <a href="index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:translate-x-[-4px] transition-all px-4 py-2 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><i class="fas fa-arrow-left"></i> กลับหน้าหลัก</a>
-        </div>
-    </section>
-</main>
-
-<footer class="text-center px-4 py-8 md:py-10 text-xs opacity-60 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-900/50">&copy; 2026 Mush-up NVC. All rights reserved.</footer>
-</div>
-
-<script src="assets/js/core.js"></script>
-<script src="assets/js/forge.js"></script>
+    <script src="assets/js/core.js"></script>
+    <script src="assets/js/forge.js"></script>
 </body>
+
 </html>
