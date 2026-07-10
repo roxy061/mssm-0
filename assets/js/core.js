@@ -102,6 +102,7 @@ function initTheme() {
         isDark = !isDark;
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
         syncTheme(isDark);
+        window.dispatchEvent(new Event('themechanged'));
         playClick();
     });
 

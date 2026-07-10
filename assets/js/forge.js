@@ -246,3 +246,5 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSavedInputs();
     calc();
 });
+
+window.addEventListener('themechanged', calc);
