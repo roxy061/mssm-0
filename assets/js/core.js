@@ -236,6 +236,130 @@ function initScrollReveal() {
     });
 }
 
+// === COMMAND PALETTE (CTRL+K) ===
+function initCommandPalette() {
+    const el = document.createElement('div');
+    el.id = 'cmdPalette';
+    el.className = 'hidden fixed inset-0 z-[10000] bg-black/40 backdrop-blur-md flex items-start justify-center pt-[15vh] px-4';
+    el.innerHTML = `
+        <div class="bg-white/95 dark:bg-gray-900/95 w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl overflow-hidden animate-pop-in">
+            <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+                <i class="fas fa-search text-gray-400 dark:text-gray-500"></i>
+                <input type="text" id="cmdInput" placeholder="ค้นหาเมนูหรือพิมพ์คำสั่งด่วน... (เช่น สลับโหมด, หน้าแรก)" class="flex-1 bg-transparent text-sm text-gray-800 dark:text-gray-200 outline-none">
+                <span class="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700 font-bold">ESC</span>
+            </div>
+            <div id="cmdList" class="max-h-[300px] overflow-y-auto p-2 space-y-0.5">
+            </div>
+        </div>
+    `;
+    document.body.appendChild(el);
+
+    const commands = [
+        { text: 'ไปหน้าแรก (Home Page)', icon: 'fa-home', action: () => location.href = 'index.html' },
+        { text: 'ไปหน้า MSSM Lab', icon: 'fa-flask', action: () => location.href = 'lab.html' },
+        { text: 'ไปหน้า AI Assistant', icon: 'fa-robot', action: () => location.href = 'ai.html' },
+        { text: 'สลับโหมด มืด/สว่าง (Toggle Theme)', icon: 'fa-adjust', action: () => {
+            const toggleBtn = document.getElementById('themeToggle');
+            if (toggleBtn) toggleBtn.click();
+        }},
+        { text: 'คืนค่าเริ่มต้นระบบจำลอง (Reset Lab)', icon: 'fa-undo', action: () => {
+            if (typeof resetAll === 'function') {
+                resetAll();
+            } else {
+                localStorage.removeItem('mssm_lab_inputs');
+                location.href = 'lab.html';
+            }
+        }},
+        { text: 'เปิดตั้งค่า API Key', icon: 'fa-cog', action: () => {
+            if (typeof openSettings === 'function') {
+                openSettings();
+            } else {
+                location.href = 'ai.html?openSettings=true';
+            }
+        }}
+    ];
+
+    const cmdInput = document.getElementById('cmdInput');
+    const cmdList = document.getElementById('cmdList');
+    let selectedIdx = 0;
+    let filteredCmds = [...commands];
+
+    function renderList() {
+        cmdList.innerHTML = '';
+        if (filteredCmds.length === 0) {
+            cmdList.innerHTML = `<div class="p-3 text-center text-xs text-gray-400 dark:text-gray-500 italic"><i class="fas fa-search-minus"></i> ไม่พบคำสั่งดังกล่าว</div>`;
+            return;
+        }
+        filteredCmds.forEach((cmd, idx) => {
+            const div = document.createElement('div');
+            const activeClass = idx === selectedIdx ? 'bg-emerald-500 text-white shadow-md scale-[1.01]' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800/60';
+            div.className = `flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs md:text-sm font-semibold transition-all cursor-pointer ${activeClass}`;
+            div.innerHTML = `<i class="fas ${cmd.icon} w-5 text-center"></i> <span>${cmd.text}</span>`;
+            div.addEventListener('click', () => {
+                cmd.action();
+                closePalette();
+            });
+            cmdList.appendChild(div);
+        });
+    }
+
+    function openPalette() {
+        el.classList.remove('hidden');
+        cmdInput.value = '';
+        selectedIdx = 0;
+        filteredCmds = [...commands];
+        renderList();
+        setTimeout(() => cmdInput.focus(), 50);
+    }
+
+    function closePalette() {
+        el.classList.add('hidden');
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (el.classList.contains('hidden')) {
+                openPalette();
+            } else {
+                closePalette();
+            }
+        }
+        if (e.key === 'Escape') {
+            closePalette();
+        }
+    });
+
+    el.addEventListener('click', (e) => {
+        if (e.target === el) closePalette();
+    });
+
+    cmdInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        filteredCmds = commands.filter(cmd => cmd.text.toLowerCase().includes(query));
+        selectedIdx = 0;
+        renderList();
+    });
+
+    cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIdx = (selectedIdx + 1) % filteredCmds.length;
+            renderList();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIdx = (selectedIdx - 1 + filteredCmds.length) % filteredCmds.length;
+            renderList();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (filteredCmds[selectedIdx]) {
+                filteredCmds[selectedIdx].action();
+                closePalette();
+            }
+        }
+    });
+}
+
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
@@ -245,4 +369,20 @@ document.addEventListener('DOMContentLoaded', () => {
     initSmartHeader();
     initNetworkStatus();
     initScrollReveal();
+    initCommandPalette();
 });
+
+function filterMushrooms() {
+    const query = document.getElementById('mushroomSearch')?.value.toLowerCase().trim();
+    if (query === undefined) return;
+    const cards = document.querySelectorAll('#products .grid > div');
+    cards.forEach(card => {
+        const name = card.querySelector('img')?.getAttribute('alt')?.toLowerCase() || '';
+        const content = card.textContent.toLowerCase();
+        if (name.includes(query) || content.includes(query)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}

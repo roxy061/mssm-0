@@ -261,3 +261,53 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('themechanged', calc);
+
+function exportCSV() {
+    const headers = ['สายพันธุ์', 'ระยะเดินเส้นใย (วัน)', 'ระยะออกดอกแรก (วัน)', 'ผลผลิตรวม (กก.)', 'รายได้รวม (บาท)', 'ต้นทุนรวม (บาท)', 'กำไรสุทธิ (บาท)', 'BCR', 'ระยะเวลาคืนทุน (วัน)'];
+    const rows = [headers];
+    
+    const gons = parseFloat(document.getElementById('inGons')?.value) || 0;
+    const cpg = parseFloat(document.getElementById('inCostPerGon')?.value) || 0;
+    const tc = gons * cpg;
+    
+    const prices = {
+        hunu: parseFloat(document.getElementById('inPriceHunu')?.value) || 0,
+        kraeng: parseFloat(document.getElementById('inPriceKraeng')?.value) || 0,
+        nfa: parseFloat(document.getElementById('inPriceNangfa')?.value) || 0,
+        nrom: parseFloat(document.getElementById('inPriceNangrom')?.value) || 0
+    };
+    
+    DB.forEach(m => {
+        const yKg = (m.yieldG * gons) / 1000;
+        const rev = yKg * prices[m.id];
+        const profit = rev - tc;
+        const bcr = tc > 0 ? (rev / tc) : 0;
+        const payback = profit > 0 ? (tc / (profit / 365)) : 9999;
+        
+        rows.push([
+            m.name,
+            m.walkDay,
+            m.flowerDay,
+            yKg.toFixed(2),
+            rev.toFixed(2),
+            tc.toFixed(2),
+            profit.toFixed(2),
+            bcr.toFixed(2),
+            payback > 365 ? 'เกิน 1 ปี' : `${Math.round(payback)} วัน`
+        ]);
+    });
+    
+    let csvContent = "\ufeff"; // BOM for UTF-8 Excel support in Thai
+    rows.forEach(row => {
+        csvContent += row.map(v => `"${v}"`).join(",") + "\r\n";
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `mssm_lab_economics_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}

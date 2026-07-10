@@ -455,13 +455,15 @@
                 <div class="space-y-4">
                     <div
                         class="card-shine p-5 md:p-7 rounded-2xl bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div class="flex items-center gap-2 mb-3">
-                            <div
-                                class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm">
-                                <i class="fas fa-calculator"></i>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm">
+                                    <i class="fas fa-calculator"></i>
+                                </div>
+                                <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">เศรษฐศาสตร์</h2>
                             </div>
-                            <h2 class="text-sm md:text-base font-extrabold text-gray-800 dark:text-gray-100">เศรษฐศาสตร์
-                            </h2>
+                            <button onclick="exportCSV()" class="px-3.5 py-1.5 rounded-full text-xs font-black text-white bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"><i class="fas fa-file-csv"></i> Export CSV</button>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
                             <table class="w-full min-w-[500px] text-xs md:text-sm border-collapse data-table">

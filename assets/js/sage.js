@@ -248,6 +248,11 @@ function fmt(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').repl
 document.addEventListener('DOMContentLoaded', () => {
     const ta = document.getElementById('userInput');
     if (ta) ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openSettings') === 'true') {
+        openSettings();
+    }
 });
 
 // === SETTINGS MODAL FUNCTIONS ===
