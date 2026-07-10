@@ -249,8 +249,9 @@ function injectMemberPhotos(text) {
     
     let injected = '';
     mappings.forEach(m => {
-        const found = m.keys.some(k => text.includes(k));
-        if (found) {
+        // Only show the photo when the user specifically asked for that person's name or nickname in their prompt!
+        const asked = m.keys.some(k => lastUserPrompt.toLowerCase().includes(k.toLowerCase()));
+        if (asked) {
             injected += `
             <div class="mt-3 block border-t border-gray-155 dark:border-gray-700/50 pt-2.5">
                 <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">รูปภาพผู้จัดทำ/ที่ปรึกษา: ${m.name}</span>
