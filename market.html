@@ -24,6 +24,40 @@
             }
         }
     </script>
+    <script>
+        // Theme color script
+        (function() {
+            const themeColor = localStorage.getItem('themeColor') || 'emerald';
+            const colorMap = {
+                emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
+                blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
+                violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
+                amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+                rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+            };
+            const colors = colorMap[themeColor] || colorMap.emerald;
+            const style = document.createElement('style');
+            style.id = 'theme-color-override';
+            style.innerHTML = `
+                :root {
+                    --color-brand: ${colors.brand};
+                    --color-brand-hover: ${colors.hover};
+                    --color-brand-bg: ${colors.bg};
+                }
+                .text-emerald-400 { color: ${colors.brand} !important; }
+                .text-emerald-500 { color: ${colors.brand} !important; }
+                .text-emerald-600 { color: ${colors.hover} !important; }
+                .bg-emerald-500 { background-color: ${colors.brand} !important; }
+                .bg-emerald-600 { background-color: ${colors.hover} !important; }
+                .border-emerald-500 { border-color: ${colors.brand} !important; }
+                .border-emerald-500\\/20 { border-color: ${colors.bg} !important; }
+                .bg-emerald-500\\/10 { background-color: ${colors.bg} !important; }
+                .from-emerald-400 { --tw-gradient-from: ${colors.brand} !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
+                .to-emerald-600 { --tw-gradient-to: ${colors.hover} !important; }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -89,14 +123,11 @@
             <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
                 <i class="fas fa-robot text-sm text-slate-400"></i> ผู้ช่วยวิเคราะห์ AI
             </a>
-            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-database text-sm text-slate-400"></i> คลังข้อมูลดิบ Dataset
-            </a>
-            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-file-invoice text-sm text-slate-400"></i> คู่มือและเอกสารโครงงาน
-            </a>
             <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
                 <i class="fas fa-cubes text-sm text-slate-400"></i> ออกแบบโรงเรือน 2D
+            </a>
+            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cube text-slate-400 text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
             </a>
             <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
                 <i class="fas fa-chart-line text-sm text-emerald-400"></i> ตลาดราคากลางสด (24h)
@@ -104,8 +135,14 @@
             <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
                 <i class="fas fa-trophy text-slate-400 text-sm"></i> แข่งขันออนไลน์ PVP
             </a>
-            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cube text-slate-400 text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
+            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-database text-sm text-slate-400"></i> คลังข้อมูลดิบ Dataset
+            </a>
+            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-file-invoice text-sm text-slate-400"></i> คู่มือและเอกสารโครงงาน
+            </a>
+            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cog text-slate-400 text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
             </a>
         </nav>
     </aside>
@@ -130,12 +167,13 @@
                 <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แดชบอร์ดผลการทดลอง</a>
                 <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ห้องปฏิบัติการวิจัย</a>
                 <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
-                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
-                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
                 <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ออกแบบโรงเรือน 2D</a>
+                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
                 <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">ตลาดราคากลางสด (24h)</a>
                 <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">แข่งขันออนไลน์ PVP</a>
-                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
+                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คลังข้อมูลดิบ Dataset</a>
+                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">คู่มือและเอกสารโครงงาน</a>
+                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ศูนย์ตั้งค่าอัจฉริยะ</a>
             </nav>
         </div>
     </div>

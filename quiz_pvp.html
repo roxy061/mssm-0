@@ -24,6 +24,40 @@
             }
         }
     </script>
+    <script>
+        // Theme color script
+        (function() {
+            const themeColor = localStorage.getItem('themeColor') || 'emerald';
+            const colorMap = {
+                emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
+                blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
+                violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
+                amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+                rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+            };
+            const colors = colorMap[themeColor] || colorMap.emerald;
+            const style = document.createElement('style');
+            style.id = 'theme-color-override';
+            style.innerHTML = `
+                :root {
+                    --color-brand: ${colors.brand};
+                    --color-brand-hover: ${colors.hover};
+                    --color-brand-bg: ${colors.bg};
+                }
+                .text-emerald-400 { color: ${colors.brand} !important; }
+                .text-emerald-500 { color: ${colors.brand} !important; }
+                .text-emerald-600 { color: ${colors.hover} !important; }
+                .bg-emerald-500 { background-color: ${colors.brand} !important; }
+                .bg-emerald-600 { background-color: ${colors.hover} !important; }
+                .border-emerald-500 { border-color: ${colors.brand} !important; }
+                .border-emerald-500\\/20 { border-color: ${colors.bg} !important; }
+                .bg-emerald-500\\/10 { background-color: ${colors.bg} !important; }
+                .from-emerald-400 { --tw-gradient-from: ${colors.brand} !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(16, 185, 129, 0)); }
+                .to-emerald-600 { --tw-gradient-to: ${colors.hover} !important; }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
