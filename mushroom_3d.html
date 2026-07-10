@@ -331,6 +331,9 @@
             window.addEventListener('resize', onWindowResize);
             window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
 
+            // Save default camera state for reset
+            controls.saveState();
+
             // Default tools
             setControlMode('build');
             selectBuildTool('pillar');
@@ -452,7 +455,7 @@
                     }
                     selectedObject = obj;
                     if (selectedObject.mesh.material.emissive) {
-                        selectedObject.mesh.material.emissive.setHex(0x22c55e * 0.2); // green emissive glow
+                        selectedObject.mesh.material.emissive.setHex(0x003a1a); // soft green emissive glow
                     }
 
                     // Update slider values to match this selected object's height offset
@@ -503,7 +506,7 @@
                     let heightVal = activeHeightOffset + baseHeight;
 
                     const geom = toolGeometries[activeTool];
-                    const mat = toolMaterials[activeTool];
+                    const mat = toolMaterials[activeTool].clone(); // clone to allow per-instance material state
                     const mesh = new THREE.Mesh(geom, mat);
                     mesh.position.set(gridX, heightVal, gridZ);
                     mesh.castShadow = true;
@@ -620,7 +623,7 @@
                         }
                     });
 
-                    updateCountersUI();
+                    syncWalletUI();
                     alert('โหลดไฟล์แบบแปลนสำเร็จเรียบร้อย!');
                 } catch (err) {
                     alert('เกิดข้อผิดพลาดในการอ่านไฟล์แบบแปลน: ' + err.message);

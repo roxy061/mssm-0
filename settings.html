@@ -247,8 +247,21 @@
     <script>
         function selectThemeColor(color) {
             localStorage.setItem('themeColor', color);
-            alert('เปลี่ยนธีมสีหลักระบบเป็นโทนสี ' + color.toUpperCase() + ' แล้ว! ระบบจะส่งผลบังคับใช้ทุกๆ หน้าเพจในทันที');
-            location.reload();
+            // Show toast notification instead of blocking alert
+            const colorNames = { emerald: 'Emerald Green', blue: 'Ocean Blue', violet: 'Royal Violet', amber: 'Amber Gold', rose: 'Ruby Rose' };
+            let toast = document.getElementById('themeToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'themeToast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:#10b981;color:#fff;font-weight:800;font-size:11px;padding:12px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(16,185,129,0.4);transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = '✅ เปลี่ยนธีมเป็น ' + (colorNames[color] || color) + ' แล้ว!';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => location.reload(), 300);
+            }, 1200);
         }
 
         function togglePerformanceMode() {

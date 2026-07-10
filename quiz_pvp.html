@@ -123,6 +123,9 @@
             <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
                 <i class="fas fa-cube text-slate-400 text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
             </a>
+            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
+                <i class="fas fa-cog text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
+            </a>
         </nav>
     </aside>
 
@@ -152,6 +155,7 @@
                 <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ตลาดราคากลางสด</a>
                 <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/60 text-emerald-400 text-xs">แข่งขันออนไลน์ PVP</a>
                 <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
+                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 text-xs">ศูนย์ตั้งค่าอัจฉริยะ</a>
             </nav>
         </div>
     </div>
@@ -256,6 +260,7 @@
     </div>
 
     <!-- Script Game Logic -->
+    <script>
         let currentPhase = 'lobby'; // lobby, quiz, podium
 
         // Large question pool sourced from all pages of the project website
@@ -331,6 +336,12 @@
         let activeQuizIdx = 0;
         let quizTimer = 15;
         let quizTimerInterval = null;
+        let answerSubmitted = false; // Guard against timer/click race condition
+
+        let pollerInterval = null;
+        let activeRoomPIN = '';
+        let isHost = false;
+        let myName = 'Feel';
 
         // Seeded random generator using room PIN for multi-tab sync
         function seedRandom(seed) {
@@ -524,6 +535,7 @@
 
             // Timer setup
             quizTimer = 15;
+            answerSubmitted = false; // Reset guard for new question
             document.getElementById('lblQuizTimer').textContent = quizTimer;
             document.getElementById('quizProgressBar').style.width = '100%';
 
@@ -542,6 +554,8 @@
         }
 
         function submitAnswer(idx, correctIndex) {
+            if (answerSubmitted) return; // Guard against double-submit
+            answerSubmitted = true;
             clearInterval(quizTimerInterval);
 
             // Disable all buttons
