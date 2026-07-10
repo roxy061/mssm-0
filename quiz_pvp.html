@@ -261,176 +261,182 @@
 
     <!-- Script Game Logic -->
     <script>
-        let currentPhase = 'lobby'; // lobby, quiz, podium
+        // ─── STATE ────────────────────────────────────────────────────────────────
+        let currentPhase   = 'lobby';   // lobby | quiz | podium
+        let pollerInterval = null;
+        let activeRoomPIN  = '';
+        let isHost         = false;
+        let myName         = 'Feel';
+        let myPlayerIdx    = 0;         // 0 = host, 1 = joiner (index into players[])
 
-        // Large question pool sourced from all pages of the project website
+        let quizList          = [];
+        let activeQuizIdx     = 0;
+        let quizTimer         = 15;
+        let quizTimerInterval = null;
+        let answerSubmitted   = false;
+        let advancePending    = false;  // debounce guard for host advancement
+
+        // ─── QUESTION POOL ───────────────────────────────────────────────────────
         const questionPool = [
-            {
-                q: "1. จากหน้าแดชบอร์ดสรุปผลวิจัย (index.html) ก๊าซคาร์บอนไดออกไซด์ (CO2) ที่สะสมในตู้เพาะไม่ควรเกินระดับใดเพื่อป้องกันดอกเห็ดผิดรูป?",
-                choices: ["ก. 800 ppm", "ข. 2,000 ppm", "ค. 5,000 ppm", "ง. 10,000 ppm"],
-                correct: 0
-            },
-            {
-                q: "2. จากหน้าแดชบอร์ด (index.html) น้ำหนักผลผลิตเฉลี่ยของเห็ดแครงในการเก็บเกี่ยวรอบแรกต่อถุงก้อนเชื้อคือข้อใด?",
-                choices: ["ก. 150 - 220 กรัม", "ข. 50 - 85 กรัม", "ค. 300 - 450 กรัม", "ง. 500 กรัมขึ้นไป"],
-                correct: 0
-            },
-            {
-                q: "3. ในระบบแล็บเพาะเห็ดอัจฉริยะ (lab.html) หลอดไฟ LED สีใดที่เหนี่ยวนำให้การเจริญเติบโตของเส้นใยเห็ดพัฒนาเป็นดอกเห็ดได้ไวที่สุด?",
-                choices: ["ก. แสงสีน้ำเงิน (Blue light)", "ข. แสงสีแดงเข้ม", "ค. แสงสีเขียวนีออน", "ง. ความมืดสนิท 100%"],
-                correct: 0
-            },
-            {
-                q: "4. ในตู้อบเพาะเห็ดจำลองของแล็บ (lab.html) อุปกรณ์ชนิดใดทำหน้าที่จ่ายหมอกไอน้ำเพื่อควบคุมความชื้นสัมพัทธ์ในอากาศ?",
-                choices: ["ก. เครื่องพ่นหมอกอัจฉริยะ", "ข. พัดลมดูดอากาศระบายล่าง", "ค. แผงทำความเย็นชิลเลอร์", "ง. หลอดไฟรังสี UVC"],
-                correct: 0
-            },
-            {
-                q: "5. จากผู้ช่วยวิเคราะห์ AI (ai.html) ค่า BCR (Benefit-Cost Ratio) ที่คุ้มทุนเชิงพาณิชย์ของสูตรวัสดุเพาะเห็ดแครงควรมีค่าเท่าใด?",
-                choices: ["ก. มากกว่า 1.2 ขึ้นไป", "ข. ต่ำกว่า 0.5", "ค. เท่ากับ 0.0 เสมอ", "ง. ติดลบอย่างน้อย -1.5"],
-                correct: 0
-            },
-            {
-                q: "6. ฟังก์ชันวิเคราะห์รูปภาพสปอร์เห็ดโดย AI (ai.html) สามารถประเมินอาการติดเชื้อของโรคข้อใดได้แม่นยำที่สุด?",
-                choices: ["ก. การปนเปื้อนราเขียวและแบคทีเรีย", "ข. การกลายพันธุ์ทางพันธุกรรม", "ค. อัตราการคายคาร์บอน", "ง. ความทนรังสีแกมมา"],
-                correct: 0
-            },
-            {
-                q: "7. ในตารางคลังข้อมูล Dataset (dataset.html) ตัวแปรสภาพแวดล้อมใดที่ไม่มีการบันทึกจัดเก็บในไฟล์ CSV ของโครงการ?",
-                choices: ["ก. ปริมาณน้ำฝนและทิศทางลมในห้องแล็บ", "ข. ค่าอุณหภูมิอากาศ", "ค. ค่าความชื้นสัมพัทธ์ RH", "ง. ระดับความสว่างของแสงสว่าง"],
-                correct: 0
-            },
-            {
-                q: "8. จากเอกสารรายงานโครงงาน (doc.html) เป้าหมายสูงสุดของระบบเปิดดอกอัจฉริยะปิด (MSSM) คือข้อใด?",
-                choices: ["ก. เพื่อสร้างความมั่นคงด้านรายได้ให้เกษตรกรภาคใต้ในฤดูมรสุม", "ข. เพื่อผลิตเห็ดส่งออกไปนอกประเทศจีน", "ค. เพื่อจำลองอัตราแลกเปลี่ยนเงินหุ้นเห็ดสากล", "ง. เพื่อยกเลิกการเพาะเห็ดในพื้นที่โรงเรือนจริง"],
-                correct: 0
-            },
-            {
-                q: "9. ในตลาดยอดจำหน่ายเห็ดจำลอง (market.html) เห็ดชนิดใดมีอัตราผันผวนของราคากลางเฉลี่ยต่อกิโลกรัมแพงที่สุด?",
-                choices: ["ก. เห็ดแครงสด (120 - 150 บาท/กก.)", "ข. เห็ดหูหนูแห้ง (50 - 60 บาท/กก.)", "ค. เห็ดนางฟ้าภูฐาน (70 - 80 บาท/กก.)", "ง. เห็ดนางรมฮังการี (80 - 95 บาท/กก.)"],
-                correct: 0
-            },
-            {
-                q: "10. กลไกการเปลี่ยนราคาตลาดสดในหน้าการจำลอง (market.html) อัปเดตราคาแบบสุ่มทุกๆ กี่วินาทีเพื่อความท้าทาย?",
-                choices: ["ก. ทุกๆ 15 วินาที", "ข. ทุกๆ 1 ชั่วโมง", "ค. วันละ 1 ครั้ง", "ง. สุ่มเฉพาะตอนซื้อก้อนเชื้อ"],
-                correct: 0
-            },
-            {
-                q: "11. ในโปรแกรมวางแผน 2D Blueprint (builder2d.html) อุปกรณ์ที่มีราคาต่อหน่วยต่ำที่สุดคือชิ้นใด?",
-                choices: ["ก. ก้อนเชื้อเห็ดนางรมฮังการี (18 บาท)", "ข. พัดลมดูดอากาศ (350 บาท)", "ค. เครื่องระบายน้ำทิ้ง (650 บาท)", "ง. หัวพ่นหมอกความชื้น (150 บาท)"],
-                correct: 0
-            },
-            {
-                q: "12. ในหน้าการออกแบบโรงเรือน 3D (mushroom_3d.html) ความสูงก้อนเชื้อมาตรฐานที่วิศวกรแนะนำในการเพาะคือเท่าใด?",
-                choices: ["ก. 2500 mm", "ข. 500 mm", "ค. 8000 mm", "ง. 12000 mm"],
-                correct: 0
-            },
-            {
-                q: "13. โปรแกรมเขียนแบบ Coohom 3D (mushroom_3d.html) จะถูกแสดงผลในโหมดหน้าจอแบบใดบนอุปกรณ์พกพา?",
-                choices: ["ก. แนวนอน (Landscape) เท่านั้น", "ข. แนวตั้ง (Portrait) เท่านั้น", "ค. จตุรัสอัตราส่วน 1:1", "ง. สลับตามการเขย่าเครื่องทุก 5 วินาที"],
-                correct: 0
-            }
+            { q:"1. จากแดชบอร์ด (index.html) CO₂ ในตู้เพาะไม่ควรเกินระดับใดเพื่อป้องกันดอกเห็ดผิดรูป?", choices:["ก. 800 ppm","ข. 2,000 ppm","ค. 5,000 ppm","ง. 10,000 ppm"], correct:1 },
+            { q:"2. จากแดชบอร์ด (index.html) น้ำหนักผลผลิตเฉลี่ยของเห็ดแครงรอบแรกต่อถุงก้อนเชื้อคือข้อใด?", choices:["ก. 150–220 กรัม","ข. 50–85 กรัม","ค. 300–450 กรัม","ง. 500 กรัมขึ้นไป"], correct:0 },
+            { q:"3. ในแล็บ (lab.html) หลอด LED สีใดเหนี่ยวนำให้เส้นใยเห็ดพัฒนาเป็นดอกได้เร็วที่สุด?", choices:["ก. แสงสีน้ำเงิน (Blue light)","ข. แสงสีแดงเข้ม","ค. แสงสีเขียวนีออน","ง. ความมืดสนิท 100%"], correct:0 },
+            { q:"4. ในแล็บ (lab.html) อุปกรณ์ใดทำหน้าที่จ่ายหมอกไอน้ำควบคุมความชื้น?", choices:["ก. เครื่องพ่นหมอกอัจฉริยะ","ข. พัดลมดูดอากาศ","ค. แผงทำความเย็น","ง. หลอด UVC"], correct:0 },
+            { q:"5. จาก AI (ai.html) ค่า BCR ที่คุ้มทุนเชิงพาณิชย์ของสูตรวัสดุเพาะเห็ดแครงควรเป็นเท่าใด?", choices:["ก. มากกว่า 1.2","ข. ต่ำกว่า 0.5","ค. เท่ากับ 0.0","ง. ติดลบ −1.5"], correct:0 },
+            { q:"6. AI (ai.html) วิเคราะห์รูปสปอร์เห็ดสามารถประเมินโรคใดได้แม่นยำที่สุด?", choices:["ก. การปนเปื้อนราเขียวและแบคทีเรีย","ข. การกลายพันธุ์ทางพันธุกรรม","ค. อัตราการคายคาร์บอน","ง. ความทนรังสีแกมมา"], correct:0 },
+            { q:"7. ใน Dataset (dataset.html) ตัวแปรใดไม่มีการบันทึกในไฟล์ CSV ของโครงการ?", choices:["ก. ปริมาณน้ำฝนและทิศทางลมในห้องแล็บ","ข. ค่าอุณหภูมิอากาศ","ค. ค่าความชื้น RH","ง. ระดับแสงสว่าง"], correct:0 },
+            { q:"8. จากเอกสารโครงงาน (doc.html) เป้าหมายสูงสุดของระบบ MSSM คืออะไร?", choices:["ก. สร้างความมั่นคงด้านรายได้เกษตรกรภาคใต้ในฤดูมรสุม","ข. ผลิตเห็ดส่งออกจีน","ค. จำลองหุ้นเห็ดสากล","ง. ยกเลิกการเพาะในโรงเรือนจริง"], correct:0 },
+            { q:"9. ในตลาด (market.html) เห็ดชนิดใดมีราคากลางต่อกิโลกรัมแพงที่สุด?", choices:["ก. เห็ดแครงสด (120–150 บาท/กก.)","ข. เห็ดหูหนูแห้ง (50–60 บาท/กก.)","ค. เห็ดนางฟ้าภูฐาน (70–80 บาท/กก.)","ง. เห็ดนางรมฮังการี (80–95 บาท/กก.)"], correct:0 },
+            { q:"10. ตลาด (market.html) อัปเดตราคาสุ่มทุกๆ กี่วินาที?", choices:["ก. ทุกๆ 15 วินาที","ข. ทุกๆ 1 ชั่วโมง","ค. วันละ 1 ครั้ง","ง. สุ่มเฉพาะตอนซื้อ"], correct:0 },
+            { q:"11. ใน 2D Blueprint (builder2d.html) อุปกรณ์ราคาต่อหน่วยต่ำที่สุดคือชิ้นใด?", choices:["ก. ก้อนเชื้อเห็ดนางรมฮังการี (18 บาท)","ข. พัดลมดูดอากาศ (350 บาท)","ค. เครื่องระบายน้ำทิ้ง (650 บาท)","ง. หัวพ่นหมอก (150 บาท)"], correct:0 },
+            { q:"12. ในหน้า 3D (mushroom_3d.html) ความสูงก้อนเชื้อมาตรฐานคือเท่าใด?", choices:["ก. 2500 mm","ข. 500 mm","ค. 8000 mm","ง. 12000 mm"], correct:1 },
+            { q:"13. โปรแกรม 3D (mushroom_3d.html) แสดงผลในโหมดใดบนมือถือ?", choices:["ก. แนวนอน (Landscape) เท่านั้น","ข. แนวตั้ง (Portrait) เท่านั้น","ค. จตุรัส 1:1","ง. สลับตามการเขย่าเครื่อง"], correct:0 }
         ];
 
-        let quizList = []; // Selected 5 questions for active room
-        let activeQuizIdx = 0;
-        let quizTimer = 15;
-        let quizTimerInterval = null;
-        let answerSubmitted = false; // Guard against timer/click race condition
-
-        let pollerInterval = null;
-        let activeRoomPIN = '';
-        let isHost = false;
-        let myName = 'Feel';
-
-        // Seeded random generator using room PIN for multi-tab sync
+        // ─── SEEDED SHUFFLE ──────────────────────────────────────────────────────
         function seedRandom(seed) {
-            let x = Math.sin(seed++) * 10000;
+            let x = Math.sin(seed + 1) * 10000;
             return x - Math.floor(x);
         }
-
         function getSeededQuestions(pin) {
             let seed = parseInt(pin) || 1234;
             let pool = [...questionPool];
             let shuffled = [];
-            while(pool.length > 0) {
-                let r = seedRandom(seed);
-                seed += 1;
-                let index = Math.floor(r * pool.length);
-                shuffled.push(pool.splice(index, 1)[0]);
+            while (pool.length > 0) {
+                let r = seedRandom(seed++);
+                shuffled.push(pool.splice(Math.floor(r * pool.length), 1)[0]);
             }
             return shuffled.slice(0, 5);
         }
 
-        // Initialize empty database if not present
-        if(!localStorage.getItem('mssm_pvp_rooms')) {
-            localStorage.setItem('mssm_pvp_rooms', JSON.stringify({}));
-        }
-
+        // ─── STORAGE HELPERS ─────────────────────────────────────────────────────
         function getRoom(pin) {
-            let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms')) || {};
-            return rooms[pin] || null;
+            try {
+                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
+                return rooms[pin] || null;
+            } catch(e) { return null; }
         }
-
         function saveRoom(pin, roomObj) {
-            let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms')) || {};
-            rooms[pin] = roomObj;
-            localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
+            try {
+                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
+                rooms[pin] = roomObj;
+                // Prune rooms older than 2 hours to avoid stale collisions
+                const now = Date.now();
+                Object.keys(rooms).forEach(k => {
+                    if (rooms[k].createdAt && (now - rooms[k].createdAt) > 7200000) delete rooms[k];
+                });
+                localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
+            } catch(e) {}
+        }
+        function deleteRoom(pin) {
+            try {
+                let rooms = JSON.parse(localStorage.getItem('mssm_pvp_rooms') || '{}');
+                delete rooms[pin];
+                localStorage.setItem('mssm_pvp_rooms', JSON.stringify(rooms));
+            } catch(e) {}
         }
 
-        function createRoom() {
-            myName = document.getElementById('txtNickname').value.trim() || 'Feel';
-            isHost = true;
-            activeRoomPIN = Math.floor(1000 + Math.random() * 9000).toString();
+        // ─── GENERATE UNIQUE PIN ─────────────────────────────────────────────────
+        function generateUniquePIN() {
+            let pin, attempts = 0;
+            do {
+                pin = Math.floor(1000 + Math.random() * 9000).toString();
+                const existing = getRoom(pin);
+                attempts++;
+                // Reuse PIN only if old room is finished or expired
+                if (!existing || existing.status === 'finished' ||
+                    (Date.now() - existing.createdAt) > 3600000) break;
+            } while (attempts < 20);
+            return pin;
+        }
 
-            let roomObj = {
+        // ─── TOAST HELPER ────────────────────────────────────────────────────────
+        function showToast(msg, color = '#10b981') {
+            let t = document.getElementById('pvpToast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'pvpToast';
+                t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;border-radius:14px;font-weight:800;font-size:11px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s;pointer-events:none;';
+                document.body.appendChild(t);
+            }
+            t.style.background = color;
+            t.textContent = msg;
+            t.style.opacity = '1';
+            clearTimeout(t._to);
+            t._to = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+        }
+
+        // ─── CREATE ROOM (HOST) ──────────────────────────────────────────────────
+        function createRoom() {
+            myName = document.getElementById('txtNickname').value.trim();
+            if (!myName) { showToast('⚠️ กรุณาพิมพ์ชื่อเล่นก่อน!', '#ef4444'); return; }
+
+            isHost       = true;
+            myPlayerIdx  = 0;
+            activeRoomPIN = generateUniquePIN();
+
+            const roomObj = {
                 pin: activeRoomPIN,
-                status: 'waiting', // waiting, playing, finished
+                status: 'waiting',         // waiting | playing | finished
                 currentQuestion: 0,
+                advanceVersion: 0,         // incremented each time host advances — prevents double-advance
+                createdAt: Date.now(),
                 players: [
-                    { name: myName, score: 0, activeAnswer: null, lastUpdate: Date.now() }
+                    { name: myName, score: 0, activeAnswer: null, lastUpdate: Date.now(), role: 'host' }
                 ]
             };
 
             saveRoom(activeRoomPIN, roomObj);
-            
+
             document.getElementById('lblRoomCode').textContent = activeRoomPIN;
             document.getElementById('lobbyContainer').classList.remove('hidden');
             document.getElementById('hostControls').classList.remove('hidden');
             document.getElementById('joinerControls').classList.add('hidden');
 
+            // Copy PIN to clipboard for easy sharing
+            navigator.clipboard && navigator.clipboard.writeText(activeRoomPIN).catch(()=>{});
+
             renderLobbyPlayers(roomObj);
+            showToast('✅ สร้างห้องสำเร็จ! PIN: ' + activeRoomPIN + ' (คัดลอกแล้ว)');
             startLobbyPolling();
         }
 
+        // ─── JOIN ROOM (JOINER) ──────────────────────────────────────────────────
         function joinRoom() {
-            myName = document.getElementById('txtNickname').value.trim() || 'Mean';
-            isHost = false;
-            let pin = document.getElementById('txtRoomCode').value.trim();
-            if(!pin || pin.length !== 4) {
-                alert('กรุณากรอกรหัส PIN 4 หลัก!');
-                return;
+            myName = document.getElementById('txtNickname').value.trim();
+            if (!myName) { showToast('⚠️ กรุณาพิมพ์ชื่อเล่นก่อน!', '#ef4444'); return; }
+
+            const pin = document.getElementById('txtRoomCode').value.trim();
+            if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+                showToast('⚠️ PIN ต้องเป็นตัวเลข 4 หลัก!', '#ef4444'); return;
             }
+
+            const roomObj = getRoom(pin);
+            if (!roomObj) {
+                showToast('❌ ไม่พบห้อง PIN นี้ในระบบ!', '#ef4444'); return;
+            }
+            if (roomObj.status !== 'waiting') {
+                showToast('❌ ห้องนี้เริ่มแข่งหรือจบแล้ว!', '#ef4444'); return;
+            }
+            if (roomObj.players.length >= 2) {
+                showToast('❌ ห้องเต็มแล้ว (2/2)!', '#ef4444'); return;
+            }
+            // Prevent duplicate name confusion — append suffix if same
+            let joinName = myName;
+            if (roomObj.players[0].name === joinName) joinName = joinName + '_2';
+
+            myName      = joinName;
+            isHost      = false;
+            myPlayerIdx = 1;
             activeRoomPIN = pin;
-
-            let roomObj = getRoom(pin);
-            if(!roomObj) {
-                alert('ไม่พบห้องแข่งขันรหัส PIN นี้ในระบบ!');
-                return;
-            }
-
-            if(roomObj.players.length >= 2) {
-                alert('ขออภัย! ห้องแข่งขันนี้เต็มแล้ว');
-                return;
-            }
 
             roomObj.players.push({
                 name: myName,
                 score: 0,
                 activeAnswer: null,
-                lastUpdate: Date.now()
+                lastUpdate: Date.now(),
+                role: 'joiner'
             });
-
             saveRoom(activeRoomPIN, roomObj);
 
             document.getElementById('lblRoomCode').textContent = activeRoomPIN;
@@ -439,84 +445,117 @@
             document.getElementById('joinerControls').classList.remove('hidden');
 
             renderLobbyPlayers(roomObj);
+            showToast('✅ เข้าร่วมห้อง ' + pin + ' สำเร็จ! รอหัวห้องกดเริ่ม...');
             startLobbyPolling();
         }
 
+        // ─── LOBBY RENDER ────────────────────────────────────────────────────────
         function renderLobbyPlayers(roomObj) {
             const container = document.getElementById('lobbyPlayersList');
             container.innerHTML = '';
             roomObj.players.forEach((p, idx) => {
+                const isMe = idx === myPlayerIdx;
+                const roleLabel = p.role === 'host' ? '👑 หัวห้อง' : '🎮 ผู้เข้าร่วม';
                 const card = document.createElement('div');
-                card.className = 'p-3 bg-slate-950/50 rounded-2xl flex items-center justify-between border border-slate-850';
+                card.className = 'p-3 rounded-2xl flex items-center justify-between border ' +
+                    (isMe ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-700 bg-slate-950/50');
                 card.innerHTML = `
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-full bg-slate-800 text-[10px] text-amber-400 font-bold flex justify-center items-center">
-                            ${p.name.charAt(0)}
+                        <div class="w-7 h-7 rounded-full ${isMe ? 'bg-amber-500/30 text-amber-400' : 'bg-slate-800 text-slate-400'} text-[10px] font-bold flex justify-center items-center shrink-0">
+                            ${p.name.charAt(0).toUpperCase()}
                         </div>
-                        <span class="text-xs font-bold text-white">${p.name}</span>
+                        <div>
+                            <span class="text-xs font-bold text-white block">${p.name}${isMe ? ' <span class="text-amber-400">(คุณ)</span>' : ''}</span>
+                            <span class="text-[9px] text-slate-500">${roleLabel}</span>
+                        </div>
                     </div>
-                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400">READY</span>
+                    <span class="text-[9px] font-bold px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">✓ READY</span>
                 `;
                 container.appendChild(card);
             });
-            document.getElementById('lblLobbyCount').textContent = `${roomObj.players.length} / 2`;
+            const count = roomObj.players.length;
+            document.getElementById('lblLobbyCount').textContent = `${count} / 2`;
+
+            // Update start button state (host only, need 2 players)
+            const startBtn = document.querySelector('#hostControls button');
+            if (startBtn) {
+                if (count < 2) {
+                    startBtn.textContent = '⏳ รอผู้เล่นเข้าร่วม... (' + count + '/2)';
+                    startBtn.disabled = true;
+                    startBtn.style.opacity = '0.5';
+                } else {
+                    startBtn.textContent = '🚀 เริ่มการแข่งขัน! (Start Match)';
+                    startBtn.disabled = false;
+                    startBtn.style.opacity = '1';
+                }
+            }
         }
 
+        // ─── LOBBY POLLING ───────────────────────────────────────────────────────
         function startLobbyPolling() {
             clearInterval(pollerInterval);
             pollerInterval = setInterval(() => {
-                let roomObj = getRoom(activeRoomPIN);
-                if(!roomObj) return;
+                const roomObj = getRoom(activeRoomPIN);
+                if (!roomObj) { showToast('⚠️ ห้องหายไป! อาจถูกรีเซ็ต', '#f59e0b'); clearInterval(pollerInterval); return; }
 
                 renderLobbyPlayers(roomObj);
 
-                // If status changes to playing (triggered by host)
-                if(roomObj.status === 'playing' && currentPhase === 'lobby') {
+                // Joiner: detect host started the game
+                if (!isHost && roomObj.status === 'playing' && currentPhase === 'lobby') {
                     clearInterval(pollerInterval);
                     enterQuizPhase();
                 }
-            }, 600);
+            }, 700);
         }
 
+        // ─── START QUIZ (HOST ONLY) ──────────────────────────────────────────────
         function startQuiz() {
-            let roomObj = getRoom(activeRoomPIN);
-            if(!roomObj) return;
+            if (!isHost) { showToast('⚠️ เฉพาะหัวห้องเท่านั้นที่กดเริ่มได้!', '#ef4444'); return; }
 
-            if(roomObj.players.length < 2) {
-                alert('ต้องมีผู้เล่นเข้าร่วมอย่างน้อย 2 คนจึงจะเริ่มได้!');
-                return;
+            const roomObj = getRoom(activeRoomPIN);
+            if (!roomObj) return;
+            if (roomObj.players.length < 2) {
+                showToast('⚠️ ต้องมีผู้เล่น 2 คนจึงเริ่มได้!', '#f59e0b'); return;
             }
+            if (roomObj.status !== 'waiting') return; // Already started
 
             roomObj.status = 'playing';
             roomObj.currentQuestion = 0;
+            roomObj.advanceVersion = 0;
+            roomObj.players.forEach(p => { p.score = 0; p.activeAnswer = null; });
             saveRoom(activeRoomPIN, roomObj);
 
+            // Host enters quiz phase immediately; joiner will follow via polling
             enterQuizPhase();
         }
 
+        // ─── ENTER QUIZ ──────────────────────────────────────────────────────────
         function enterQuizPhase() {
             currentPhase = 'quiz';
+            clearInterval(pollerInterval);
+
             document.getElementById('phaseLobby').classList.add('hidden');
             document.getElementById('phaseQuiz').classList.remove('hidden');
             document.getElementById('phaseQuiz').classList.add('flex');
 
-            // Generate identical random questions for both players using Room PIN seed
             quizList = getSeededQuestions(activeRoomPIN);
 
-            // Setup nickname labels
-            let roomObj = getRoom(activeRoomPIN);
-            let oppPlayer = roomObj.players.find(p => p.name !== myName);
-            document.getElementById('lblMyName').textContent = `${myName} (คุณ)`;
-            if(oppPlayer) {
-                document.getElementById('lblOpponentName').textContent = oppPlayer.name;
-            }
+            const roomObj = getRoom(activeRoomPIN);
+            const myPlayer  = roomObj && roomObj.players[myPlayerIdx];
+            const oppPlayer = roomObj && roomObj.players[myPlayerIdx === 0 ? 1 : 0];
+
+            document.getElementById('lblMyName').textContent = (myPlayer ? myPlayer.name : myName) + ' (คุณ)';
+            document.getElementById('lblOpponentName').textContent = oppPlayer ? oppPlayer.name : 'รอผู้เล่น...';
 
             activeQuizIdx = 0;
+            advancePending = false;
             loadQuestion();
             startQuizSyncPolling();
         }
 
+        // ─── LOAD QUESTION ───────────────────────────────────────────────────────
         function loadQuestion() {
+            if (activeQuizIdx >= quizList.length) return;
             const qItem = quizList[activeQuizIdx];
             document.getElementById('lblQuestionIdx').textContent = activeQuizIdx + 1;
             document.getElementById('lblQuestionText').textContent = qItem.q;
@@ -524,18 +563,16 @@
 
             const choicesContainer = document.getElementById('choicesList');
             choicesContainer.innerHTML = '';
-
             qItem.choices.forEach((choice, idx) => {
                 const btn = document.createElement('button');
-                btn.className = 'w-full p-4 gaming-btn hover:border-amber-500 rounded-2xl text-xs font-bold text-slate-200 text-left cursor-pointer';
+                btn.className = 'w-full p-4 gaming-btn hover:border-amber-500 rounded-2xl text-xs font-bold text-slate-200 text-left cursor-pointer transition-all';
                 btn.onclick = () => submitAnswer(idx, qItem.correct);
                 btn.textContent = choice;
                 choicesContainer.appendChild(btn);
             });
 
-            // Timer setup
             quizTimer = 15;
-            answerSubmitted = false; // Reset guard for new question
+            answerSubmitted = false;
             document.getElementById('lblQuizTimer').textContent = quizTimer;
             document.getElementById('quizProgressBar').style.width = '100%';
 
@@ -543,144 +580,162 @@
             quizTimerInterval = setInterval(() => {
                 quizTimer--;
                 document.getElementById('lblQuizTimer').textContent = quizTimer;
-                const widthPercent = (quizTimer / 15) * 100;
-                document.getElementById('quizProgressBar').style.width = widthPercent + '%';
-
+                document.getElementById('quizProgressBar').style.width = ((quizTimer / 15) * 100) + '%';
                 if (quizTimer <= 0) {
                     clearInterval(quizTimerInterval);
-                    submitAnswer(-1, qItem.correct);
+                    submitAnswer(-1, qItem.correct); // Timeout = wrong
                 }
             }, 1000);
         }
 
+        // ─── SUBMIT ANSWER ───────────────────────────────────────────────────────
         function submitAnswer(idx, correctIndex) {
-            if (answerSubmitted) return; // Guard against double-submit
+            if (answerSubmitted) return;
             answerSubmitted = true;
             clearInterval(quizTimerInterval);
 
-            // Disable all buttons
+            // Highlight chosen button
             const btns = document.getElementById('choicesList').getElementsByTagName('button');
-            for(let i=0; i<btns.length; i++) {
+            for (let i = 0; i < btns.length; i++) {
                 btns[i].disabled = true;
+                if (i === correctIndex) {
+                    btns[i].style.borderColor = '#10b981';
+                    btns[i].style.background = 'rgba(16,185,129,0.15)';
+                    btns[i].style.color = '#34d399';
+                } else if (i === idx && idx !== correctIndex) {
+                    btns[i].style.borderColor = '#ef4444';
+                    btns[i].style.background = 'rgba(239,68,68,0.12)';
+                    btns[i].style.color = '#f87171';
+                }
             }
 
             const alertBox = document.getElementById('quizStatusAlert');
             alertBox.classList.remove('hidden');
 
             let scoreChange = 0;
-            if(idx === correctIndex) {
+            if (idx === correctIndex) {
                 scoreChange = 10000;
                 alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-emerald-500/10 text-emerald-400';
                 alertBox.textContent = '🟢 คำตอบถูกต้อง! ได้รับเงินทุน +10,000 บาท';
+            } else if (idx === -1) {
+                scoreChange = -2000;
+                alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-yellow-500/10 text-yellow-400';
+                alertBox.textContent = '⏰ หมดเวลา! หักเงิน −2,000 บาท';
             } else {
                 scoreChange = -3000;
                 alertBox.className = 'p-2 rounded-xl text-center font-bold text-[10px] bg-red-500/10 text-red-400';
-                alertBox.textContent = '🔴 คำตอบผิด! โดนหักเงินพอร์ต -3,000 บาท';
+                alertBox.textContent = '🔴 คำตอบผิด! หักเงิน −3,000 บาท';
             }
 
-            // Update localStorage room state
-            let roomObj = getRoom(activeRoomPIN);
-            let myPlayer = roomObj.players.find(p => p.name === myName);
+            // Save my answer to shared room state
+            const roomObj = getRoom(activeRoomPIN);
+            if (!roomObj) return;
+            const myPlayer = roomObj.players[myPlayerIdx];
+            if (!myPlayer) return;
             myPlayer.score = Math.max(0, myPlayer.score + scoreChange);
             myPlayer.activeAnswer = idx;
             myPlayer.lastUpdate = Date.now();
             saveRoom(activeRoomPIN, roomObj);
-
             updateScoresUI(roomObj);
         }
 
+        // ─── SCORES UI ───────────────────────────────────────────────────────────
         function updateScoresUI(roomObj) {
-            let myPlayer = roomObj.players.find(p => p.name === myName);
-            let oppPlayer = roomObj.players.find(p => p.name !== myName);
-
-            document.getElementById('lblPlayerScore').textContent = `${myPlayer.score.toLocaleString()} บ.`;
-            if(oppPlayer) {
-                document.getElementById('lblOpponentScore').textContent = `${oppPlayer.score.toLocaleString()} บ.`;
-            }
+            const myPlayer  = roomObj.players[myPlayerIdx];
+            const oppPlayer = roomObj.players[myPlayerIdx === 0 ? 1 : 0];
+            if (myPlayer)  document.getElementById('lblPlayerScore').textContent  = myPlayer.score.toLocaleString() + ' บ.';
+            if (oppPlayer) document.getElementById('lblOpponentScore').textContent = oppPlayer.score.toLocaleString() + ' บ.';
         }
 
+        // ─── QUIZ SYNC POLLING ───────────────────────────────────────────────────
         function startQuizSyncPolling() {
             clearInterval(pollerInterval);
             pollerInterval = setInterval(() => {
-                let roomObj = getRoom(activeRoomPIN);
-                if(!roomObj) return;
+                const roomObj = getRoom(activeRoomPIN);
+                if (!roomObj) return;
 
                 updateScoresUI(roomObj);
 
-                // Host controls progression when both players have submitted an answer
-                let allAnswered = roomObj.players.every(p => p.activeAnswer !== null);
-                if(allAnswered) {
-                    if(isHost) {
-                        // Delay 2.5 seconds to read answers then advance currentQuestion
+                // ── HOST: advance question when both players answered ─────────────
+                if (isHost && !advancePending) {
+                    const allAnswered = roomObj.players.every(p => p.activeAnswer !== null);
+                    if (allAnswered && roomObj.currentQuestion === activeQuizIdx) {
+                        advancePending = true;
                         setTimeout(() => {
-                            let freshRoom = getRoom(activeRoomPIN);
-                            if(freshRoom && freshRoom.currentQuestion === activeQuizIdx) {
-                                freshRoom.currentQuestion++;
-                                freshRoom.players.forEach(p => p.activeAnswer = null); // Reset
-                                
-                                if(freshRoom.currentQuestion >= quizList.length) {
-                                    freshRoom.status = 'finished';
+                            const fresh = getRoom(activeRoomPIN);
+                            // Double-check version to avoid duplicate advance
+                            if (fresh && fresh.currentQuestion === activeQuizIdx) {
+                                fresh.currentQuestion++;
+                                fresh.advanceVersion = (fresh.advanceVersion || 0) + 1;
+                                fresh.players.forEach(p => p.activeAnswer = null);
+                                if (fresh.currentQuestion >= quizList.length) {
+                                    fresh.status = 'finished';
                                 }
-                                saveRoom(activeRoomPIN, freshRoom);
+                                saveRoom(activeRoomPIN, fresh);
                             }
+                            advancePending = false;
                         }, 2500);
                     }
                 }
 
-                // Both players follow room's currentQuestion
-                if(roomObj.currentQuestion !== activeQuizIdx) {
+                // ── BOTH PLAYERS: follow room's currentQuestion ──────────────────
+                if (roomObj.currentQuestion > activeQuizIdx && currentPhase === 'quiz') {
                     activeQuizIdx = roomObj.currentQuestion;
-                    if(activeQuizIdx < quizList.length) {
+                    if (activeQuizIdx < quizList.length) {
                         loadQuestion();
                     }
                 }
 
-                // If status is finished, enter final podium phase
-                if(roomObj.status === 'finished') {
+                // ── FINISH DETECTION ─────────────────────────────────────────────
+                if (roomObj.status === 'finished' && currentPhase === 'quiz') {
                     clearInterval(pollerInterval);
-                    enterPodiumPhase(roomObj);
+                    clearInterval(quizTimerInterval);
+                    currentPhase = 'podium';
+                    setTimeout(() => enterPodiumPhase(roomObj), 800);
                 }
-            }, 600);
+            }, 700);
         }
 
+        // ─── PODIUM ──────────────────────────────────────────────────────────────
         function enterPodiumPhase(roomObj) {
-            currentPhase = 'podium';
             document.getElementById('phaseQuiz').classList.add('hidden');
             document.getElementById('phaseQuiz').classList.remove('flex');
             document.getElementById('phasePodium').classList.remove('hidden');
             document.getElementById('phasePodium').classList.add('flex');
 
-            // Sort players
-            let sorted = [...roomObj.players].sort((a, b) => b.score - a.score);
+            const sorted = [...roomObj.players].sort((a, b) => b.score - a.score);
+            const myFinal = roomObj.players[myPlayerIdx];
+            const myPrize = myFinal ? myFinal.score : 0;
 
-            // Add score to central virtual budget for Feel (You)
-            let myFinalScoreObj = roomObj.players.find(p => p.name === myName);
-            let myPrize = myFinalScoreObj ? myFinalScoreObj.score : 0;
-            let currentWallet = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
-            localStorage.setItem('virtualWalletCash', currentWallet + myPrize);
+            // Add winnings to virtual wallet
+            const wallet = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+            localStorage.setItem('virtualWalletCash', wallet + myPrize);
 
-            const podiumContainer = document.getElementById('podiumList');
-            podiumContainer.innerHTML = `
-                <div class="p-4 bg-slate-950/60 border border-amber-500/30 rounded-2xl text-center space-y-2">
-                    <span class="text-xs font-black text-amber-400 uppercase tracking-widest block">อันดับ 1 (WINNER)</span>
-                    <strong class="text-sm text-white block">${sorted[0].name}</strong>
-                    <span class="text-xs text-emerald-400 font-extrabold">${sorted[0].score.toLocaleString()} บาท</span>
+            const medals = ['🥇', '🥈'];
+            document.getElementById('podiumList').innerHTML = sorted.map((p, i) => `
+                <div class="p-4 ${i===0 ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-950/40 border border-slate-700'} rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">${medals[i] || '🏅'}</span>
+                        <div>
+                            <span class="text-xs font-black text-white block">${p.name}${p.role==='host' ? ' 👑' : ''}</span>
+                            <span class="text-[9px] text-slate-400">${i===0 ? 'ผู้ชนะ' : 'อันดับ 2'}</span>
+                        </div>
+                    </div>
+                    <span class="text-sm font-black ${i===0 ? 'text-amber-400' : 'text-slate-300'}">${p.score.toLocaleString()} บ.</span>
                 </div>
-                ${sorted[1] ? `
-                <div class="p-3 bg-slate-950/40 border border-slate-850 rounded-xl flex items-center justify-between text-xs text-slate-400">
-                    <span>อันดับ 2: ${sorted[1].name}</span>
-                    <strong class="text-white">${sorted[1].score.toLocaleString()} บ.</strong>
-                </div>
-                ` : ''}
-                <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 py-2 rounded-xl mt-3">
-                    💰 แข่งขันเสร็จสิ้น! คุณได้รับเงินรางวัลสะสม +${myPrize.toLocaleString()} บาท เข้าบัญชีหลักเรียบร้อย
+            `).join('') + `
+                <div class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 py-2.5 px-4 rounded-2xl text-center mt-1">
+                    💰 รางวัลสะสม +${myPrize.toLocaleString()} บาท เข้าบัญชีหลักเรียบร้อย!
                 </div>
             `;
+
+            // Clean up room after podium
+            setTimeout(() => deleteRoom(activeRoomPIN), 5000);
         }
 
+        // ─── MOBILE MENU ─────────────────────────────────────────────────────────
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         }
     </script>
 </body>
