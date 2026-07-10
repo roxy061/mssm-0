@@ -370,7 +370,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             init3D();
             autoFillBags();
-            updateCalculations();
+            updateSandboxMetrics();
             
             window.addEventListener('resize', () => {
                 const container = document.getElementById('canvasContainer');
@@ -518,7 +518,7 @@
 
             if (scene) scene.background = skyColor;
             document.getElementById('lblWeatherMode').textContent = label;
-            updateCalculations();
+            updateSandboxMetrics();
         }
 
         function startRainEffect() {
@@ -609,7 +609,7 @@
                 document.getElementById('btnFloorCement').className = 'px-2 py-0.5 rounded bg-gray-500 text-white font-bold text-[9px] shadow cursor-pointer';
                 if (floorMesh) floorMesh.material.color.setHex(0x64748b);
             }
-            updateCalculations();
+            updateSandboxMetrics();
         }
 
         function setRoofMaterial(type) {
@@ -623,7 +623,7 @@
                 document.getElementById('btnRoofMetal').className = 'px-2.5 py-0.5 rounded bg-blue-600 text-white font-bold text-[9px] shadow cursor-pointer';
             }
             drawBasicGreenhouse();
-            updateCalculations();
+            updateSandboxMetrics();
         }
 
         function drawBasicGreenhouse() {
@@ -708,7 +708,7 @@
             }
 
             if (placedMesh) occupiedCoords[key] = placedMesh;
-            updateCalculations();
+            updateSandboxMetrics();
         }
 
         function autoFillBags() {
@@ -727,7 +727,7 @@
         function clearSandbox() {
             while(sandboxGroup.children.length > 0) sandboxGroup.remove(sandboxGroup.children[0]);
             placedBags = []; placedProps = []; occupiedCoords = {};
-            updateCalculations();
+            updateSandboxMetrics();
         }
 
         function checkProximityObject() {
@@ -755,7 +755,7 @@
             }
         }
 
-        function updateCalculations() {
+        function updateSandboxMetrics() {
             let baseTemp = (weatherMode === 'sunny' ? 32 : (weatherMode === 'rainy' ? 25 : 22)) + (roofMaterial === 'thatch' ? 1 : 5);
             let baseHum = (weatherMode === 'sunny' ? 50 : (weatherMode === 'rainy' ? 85 : 70)) + (floorMaterial === 'soil' ? 5 : (floorMaterial === 'sand' ? 2 : 0));
             
