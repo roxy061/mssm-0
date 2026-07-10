@@ -252,6 +252,23 @@
                     <div id="btnJump" class="mobile-action-btn btn-jump" title="กระโดด"><i class="fas fa-arrow-up"></i></div>
                     <div id="btnPlace" class="mobile-action-btn btn-place" title="วางบล็อก"><i class="fas fa-plus"></i></div>
                     <div id="btnDestroy" class="mobile-action-btn btn-destroy" title="ลบบล็อก"><i class="fas fa-trash"></i></div>
+
+                    <!-- Action Instructions Overlay Guide -->
+                    <div id="controlGuideOverlay" class="absolute top-16 right-4 p-3 rounded-2xl bg-black/75 backdrop-blur-md text-white border border-white/10 text-[10px] space-y-1.5 z-30 pointer-events-none max-w-[210px] shadow-lg animate-pop-in">
+                        <strong class="font-extrabold text-amber-400 block mb-1 flex items-center gap-1.5"><i class="fas fa-keyboard"></i> คู่มือการควบคุม</strong>
+                        <div class="space-y-1" id="pcControlsInfo">
+                            <div>💻 <span class="font-bold text-gray-200">WASD / ลูกศร</span>: เดินเคลื่อนที่</div>
+                            <div>💻 <span class="font-bold text-gray-200">Spacebar</span>: กระโดดขึ้นชั้นบน</div>
+                            <div>💻 <span class="font-bold text-emerald-400">คลิกซ้าย / E</span>: วางชิ้นส่วนตามเป้า</div>
+                            <div>💻 <span class="font-bold text-red-400">คลิกขวา / Q</span>: ลบชิ้นส่วนตามเป้า</div>
+                        </div>
+                        <div class="space-y-1 hidden" id="mobileControlsInfo">
+                            <div>📱 <span class="font-bold text-gray-200">จอยสติ๊กซ้าย</span>: ใช้เดินเคลื่อนที่</div>
+                            <div>📱 <span class="font-bold text-amber-400 animate-pulse">ปัดหน้าจอฝั่งขวา</span>: หันกล้องหุ่นยนต์</div>
+                            <div>📱 <span class="font-bold text-emerald-400">ปุ่ม + (Place)</span>: วางบล็อกตรงเป้า</div>
+                            <div>📱 <span class="font-bold text-red-400">ปุ่ม 🗑️ (Trash)</span>: ลบบล็อกที่เล็ง</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Object Proximity Info Tooltip -->
@@ -736,10 +753,26 @@
                     if (jumpBtn) jumpBtn.style.display = 'flex';
                     if (placeBtn) placeBtn.style.display = 'flex';
                     if (destroyBtn) destroyBtn.style.display = 'flex';
+                    
+                    document.getElementById('mobileControlsInfo').classList.remove('hidden');
+                    document.getElementById('pcControlsInfo').classList.add('hidden');
+
+                    // Temporary banner for mobile look area help
+                    const oldToast = document.getElementById('mobileLookToast');
+                    if (oldToast) oldToast.remove();
+                    const banner = document.createElement('div');
+                    banner.className = 'absolute top-16 left-1/2 transform -translate-x-1/2 bg-amber-500 text-white font-extrabold text-[11px] px-4 py-2 rounded-2xl shadow-xl z-50 pointer-events-none animate-bounce';
+                    banner.id = 'mobileLookToast';
+                    banner.innerHTML = '📱 ลากนิ้วบนหน้าจอด้านขวาเพื่อหันกล้องหุ่นยนต์!';
+                    document.getElementById('canvasContainer').appendChild(banner);
+                    setTimeout(() => banner.remove(), 5000);
                 } else {
                     if (jumpBtn) jumpBtn.style.display = 'flex';
                     if (placeBtn) placeBtn.style.display = 'flex';
                     if (destroyBtn) destroyBtn.style.display = 'flex';
+                    
+                    document.getElementById('pcControlsInfo').classList.remove('hidden');
+                    document.getElementById('mobileControlsInfo').classList.add('hidden');
                 }
             }
         }
