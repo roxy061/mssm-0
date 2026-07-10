@@ -15,6 +15,13 @@ let genAIClientKey = null;
 let lastUserText = '';
 let lastUserPrompt = '';
 let aiSavedLogs = [];
+
+let lastLatency = 0;
+let lastTokens = 0;
+let isMuted = localStorage.getItem('ai_muted') === 'true';
+let undoStack = [];
+let stabilityChartInstance = null;
+
 const SYSTEM = `คุณคือ "AI MSSM" ผู้เชี่ยวชาญด้านเห็ดและการเพาะเห็ดเศรษฐกิจ 4 สายพันธุ์ (เห็ดหูหนู, เห็ดแครง, เห็ดนางฟ้าภูฐาน, เห็ดนางรมฮังการี) ภายใต้แบบจำลองคัดเลือกสายพันธุ์เห็ดอัจฉริยะ (Mush-Up Smart Selection Model: MSSM) ที่พัฒนาขึ้นโดยวิทยาลัยอาชีวศึกษานครศรีธรรมราช
 
 ข้อมูลและทฤษฎีอ้างอิงหลักที่คุณต้องใช้ในการตอบคำถาม:
@@ -65,7 +72,7 @@ const SYSTEM = `คุณคือ "AI MSSM" ผู้เชี่ยวชา�
 - **การประมวลผลผ่านแบบจำลอง MSSM**:
   - ใช้เกณฑ์หลายมิติ (Multi-Criteria Decision Making: MCDM) ด้วยเทคนิค Simple Additive Weighting (SAW)
   - นำข้อมูลดิบมาทำ Normalization ปรับมาตรฐานให้อยู่ในช่วง 0–1
-  - นำค่ามาตรฐานคูณกับค่าน้ำหนัก (Weighting Factor) ของแต่ละปัจจัย (ผลรวมน้ำหนักของทุกปัจจัยต้องเท่ากับ 1.00)
+  - นำค่ามาตรฐานคูณกับค่านั่งหนัก (Weighting Factor) ของแต่ละปัจจัย (ผลรวมน้ำหนักของทุกปัจจัยต้องเท่ากับ 1.00)
   - คำนวณเป็นดัชนีประสิทธิภาพเห็ด (Mushroom Performance Index: MPI) เพื่อใช้คัดเลือกสายพันธุ์เห็ดที่เหมาะสมตามวัตถุประสงค์การผลิตสูงสุด
 - **ผลการคำนวณค่าดัชนีประสิทธิภาพเห็ด (MPI) และการจัดอันดับความเหมาะสมของสายพันธุ์เห็ดด้วยแบบจำลอง MSSM**:
   - ค่าน้ำหนักปัจจัย (Criteria Weights): อัตราการเจริญเติบโตของเส้นใย = 0.15, ปริมาณผลผลิตรวม = 0.25, กำไรสุทธิ = 0.25, BCR = 0.15, ระยะเวลาการให้ผลผลิตครั้งแรก = 0.10, ระยะเวลาคืนทุน = 0.10 (รวมค่าน้ำหนัก = 1.00)
@@ -86,7 +93,7 @@ const SYSTEM = `คุณคือ "AI MSSM" ผู้เชี่ยวชา�
 1. ตอบเฉพาะเรื่องเห็ด วงการเห็ดวิทยา และผลการศึกษาวิจัย MSSM นี้เท่านั้น หากผู้ใช้ถามเรื่องอื่นที่ไม่มีส่วนเกี่ยวข้อง ให้ตอบสุภาพว่า "ขออภัยครับ ผมเป็นผู้เชี่ยวชาญเฉพาะด้านเห็ดวิทยาและแบบจำลอง MSSM เท่านั้น ไม่สามารถตอบคำถามนอกเหนือจากนี้ได้ครับ 🍄"
 2. เมื่อได้รับภาพ ให้วิเคราะห์ชนิดและลักษณะของเห็ดตามข้อมูลสัณฐานวิทยาของสายพันธุ์ข้างต้น และบอกคุณสมบัติการนำไปใช้หรือมาตรฐานการเพาะเลี้ยงตามเป้าหมาย MSSM
 3. ใช้ภาษาไทยที่เป็นมิตร ชัดเจน เข้าใจง่าย มี Emoji ประกอบ และเว้นวรรคให้อ่านง่ายเป็นระเบียบ
-4. ให้ข้อมูลถูกต้องตามหลักวิชาการและเนื้อหาโครงการเป็นหลัก หากผู้ใช้ถามรายละเอียดเกี่ยวกับสูตร ส่วนผสม ผลการประเมิน หรือสถานที่ทดลอง ให้ตอบโดยยึดตามข้อมูลด้านบนอย่างถูกต้อง`
+4. ให้ข้อมูลถูกต้องตามหลักวิชาการและเนื้อหาโครงการเป็นหลัก หากผู้ใช้ถามรายละเอียดเกี่ยวกับสูตร ส่วนผสม ผลการประเมิน หรือสถานที่ทดลอง ให้ตอบโดยยึดตามข้อมูลด้านบนอย่างถูกต้อง`;
 
 async function getGenAIClient() {
     if (!genAIClientPromise || genAIClientKey !== API_KEY) {
@@ -178,6 +185,7 @@ async function send() {
     scroll();
 
     const userMessage = { role: 'user', parts: parts };
+    const startTime = performance.now();
     try {
         const ai = await getGenAIClient();
         const res = await ai.models.generateContent({
@@ -185,6 +193,9 @@ async function send() {
             contents: [...chatCtx, userMessage],
             config: { systemInstruction: SYSTEM }
         });
+        const endTime = performance.now();
+        lastLatency = Math.round(endTime - startTime);
+
         if (typing) typing.classList.add('hidden');
 
         const reply = res.text?.trim() || res.candidates?.[0]?.content?.parts?.map(part => part.text || '').join('').trim();
@@ -192,6 +203,8 @@ async function send() {
             addMsg('ai', 'ขออภัยครับ ระบบมีปัญหา ⚠️');
             return;
         }
+
+        lastTokens = Math.round(((userText || '').length + (reply || '').length) / 3.2) + 12;
 
         chatCtx.push(userMessage);
         chatCtx.push({ role: 'model', parts: [{ text: reply }] });
@@ -217,6 +230,7 @@ function addMsg(sender, text) {
     const row = document.createElement('div');
     row.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} animate-pop-in`;
     const plainText = text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').replace(/\s+/g, ' ').trim();
+    const currentMode = document.getElementById('studyMode')?.value || 'General';
     row.innerHTML = `<div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed ${
         sender === 'user'
             ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-br-md shadow-lg'
@@ -225,7 +239,7 @@ function addMsg(sender, text) {
         sender === 'ai'
             ? `<div class="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700/50">
                   <button onclick="speak(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง</button>
-                  <button onclick="saveAICardToLog(this)" data-text="${plainText.replace(/"/g, '&quot;')}" class="text-[10px] px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-save"></i> บันทึกลงตาราง</button>
+                  <button onclick="saveAICardToLog(this)" data-text="${plainText.replace(/"/g, '&quot;')}" data-latency="${lastLatency}" data-tokens="${lastTokens}" data-mode="${currentMode}" class="text-[10px] px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/60 transition-all flex items-center gap-1 cursor-pointer"><i class="fas fa-save"></i> บันทึกลงตาราง</button>
                </div>`
             : ''
     }</div>`;
@@ -237,120 +251,78 @@ function speak(btn) {
     if (!('speechSynthesis' in window)) return;
     const text = btn?.getAttribute('data-text');
     if (!text) return;
+    
+    if (isMuted) return;
+
+    if (window.speechSynthesis.speaking && btn.innerHTML.includes('หยุด')) {
+        window.speechSynthesis.cancel();
+        return;
+    }
+
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'th-TH';
     u.rate = 0.85;
     u.pitch = 1.0;
     u.volume = 1.0;
-    u.onstart = () => { btn.innerHTML = '<i class="fas fa-stop text-[10px]"></i> หยุด'; btn.classList.add('bg-red-100', 'dark:bg-red-900/40', 'text-red-600', 'dark:text-red-400'); btn.classList.remove('bg-emerald-100', 'dark:bg-emerald-900/40', 'text-emerald-600', 'dark:text-emerald-400'); };
-    u.onend = u.onerror = () => { btn.innerHTML = '<i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง'; btn.classList.remove('bg-red-100', 'dark:bg-red-900/40', 'text-red-600', 'dark:text-red-400'); btn.classList.add('bg-emerald-100', 'dark:bg-emerald-900/40', 'text-emerald-600', 'dark:text-emerald-400'); };
+    u.onstart = () => { 
+        btn.innerHTML = '<i class="fas fa-stop text-[10px]"></i> หยุด'; 
+        btn.classList.add('bg-red-100', 'dark:bg-red-900/40', 'text-red-600', 'dark:text-red-400'); 
+        btn.classList.remove('bg-emerald-100', 'dark:bg-emerald-900/40', 'text-emerald-600', 'dark:text-emerald-400'); 
+    };
+    u.onend = u.onerror = () => { 
+        btn.innerHTML = '<i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง'; 
+        btn.classList.remove('bg-red-100', 'dark:bg-red-900/40', 'text-red-600', 'dark:text-red-400'); 
+        btn.classList.add('bg-emerald-100', 'dark:bg-emerald-900/40', 'text-emerald-600', 'dark:text-emerald-400'); 
+    };
     window.speechSynthesis.speak(u);
 }
 
-function scroll() { const el = document.getElementById('chatHistory'); if (el) el.scrollTop = el.scrollHeight; }
-function fmt(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const ta = document.getElementById('userInput');
-    if (ta) ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('openSettings') === 'true') {
-        openSettings();
-    }
-    loadAICache();
-    renderAIChatTable();
-});
-
-// === SETTINGS MODAL FUNCTIONS ===
-function openSettings() {
-    const modal = document.getElementById('settingsModal');
-    const input = document.getElementById('apiKeyInput');
-    if (modal && input) {
-        input.value = localStorage.getItem('gemini_api_key') || '';
-        modal.classList.remove('hidden');
-    }
-}
-
-function closeSettings() {
-    const modal = document.getElementById('settingsModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-}
-
-async function retrySend() {
-    const input = document.getElementById('userInput');
-    if (input) {
-        input.value = lastUserText;
-        send();
-    }
-}
-
-function toggleChatLoading(loading) {
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const attachBtn = document.getElementById('attachBtn');
-    if (userInput) userInput.disabled = loading;
-    if (sendBtn) {
-        sendBtn.disabled = loading;
-        if (loading) {
-            sendBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
-            sendBtn.classList.add('opacity-70', 'cursor-not-allowed');
-        } else {
-            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
-            sendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+function toggleMute() {
+    isMuted = !isMuted;
+    localStorage.setItem('ai_muted', isMuted);
+    updateMuteUI();
+    if (isMuted) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
         }
+        document.querySelectorAll('[onclick="speak(this)"]').forEach(btn => {
+            btn.innerHTML = '<i class="fas fa-volume-up text-[10px]"></i> ฟังเสียง';
+            btn.classList.remove('bg-red-100', 'dark:bg-red-900/40', 'text-red-600', 'dark:text-red-400');
+            btn.classList.add('bg-emerald-100', 'dark:bg-emerald-900/40', 'text-emerald-600', 'dark:text-emerald-400');
+        });
     }
-    if (attachBtn) {
-        attachBtn.disabled = loading;
-        if (loading) {
-            attachBtn.classList.add('opacity-50', 'cursor-not-allowed');
+}
+
+function updateMuteUI() {
+    const icon = document.getElementById('muteIcon');
+    const text = document.getElementById('muteText');
+    const btn = document.getElementById('muteToggleBtn');
+    if (btn && icon && text) {
+        if (isMuted) {
+            icon.textContent = '🔇';
+            text.textContent = 'ปิดเสียง';
+            btn.classList.add('bg-red-50', 'dark:bg-red-950/20', 'border-red-200', 'dark:border-red-900/40');
         } else {
-            attachBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            icon.textContent = '🔊';
+            text.textContent = 'เปิดเสียง';
+            btn.classList.remove('bg-red-50', 'dark:bg-red-950/20', 'border-red-200', 'dark:border-red-900/40');
         }
     }
 }
 
-function saveSettings() {
-    const input = document.getElementById('apiKeyInput');
-    if (input) {
-        const val = input.value.trim();
-        if (val) {
-            localStorage.setItem('gemini_api_key', val);
-            API_KEY = val;
-        } else {
-            localStorage.removeItem('gemini_api_key');
-            API_KEY = DEFAULT_KEY;
-        }
-        closeSettings();
-        // Clear previous client promise so it reinits with new key on next send
-        genAIClientPromise = null;
-        genAIClientKey = null;
-    }
-}
-
-function toggleKeyVisibility() {
-    const input = document.getElementById('apiKeyInput');
-    const icon = document.getElementById('keyVisibilityIcon');
-    if (input && icon) {
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.className = 'fas fa-eye-slash';
-        } else {
-            input.type = 'password';
-            icon.className = 'fas fa-eye';
-        }
-    }
-}
-
-// === AI CHAT INSIGHTS SIDEBAR LOGS ===
 function saveAICardToLog(btn) {
     const text = btn.getAttribute('data-text');
+    const latency = parseInt(btn.getAttribute('data-latency') || '0', 10);
+    const tokens = parseInt(btn.getAttribute('data-tokens') || '0', 10);
+    const mode = btn.getAttribute('data-mode') || 'General';
+
     aiSavedLogs.push({
         prompt: lastUserPrompt || 'คำถามทั่วไป/แนบภาพ',
-        reply: text
+        reply: text,
+        latency: latency,
+        tokens: tokens,
+        mode: mode
     });
     saveAICache();
     renderAIChatTable();
@@ -362,34 +334,221 @@ function saveAICardToLog(btn) {
     btn.onclick = null;
 }
 
-function renderAIChatTable() {
-    const tbody = document.getElementById('aiLogBody');
-    if (!tbody) return;
+function deleteLog(index) {
+    const deletedItem = aiSavedLogs[index];
+    undoStack.push({
+        index: index,
+        item: deletedItem
+    });
+    
+    aiSavedLogs.splice(index, 1);
+    saveAICache();
+    renderAIChatTable();
+    
+    showUndoToast(`ลบการทดลองที่ ${index + 1} แล้ว`);
+}
 
-    if (aiSavedLogs.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="2" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก<br><span class="text-[9px] opacity-70">ถามตอบกับ AI แล้วกดปุ่มบันทึกในการ์ดข้อความเพื่อเก็บข้อมูล</span></td>
-            </tr>
-        `;
+function undoDelete() {
+    if (undoStack.length === 0) return;
+    const lastDeleted = undoStack.pop();
+    aiSavedLogs.splice(lastDeleted.index, 0, lastDeleted.item);
+    saveAICache();
+    renderAIChatTable();
+    
+    const toast = document.getElementById('undoToast');
+    if (toast) toast.remove();
+}
+
+function showUndoToast(message) {
+    const existing = document.getElementById('undoToast');
+    if (existing) existing.remove();
+    
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.id = 'undoToast';
+    toast.className = 'pointer-events-auto bg-gray-900/95 dark:bg-white/95 text-white dark:text-gray-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-between gap-4 border border-gray-800 dark:border-gray-200 text-xs md:text-sm animate-pop-in min-w-[280px] max-w-sm';
+    toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            <span class="text-amber-400">🗑️</span>
+            <span class="font-semibold">${message}</span>
+        </div>
+        <button onclick="undoDelete()" class="px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-black transition-all">กู้คืน (Undo)</button>
+    `;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        if (toast && toast.parentNode) {
+            toast.classList.add('opacity-0', 'translate-y-2', 'transition-all', 'duration-300');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 4500);
+}
+
+function updateStats(visibleLogs) {
+    const runsSpan = document.getElementById('statTotalRuns');
+    const latencySpan = document.getElementById('statMeanLatency');
+    const volatilitySpan = document.getElementById('statVolatility');
+    
+    if (!runsSpan || !latencySpan || !volatilitySpan) return;
+    
+    const count = visibleLogs.length;
+    runsSpan.textContent = `${count} ครั้ง`;
+    
+    if (count === 0) {
+        latencySpan.textContent = `0 ms`;
+        volatilitySpan.textContent = `Min: 0 / Max: 0`;
         return;
     }
+    
+    let totalLatency = 0;
+    let tokens = [];
+    
+    visibleLogs.forEach(log => {
+        const lat = log.latency || 0;
+        const tok = log.tokens || 0;
+        totalLatency += lat;
+        tokens.push(tok);
+    });
+    
+    const meanLatency = Math.round(totalLatency / count);
+    latencySpan.textContent = `${meanLatency.toLocaleString()} ms`;
+    
+    const minToken = Math.min(...tokens);
+    const maxToken = Math.max(...tokens);
+    volatilitySpan.textContent = `Min: ${minToken} / Max: ${maxToken}`;
+}
 
+function filterLogs() {
+    const searchQuery = (document.getElementById('logSearch')?.value || '').toLowerCase().trim();
+    const selectedMode = document.getElementById('logFilterMode')?.value || 'All';
+    
+    const tbody = document.getElementById('aiLogBody');
+    if (!tbody) return;
+    
+    const filtered = aiSavedLogs.map((item, index) => ({ ...item, originalIndex: index }))
+        .filter(item => {
+            const matchesSearch = !searchQuery || 
+                (item.prompt || '').toLowerCase().includes(searchQuery) ||
+                (item.reply || '').toLowerCase().includes(searchQuery);
+            const matchesMode = selectedMode === 'All' || item.mode === selectedMode;
+            return matchesSearch && matchesMode;
+        });
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="p-6 text-center text-gray-400 dark:text-gray-500 italic">
+                    <i class="fas fa-search-minus mb-1 block text-lg"></i> ไม่พบข้อมูลที่ตรงกับตัวกรอง
+                </td>
+            </tr>
+        `;
+        updateStats([]);
+        updateStabilityChart([]);
+        return;
+    }
+    
     tbody.innerHTML = '';
-    aiSavedLogs.forEach((item, index) => {
+    filtered.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-gray-100 dark:border-gray-800/80 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 text-gray-700 dark:text-gray-300';
+        
+        let badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+        if (item.mode === 'Researcher') badgeClass = 'bg-purple-100 text-purple-800 dark:bg-purple-950/40 dark:text-purple-400';
+        else if (item.mode === 'Economics') badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400';
+        else if (item.mode === 'Zero Waste') badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400';
+        
         tr.innerHTML = `
-            <td class="p-2.5 text-center font-bold text-gray-400 dark:text-gray-500">${index + 1}</td>
-            <td class="p-2.5 leading-relaxed space-y-1">
-                <div class="font-extrabold text-emerald-600 dark:text-emerald-400 text-[10px] uppercase tracking-wider">❓ คำถาม:</div>
-                <div class="text-[11px] font-bold line-clamp-2 text-gray-600 dark:text-gray-400">${item.prompt}</div>
-                <div class="font-extrabold text-amber-600 dark:text-amber-400 text-[10px] uppercase tracking-wider mt-1.5">💡 คำตอบที่สรุป:</div>
-                <div class="text-[11px] line-clamp-3">${item.reply}</div>
+            <td class="p-2 text-center font-bold text-gray-400 dark:text-gray-500">${index + 1}</td>
+            <td class="p-2 text-center">
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${badgeClass}">${item.mode || 'General'}</span>
+            </td>
+            <td class="p-2 leading-relaxed space-y-0.5 min-w-0">
+                <div class="font-bold text-gray-600 dark:text-gray-400 truncate text-[10px]" title="${item.prompt}">${item.prompt}</div>
+                <div class="line-clamp-2 text-[10px] opacity-80" title="${item.reply}">${item.reply}</div>
+            </td>
+            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400">${item.latency ? item.latency.toLocaleString() : '0'} ms</td>
+            <td class="p-2 text-center font-mono text-gray-500 dark:text-gray-400">${item.tokens || 0}</td>
+            <td class="p-2 text-center">
+                <button onclick="deleteLog(${item.originalIndex})" class="w-6 h-6 rounded-lg bg-red-50 hover:bg-red-500 text-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer mx-auto">
+                    <i class="fas fa-trash text-[10px]"></i>
+                </button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+    
+    updateStats(filtered);
+    updateStabilityChart(filtered);
+}
+
+function updateStabilityChart(filteredLogs) {
+    const logs = filteredLogs || aiSavedLogs;
+    const canvas = document.getElementById('stabilityChart');
+    if (!canvas) return;
+    
+    const labels = logs.map((_, idx) => `Run ${idx + 1}`);
+    const datasetData = logs.map(l => l.latency || 0);
+    
+    const dark = document.documentElement.classList.contains('dark');
+    const textClr = dark ? '#e2e8f0' : '#334155';
+    const gridClr = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
+    
+    if (stabilityChartInstance) {
+        stabilityChartInstance.data.labels = labels;
+        stabilityChartInstance.data.datasets[0].data = datasetData;
+        stabilityChartInstance.options.scales.x.ticks.color = textClr;
+        stabilityChartInstance.options.scales.y.ticks.color = textClr;
+        stabilityChartInstance.options.scales.y.grid.color = gridClr;
+        stabilityChartInstance.update();
+    } else {
+        stabilityChartInstance = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'เวลาประมวลผล (ms)',
+                    data: datasetData,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6,
+                    tension: 0.2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ความเร็ว: ${ctx.parsed.y} ms`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: textClr },
+                        grid: { color: gridClr }
+                    },
+                    x: {
+                        ticks: { color: textClr },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function renderAIChatTable() {
+    filterLogs();
 }
 
 function exportAIChatCSV() {
@@ -398,20 +557,23 @@ function exportAIChatCSV() {
         return;
     }
 
-    const headers = ['ลำดับ', 'หัวข้อคำถาม (Input)', 'สรุปคำตอบของ AI (Output)'];
+    const headers = ['ลำดับ', 'โหมด', 'หัวข้อคำถาม (Input)', 'สรุปคำตอบของ AI (Output)', 'เวลาประมวลผล (ms)', 'Tokens'];
     const rows = [headers];
 
     aiSavedLogs.forEach((item, index) => {
         rows.push([
             index + 1,
+            item.mode || 'General',
             item.prompt,
-            item.reply
+            item.reply,
+            item.latency || 0,
+            item.tokens || 0
         ]);
     });
 
     let csvContent = "\ufeff"; // BOM for UTF-8 Excel support in Thai
     rows.forEach(row => {
-        csvContent += row.map(v => `"${v.replace(/"/g, '""')}"`).join(",") + "\r\n";
+        csvContent += row.map(v => `"${(v + '').replace(/"/g, '""')}"`).join(",") + "\r\n";
     });
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -443,6 +605,81 @@ function loadAICache() {
             aiSavedLogs = JSON.parse(saved);
         } catch (e) {
             console.error("Error loading AI log cache", e);
+        }
+    }
+}
+
+scroll = function() { const el = document.getElementById('chatHistory'); if (el) el.scrollTop = el.scrollHeight; }
+function fmt(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const ta = document.getElementById('userInput');
+    if (ta) ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'; });
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openSettings') === 'true') {
+        openSettings();
+    }
+    
+    updateMuteUI();
+    loadAICache();
+    renderAIChatTable();
+});
+
+window.addEventListener('themechanged', () => {
+    updateStabilityChart();
+});
+
+// === SETTINGS MODAL FUNCTIONS ===
+function openSettings() {
+    const modal = document.getElementById('settingsModal');
+    const input = document.getElementById('apiKeyInput');
+    if (modal && input) {
+        input.value = localStorage.getItem('gemini_api_key') || '';
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeSettings() {
+    const modal = document.getElementById('settingsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+async function saveSettings() {
+    const val = document.getElementById('apiKeyInput')?.value.trim();
+    if (val) {
+        localStorage.setItem('gemini_api_key', val);
+        API_KEY = val;
+    } else {
+        localStorage.removeItem('gemini_api_key');
+        API_KEY = DEFAULT_KEY;
+    }
+    closeSettings();
+}
+
+async function retrySend() {
+    const input = document.getElementById('userInput');
+    if (input) {
+        input.value = lastUserText;
+        send();
+    }
+}
+
+function toggleChatLoading(loading) {
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    if (userInput) userInput.disabled = loading;
+    if (sendBtn) {
+        sendBtn.disabled = loading;
+        if (loading) {
+            sendBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i>';
+            sendBtn.classList.add('opacity-70', 'cursor-not-allowed');
+        } else {
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i>';
+            sendBtn.classList.remove('opacity-70', 'cursor-not-allowed');
         }
     }
 }

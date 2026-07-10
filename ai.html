@@ -16,6 +16,7 @@
 <title>AI MSSM - Mush-Up NVC</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -81,7 +82,7 @@
 </aside>
 
 <!-- Main -->
-<div class="lg:pl-[260px] h-screen flex flex-col max-lg:pt-[60px]">
+<div class="lg:pl-[260px] min-h-screen flex flex-col max-lg:pt-[60px] pb-6 animate-fadeIn">
     <header class="text-center px-4 py-6 md:py-8 shrink-0 relative overflow-hidden">
         <div class="absolute w-40 h-40 rounded-full bg-amber-400/10 blur-3xl -top-10 -left-10 pointer-events-none"></div>
         <div class="relative z-10">
@@ -91,9 +92,20 @@
         </div>
     </header>
 
-    <div class="flex-1 max-w-[95%] w-full mx-auto px-4 md:px-8 pb-6 flex flex-col lg:flex-row gap-6">
+    <div class="flex-1 max-w-[98%] lg:max-w-[95%] w-full mx-auto px-4 md:px-8 pb-6 flex flex-col lg:flex-row gap-6">
         <!-- LEFT: Chat Interface -->
         <div class="flex-1 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md flex flex-col overflow-hidden min-h-[450px]">
+            <!-- Chat Header with Mute Switch -->
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-gray-600 dark:text-gray-300">ห้องสนทนา AI</span>
+                </div>
+                <button id="muteToggleBtn" onclick="toggleMute()" class="px-3 py-1.5 rounded-full text-xs font-bold bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm border border-gray-200 dark:border-gray-700">
+                    <span id="muteIcon">🔊</span> <span id="muteText">เปิดเสียง</span>
+                </button>
+            </div>
+
             <div id="chatHistory" class="flex-1 p-5 md:p-7 overflow-y-auto space-y-4">
                 <div class="flex justify-start animate-pop-in">
                     <div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed bg-gradient-to-br from-emerald-50 to-white dark:from-gray-800 dark:to-gray-800/60 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-bl-md shadow-sm">
@@ -117,14 +129,22 @@
                 <div class="flex gap-3 items-end">
                     <button id="attachBtn" onclick="document.getElementById('imageInput').click()" class="w-10 h-10 md:w-11 md:h-11 shrink-0 rounded-xl bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:text-emerald-500 hover:border-emerald-500 transition-all flex items-center justify-center cursor-pointer" title="แนบภาพเห็ด"><i class="fas fa-camera text-sm md:text-base"></i></button>
                     <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(event)">
+                    
+                    <select id="studyMode" class="h-10 md:h-11 rounded-xl px-2 text-xs border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer focus:border-emerald-500 transition shadow-sm font-semibold">
+                        <option value="General">General</option>
+                        <option value="Researcher">Researcher</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Zero Waste">Zero Waste</option>
+                    </select>
+
                     <textarea id="userInput" class="flex-1 rounded-2xl px-4 py-3 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-800 dark:text-gray-200 outline-none resize-none min-h-[48px] max-h-[120px] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition" placeholder="พิมพ์คำถามหรือแนบภาพเห็ด..." rows="1" onkeydown="handleEnter(event)"></textarea>
                     <button id="sendBtn" onclick="send()" class="w-12 h-12 md:w-14 md:h-14 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 dark:from-emerald-400 dark:to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105 hover:rotate-12 transition-all flex items-center justify-center cursor-pointer"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT: Table Logs -->
-        <div class="w-full lg:w-[380px] shrink-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md p-5 flex flex-col h-[450px] lg:h-auto overflow-hidden">
+        <!-- RIGHT: Table Logs & Analytics -->
+        <div class="w-full lg:w-[540px] shrink-0 bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md p-5 flex flex-col h-[650px] lg:h-auto overflow-hidden">
             <div class="flex items-center justify-between gap-2 mb-3">
                 <div class="flex items-center gap-2">
                     <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white text-xs"><i class="fas fa-table"></i></span>
@@ -132,27 +152,80 @@
                 </div>
                 <div class="flex gap-1.5">
                     <button onclick="exportAIChatCSV()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black text-white bg-gradient-to-br from-emerald-500 to-emerald-700 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"><i class="fas fa-file-csv"></i> Excel</button>
-                    <button onclick="clearAIChatTable()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black text-white bg-gradient-to-br from-red-500 to-red-600 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"><i class="fas fa-trash"></i> ล้าง</button>
+                    <button onclick="clearAIChatTable()" class="px-2.5 py-1.5 rounded-lg text-[10px] font-black text-white bg-gradient-to-br from-red-500 to-red-600 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"><i class="fas fa-trash"></i> ล้างทั้งหมด</button>
                 </div>
             </div>
-            <div class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700/60 rounded-xl overflow-hidden bg-white/50 dark:bg-gray-900/30 min-h-[200px]">
-                <table class="w-full text-xs text-left border-collapse">
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-3 gap-2 mb-4 shrink-0">
+                <div class="p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-center shadow-sm">
+                    <span class="text-[9px] font-bold text-gray-500 dark:text-gray-400 block uppercase tracking-wider">Total Runs</span>
+                    <span id="statTotalRuns" class="text-sm font-black text-emerald-600 dark:text-emerald-400">0</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/40 text-center shadow-sm">
+                    <span class="text-[9px] font-bold text-gray-500 dark:text-gray-400 block uppercase tracking-wider">Mean Latency</span>
+                    <span id="statMeanLatency" class="text-xs font-black text-blue-600 dark:text-blue-400 font-mono">0 ms</span>
+                </div>
+                <div class="p-2.5 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/40 text-center shadow-sm overflow-hidden">
+                    <span class="text-[9px] font-bold text-gray-500 dark:text-gray-400 block uppercase tracking-wider">Volatility (Tokens)</span>
+                    <span id="statVolatility" class="text-[9px] font-black text-amber-600 dark:text-amber-400 truncate block font-mono">Min:0 / Max:0</span>
+                </div>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="flex gap-2 mb-3 shrink-0">
+                <div class="relative flex-1 flex items-center bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700/80 rounded-xl px-2.5 py-1.5 focus-within:ring-1 focus-within:ring-emerald-500 transition-all shadow-inner">
+                    <i class="fas fa-search text-gray-400 text-xs mr-1.5"></i>
+                    <input type="text" id="logSearch" placeholder="ค้นหาตาม prompt..." class="w-full bg-transparent text-[11px] outline-none text-gray-800 dark:text-gray-200" oninput="filterLogs()">
+                </div>
+                <select id="logFilterMode" onchange="filterLogs()" class="rounded-xl px-2 py-1.5 text-[11px] border border-gray-200 dark:border-gray-700/80 bg-gray-50 dark:bg-gray-900/50 text-gray-700 dark:text-gray-200 outline-none cursor-pointer shadow-sm font-semibold">
+                    <option value="All">โหมดทั้งหมด</option>
+                    <option value="General">General</option>
+                    <option value="Researcher">Researcher</option>
+                    <option value="Economics">Economics</option>
+                    <option value="Zero Waste">Zero Waste</option>
+                </select>
+            </div>
+
+            <!-- Table Container -->
+            <div class="flex-1 overflow-y-auto border border-gray-200 dark:border-gray-700/60 rounded-xl bg-white/50 dark:bg-gray-900/30 min-h-[220px]">
+                <table class="w-full text-[11px] text-left border-collapse table-fixed">
                     <thead>
-                        <tr class="bg-gray-100/80 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                            <th class="p-2.5 font-bold w-10 text-center">#</th>
-                            <th class="p-2.5 font-bold">ข้อมูลนำเข้า (คำถาม) / คำตอบที่บันทึก</th>
+                        <tr class="bg-gray-100/80 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-20">
+                            <th class="p-2.5 font-bold w-[35px] text-center">#</th>
+                            <th class="p-2.5 font-bold w-[75px] text-center">โหมด</th>
+                            <th class="p-2.5 font-bold">คำถาม/คำตอบ</th>
+                            <th class="p-2.5 font-bold w-[65px] text-center">เวลา</th>
+                            <th class="p-2.5 font-bold w-[50px] text-center">Tokens</th>
+                            <th class="p-2.5 font-bold w-[40px] text-center">ลบ</th>
                         </tr>
                     </thead>
                     <tbody id="aiLogBody">
                         <tr>
-                            <td colspan="2" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก<br><span class="text-[9px] opacity-70">ถามตอบกับ AI แล้วกดปุ่มบันทึกในการ์ดข้อความเพื่อเก็บข้อมูล</span></td>
+                            <td colspan="6" class="p-6 text-center text-gray-400 dark:text-gray-500 italic"><i class="fas fa-clipboard-list mb-1 block text-lg"></i> ยังไม่มีข้อมูลที่บันทึก<br><span class="text-[9px] opacity-70">ถามตอบกับ AI แล้วกดปุ่มบันทึกในการ์ดข้อความเพื่อเก็บข้อมูล</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- BOTTOM: Stability Trend Chart -->
+    <div class="max-w-[98%] lg:max-w-[95%] w-full mx-auto px-4 md:px-8 pb-8 shrink-0 mt-6">
+        <div class="bg-white/70 dark:bg-gray-800/30 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-2xl md:rounded-3xl shadow-md p-5 md:p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs"><i class="fas fa-chart-line"></i></span>
+                <h3 class="text-sm font-extrabold text-gray-800 dark:text-gray-100">กราฟวิเคราะห์แนวโน้มความเสถียร (Stability Trend Chart)</h3>
+            </div>
+            <div class="h-[220px] md:h-[280px] w-full">
+                <canvas id="stabilityChart"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
 
 <!-- Settings Modal -->
 <div id="settingsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
