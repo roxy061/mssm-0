@@ -103,9 +103,10 @@
                     <h3 class="text-xs font-black text-gray-800 dark:text-gray-200">สภาวะแวดล้อมในพื้นที่ (Local Climate Monitor)</h3>
                     <div class="flex items-center gap-1.5 mt-1">
                         <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase">จังหวัด:</span>
-                        <select id="weatherProvince" onchange="fetchWeather()" class="h-6 rounded-lg px-2 text-[10px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none cursor-pointer font-bold shadow-sm">
-                            <!-- Populated dynamically via JS -->
-                        </select>
+                        <div class="relative">
+                            <input list="provincesDatalist" id="weatherProvinceInput" onchange="fetchWeather()" placeholder="พิมพ์หาจังหวัด..." class="h-6 rounded-lg px-2 text-[10px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none font-bold shadow-sm w-36">
+                            <datalist id="provincesDatalist"></datalist>
+                        </div>
                     </div>
                 </div>
             </div>

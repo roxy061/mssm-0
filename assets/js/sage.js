@@ -665,6 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMuteUI();
     loadAICache();
     renderAIChatTable();
+    initProvinceDropdown();
     fetchWeather();
 });
 
@@ -839,13 +840,118 @@ function closeLogModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-async function fetchWeather() {
-    const selector = document.getElementById('weatherProvince');
-    if (!selector) return;
+const THAI_PROVINCES = {
+    "กรุงเทพมหานคร": { lat: 13.7563, lon: 100.5018 },
+    "กระบี่": { lat: 8.0584, lon: 98.9198 },
+    "กาญจนบุรี": { lat: 14.0041, lon: 99.5492 },
+    "กาฬสินธุ์": { lat: 16.4353, lon: 103.5042 },
+    "กำแพงเพชร": { lat: 16.4831, lon: 99.5224 },
+    "ขอนแก่น": { lat: 16.4322, lon: 102.8236 },
+    "จันทบุรี": { lat: 12.6111, lon: 102.1139 },
+    "ฉะเชิงเทรา": { lat: 13.6904, lon: 101.0772 },
+    "ชลบุรี": { lat: 13.3611, lon: 100.9847 },
+    "ชัยนาท": { lat: 15.1856, lon: 100.1251 },
+    "ชัยภูมิ": { lat: 15.8068, lon: 102.0315 },
+    "ชุมพร": { lat: 10.4930, lon: 99.1800 },
+    "เชียงราย": { lat: 19.9071, lon: 99.8325 },
+    "เชียงใหม่": { lat: 18.7883, lon: 98.9853 },
+    "ตรัง": { lat: 7.5562, lon: 99.6114 },
+    "ตราด": { lat: 12.2428, lon: 102.5175 },
+    "ตาก": { lat: 16.8839, lon: 99.1258 },
+    "นครนายก": { lat: 14.2069, lon: 101.2130 },
+    "นครปฐม": { lat: 13.8140, lon: 100.0373 },
+    "นครพนม": { lat: 17.3999, lon: 104.7951 },
+    "นครราชสีมา": { lat: 14.9738, lon: 102.0836 },
+    "นครศรีธรรมราช": { lat: 8.4333, lon: 99.9667 },
+    "นครสวรรค์": { lat: 15.7001, lon: 100.1372 },
+    "นนทบุรี": { lat: 13.8622, lon: 100.5144 },
+    "นราธิวาส": { lat: 6.4255, lon: 101.8252 },
+    "น่าน": { lat: 18.7831, lon: 100.7812 },
+    "บึงกาฬ": { lat: 18.3626, lon: 103.6552 },
+    "บุรีรัมย์": { lat: 14.9930, lon: 103.1029 },
+    "ปทุมธานี": { lat: 14.0208, lon: 100.5250 },
+    "ประจวบคีรีขันธ์": { lat: 11.8024, lon: 99.7956 },
+    "ปราจีนบุรี": { lat: 14.0487, lon: 101.3725 },
+    "ปัตตานี": { lat: 6.8680, lon: 101.2500 },
+    "พระนครศรีอยุธยา": { lat: 14.3532, lon: 100.5681 },
+    "พะเยา": { lat: 19.1661, lon: 99.9023 },
+    "พังงา": { lat: 8.4501, lon: 98.5298 },
+    "พัทลุง": { lat: 7.6167, lon: 100.0740 },
+    "พิจิตร": { lat: 16.4410, lon: 100.3488 },
+    "พิษณุโลก": { lat: 16.8219, lon: 100.2659 },
+    "เพชรบุรี": { lat: 13.1118, lon: 99.9463 },
+    "เพชรบูรณ์": { lat: 16.4190, lon: 101.1593 },
+    "แพร่": { lat: 18.1446, lon: 100.1403 },
+    "ภูเก็ต": { lat: 7.8804, lon: 98.3923 },
+    "มหาสารคาม": { lat: 16.1850, lon: 103.3008 },
+    "มุกดาหาร": { lat: 16.5430, lon: 104.7245 },
+    "แม่ฮ่องสอน": { lat: 19.3004, lon: 97.9685 },
+    "ยโสธร": { lat: 15.7926, lon: 104.1453 },
+    "ยะลา": { lat: 6.5399, lon: 101.2809 },
+    "ร้อยเอ็ด": { lat: 16.0538, lon: 103.6528 },
+    "ระนอง": { lat: 9.9658, lon: 98.6348 },
+    "ระยอง": { lat: 12.6814, lon: 101.2813 },
+    "ราชบุรี": { lat: 13.5283, lon: 99.8134 },
+    "ลพบุรี": { lat: 14.7995, lon: 100.6534 },
+    "ลำปาง": { lat: 18.2917, lon: 99.4928 },
+    "ลำพูน": { lat: 18.5771, lon: 99.0076 },
+    "เลย": { lat: 17.4862, lon: 101.7223 },
+    "ศรีสะเกษ": { lat: 15.1154, lon: 104.3291 },
+    "สกลนคร": { lat: 17.1610, lon: 104.1486 },
+    "สงขลา": { lat: 7.1898, lon: 100.5954 },
+    "สตูล": { lat: 6.6231, lon: 100.0674 },
+    "สมุทรปราการ": { lat: 13.5991, lon: 100.5968 },
+    "สมุทรสงคราม": { lat: 13.4098, lon: 100.0023 },
+    "สมุทรสาคร": { lat: 13.5475, lon: 100.2744 },
+    "สระแก้ว": { lat: 13.8240, lon: 102.0646 },
+    "สระบุรี": { lat: 14.5289, lon: 100.9101 },
+    "สิงห์บุรี": { lat: 14.8936, lon: 100.3967 },
+    "สุโขทัย": { lat: 17.0078, lon: 99.8262 },
+    "สุพรรณบุรี": { lat: 14.4745, lon: 100.1176 },
+    "สุราษฎร์ธานี": { lat: 9.1402, lon: 99.3331 },
+    "สุรินทร์": { lat: 14.8818, lon: 103.4937 },
+    "หนองคาย": { lat: 17.8785, lon: 102.7413 },
+    "หนองบัวลำภู": { lat: 17.2003, lon: 102.4431 },
+    "อ่างทอง": { lat: 14.5896, lon: 100.4551 },
+    "อำนาจเจริญ": { lat: 15.8548, lon: 104.6245 },
+    "อุดรธานี": { lat: 17.4138, lon: 102.7858 },
+    "อุตรดิตถ์": { lat: 17.6256, lon: 100.0993 },
+    "อุทัยธานี": { lat: 15.3804, lon: 100.0247 },
+    "อุบลราชธานี": { lat: 15.2287, lon: 104.8564 }
+};
+
+function initProvinceDropdown() {
+    const list = document.getElementById('provincesDatalist');
+    const input = document.getElementById('weatherProvinceInput');
+    if (!list) return;
     
-    const option = selector.options[selector.selectedIndex];
-    const lat = option.getAttribute('data-lat');
-    const lon = option.getAttribute('data-lon');
+    list.innerHTML = '';
+    Object.keys(THAI_PROVINCES).sort().forEach(prov => {
+        const opt = document.createElement('option');
+        opt.value = prov;
+        list.appendChild(opt);
+    });
+    
+    if (input && !input.value) {
+        input.value = "นครศรีธรรมราช";
+    }
+}
+
+async function fetchWeather() {
+    const input = document.getElementById('weatherProvinceInput');
+    if (!input) return;
+    
+    let prov = input.value.trim();
+    if (!prov) {
+        prov = "นครศรีธรรมราช";
+        input.value = prov;
+    }
+    
+    const coords = THAI_PROVINCES[prov];
+    if (!coords) return; // Keep searching/typing
+    
+    const lat = coords.lat;
+    const lon = coords.lon;
     
     const tempEl = document.getElementById('weatherTemp');
     const humEl = document.getElementById('weatherHum');
