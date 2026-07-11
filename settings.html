@@ -213,6 +213,28 @@
                 </div>
             </section>
 
+            <!-- PANEL: GLOBAL AUTO-TOUR PRESENTATION -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm"><i class="fas fa-play"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">ระบบนำเสนอทัวร์หน้าเว็บอัตโนมัติ (Auto-Tour Mode)</h2>
+                        <p class="text-[10px] text-slate-400">เมื่อเปิดใช้งาน ระบบจะนับถอยหลัง 10 วินาทีเพื่อเปลี่ยนหน้าไปยังหน้าถัดไปในระบบนิเวศทั้ง 11 หน้าโดยอัตโนมัติเป็นลูปวนซ้ำ</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-850 mt-2">
+                    <div>
+                        <strong class="text-xs font-bold text-slate-200 block">เปิดโหมดนำเสนออัตโนมัติ (Enable Auto-Presentation Tour)</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block mt-0.5">เหมาะสำหรับการเปิดจัดบูธนิทรรศการวิชาการ หรือการนำเสนอผลงานโครงการวิจัยแบบไร้คนสัมผัส</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="tourToggle" onchange="toggleAutoTourMode()" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-500"></div>
+                    </label>
+                </div>
+            </section>
+
             <!-- PANEL 3: AI ETHICS & INTELLECTUAL SAFETY -->
             <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
                 <div class="flex items-center gap-2.5">
@@ -401,9 +423,33 @@
             }
         }
 
+        function toggleAutoTourMode() {
+            const chk = document.getElementById('tourToggle');
+            const isEnabled = chk.checked;
+            localStorage.setItem('autoTourEnabled', isEnabled ? 'true' : 'false');
+            
+            if (isEnabled) {
+                location.reload();
+            } else {
+                if (window.autoTourInterval) {
+                    clearInterval(window.autoTourInterval);
+                }
+                const badge = document.getElementById('autoTourBadge');
+                if (badge) badge.remove();
+            }
+        }
+
+        function syncTourUI() {
+            const chk = document.getElementById('tourToggle');
+            if (chk) {
+                chk.checked = localStorage.getItem('autoTourEnabled') === 'true';
+            }
+        }
+
         window.onload = () => {
             syncPerformanceUI();
             syncRenderModeUI();
+            syncTourUI();
         };
     </script>
 <script src="assets/js/core.js"></script>

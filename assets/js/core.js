@@ -574,6 +574,83 @@ function initPWA() {
     }
 }
 
+// === GLOBAL AUTO-TOUR PRESENTATION ENGINE ===
+const TOUR_PAGES = [
+    "index.html",
+    "lab.html",
+    "ai.html",
+    "builder2d.html",
+    "mushroom_3d.html",
+    "market.html",
+    "quiz_pvp.html",
+    "dataset.html",
+    "management.html",
+    "doc.html",
+    "settings.html"
+];
+
+function initAutoTour() {
+    const isEnabled = localStorage.getItem('autoTourEnabled') === 'true';
+    if (!isEnabled) return;
+
+    // Get current filename
+    let curPath = window.location.pathname;
+    let curPage = curPath.split('/').pop() || 'index.html';
+    if (curPage === '' || curPage === '/') curPage = 'index.html';
+
+    // Find current index in tour pages
+    let curIdx = TOUR_PAGES.findIndex(p => curPage.includes(p));
+    if (curIdx === -1) {
+        curIdx = 0;
+    }
+
+    const nextIdx = (curIdx + 1) % TOUR_PAGES.length;
+    const nextUrl = TOUR_PAGES[nextIdx];
+
+    // Create floating countdown badge
+    const badge = document.createElement('div');
+    badge.id = 'autoTourBadge';
+    badge.className = 'fixed bottom-4 right-4 z-[9999] bg-slate-900/95 dark:bg-slate-950/95 text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 backdrop-blur-md transition-all duration-300 font-sans';
+    badge.innerHTML = `
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+        <span class="text-xs font-bold">โหมดนำเสนอ: หน้าถัดไปใน <span id="autoTourSeconds" class="font-mono text-cyan-400">10</span> วินาที</span>
+        <button onclick="stopAutoTourFromBadge(event)" class="text-[10px] bg-red-550/20 text-red-400 hover:bg-red-500 hover:text-white px-2.5 py-1 rounded-lg font-black transition cursor-pointer border-none">หยุดทัวร์</button>
+    `;
+    document.body.appendChild(badge);
+
+    let timeLeft = 10;
+    const timer = setInterval(() => {
+        timeLeft--;
+        const lbl = document.getElementById('autoTourSeconds');
+        if (lbl) lbl.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            window.location.href = nextUrl;
+        }
+    }, 1000);
+
+    window.autoTourInterval = timer;
+}
+
+window.stopAutoTourFromBadge = function(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    localStorage.setItem('autoTourEnabled', 'false');
+    if (window.autoTourInterval) {
+        clearInterval(window.autoTourInterval);
+    }
+    const badge = document.getElementById('autoTourBadge');
+    if (badge) badge.remove();
+
+    const toggle = document.getElementById('tourToggle');
+    if (toggle) {
+        toggle.checked = false;
+    }
+};
+
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
@@ -586,6 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
     initCommandPalette();
     initPWA();
+    initAutoTour();
 });
 
 function filterMushrooms() {
