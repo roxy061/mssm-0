@@ -269,6 +269,51 @@
                 </div>
             </section>
 
+            <!-- PANEL: FULLSCREEN MODE -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center text-sm"><i class="fas fa-expand-arrows-alt"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">เปิดโหมดเต็มจอทุกหน้า (Toggle Fullscreen Mode)</h2>
+                        <p class="text-[10px] text-slate-400">ขยายหน้าเว็บแอปพลิเคชันให้แสดงผลเต็มจอ ซ่อนแถบ Address Bar และแถบเครื่องมือของเบราว์เซอร์เพื่อเพิ่มพื้นที่การแสดงผลสูงสุด</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-850 mt-2">
+                    <div>
+                        <strong class="text-xs font-bold text-slate-200 block">โหมดเต็มจอ (Fullscreen Display)</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block mt-0.5">เหมาะสำหรับนำเสนองานวิจัยบนจอโปรเจคเตอร์ จอ TV หรือต้องการประสบการณ์แบบ Immersive บนมือถือ/แท็บเล็ต</span>
+                    </div>
+                    <button onclick="toggleFullscreenMode()" id="btnFullscreenToggle" class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:brightness-110 font-extrabold text-xs transition shadow-lg shadow-teal-500/25 flex items-center gap-2 cursor-pointer border-none">
+                        <i class="fas fa-expand"></i> <span id="fullscreenBtnText">เปิดเต็มจอ</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-850">
+                    <div>
+                        <strong class="text-xs font-bold text-slate-200 block">จดจำโหมดเต็มจอ (Remember Fullscreen Preference)</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block mt-0.5">เมื่อเปิดตัวเลือกนี้ ทุกครั้งที่เปิดหน้าเว็บ ระบบจะพยายามเข้าสู่โหมดเต็มจออัตโนมัติ (ต้องคลิกหน้าจออย่างน้อย 1 ครั้ง)</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="fullscreenAutoToggle" onchange="toggleFullscreenAuto()" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-300 after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
+                    </label>
+                </div>
+
+                <div class="bg-slate-950/40 p-4 rounded-2xl border border-slate-850 space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-info-circle text-teal-400 text-xs"></i>
+                        <span class="text-[10px] font-bold text-slate-300">หมายเหตุการใช้งานโหมดเต็มจอ:</span>
+                    </div>
+                    <ul class="text-[10px] text-slate-400 space-y-1.5 pl-5">
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5 text-[8px]"></i>กดปุ่ม "เปิดเต็มจอ" เพื่อเข้าสู่โหมดเต็มจอทันที</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5 text-[8px]"></i>กดปุ่ม ESC หรือกดปุ่มซ้ำอีกครั้งเพื่อออกจากโหมดเต็มจอ</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5 text-[8px]"></i>รองรับทุกเบราว์เซอร์สมัยใหม่ทั้ง Chrome, Safari, Firefox, Edge</li>
+                        <li class="flex items-start gap-2"><i class="fas fa-check text-emerald-400 mt-0.5 text-[8px]"></i>บนมือถือ/แท็บเล็ต Address Bar จะถูกซ่อนเพื่อเพิ่มพื้นที่แสดงผล</li>
+                    </ul>
+                </div>
+            </section>
+
             <!-- PANEL 3: AI ETHICS & INTELLECTUAL SAFETY -->
             <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
                 <div class="flex items-center gap-2.5">
@@ -477,10 +522,77 @@
             }
         }
 
+        /* ── Fullscreen Mode Logic ── */
+        function toggleFullscreenMode() {
+            const doc = document.documentElement;
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (doc.requestFullscreen) doc.requestFullscreen();
+                else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+                else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+                else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.mozCancelFullScreen) document.mozCancelFullScreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        function toggleFullscreenAuto() {
+            const chk = document.getElementById('fullscreenAutoToggle');
+            localStorage.setItem('fullscreenAutoEnabled', chk.checked ? 'true' : 'false');
+
+            let toast = document.getElementById('themeToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'themeToast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;color:#fff;font-weight:800;font-size:11px;padding:12px 20px;border-radius:16px;transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }
+            toast.style.background = chk.checked ? '#14b8a6' : '#64748b';
+            toast.style.boxShadow = chk.checked ? '0 8px 32px rgba(20,184,166,0.4)' : '0 8px 32px rgba(100,116,139,0.3)';
+            toast.textContent = chk.checked ? '✅ จดจำโหมดเต็มจอเปิดแล้ว!' : '⬛ ปิดจดจำโหมดเต็มจอแล้ว';
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 1500);
+        }
+
+        function syncFullscreenUI() {
+            const chk = document.getElementById('fullscreenAutoToggle');
+            if (chk) {
+                chk.checked = localStorage.getItem('fullscreenAutoEnabled') === 'true';
+            }
+            updateFullscreenBtnText();
+        }
+
+        function updateFullscreenBtnText() {
+            const btn = document.getElementById('btnFullscreenToggle');
+            const txt = document.getElementById('fullscreenBtnText');
+            const icon = btn ? btn.querySelector('i') : null;
+            const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+            if (txt) txt.textContent = isFS ? 'ออกจากเต็มจอ' : 'เปิดเต็มจอ';
+            if (icon) icon.className = isFS ? 'fas fa-compress' : 'fas fa-expand';
+            if (btn) {
+                if (isFS) {
+                    btn.className = 'px-4 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-400 font-extrabold text-xs transition shadow-lg flex items-center gap-2 cursor-pointer';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white hover:brightness-110 font-extrabold text-xs transition shadow-lg shadow-teal-500/25 flex items-center gap-2 cursor-pointer border-none';
+                }
+            }
+        }
+
+        // Listen for fullscreen changes (including ESC key exit)
+        document.addEventListener('fullscreenchange', updateFullscreenBtnText);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenBtnText);
+        document.addEventListener('mozfullscreenchange', updateFullscreenBtnText);
+        document.addEventListener('MSFullscreenChange', updateFullscreenBtnText);
+
         window.onload = () => {
             syncPerformanceUI();
             syncRenderModeUI();
             syncTourUI();
+            syncFullscreenUI();
         };
     </script>
 <script src="assets/js/core.js"></script>
