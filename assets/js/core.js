@@ -1739,3 +1739,27 @@ window.showMushroomAlert = function(message, onOk) {
 window.alert = function(message) {
     window.showMushroomAlert(message);
 };
+
+// === GLOBAL FULLSCREEN AUTO-ENTER (all pages via localStorage) ===
+(function initGlobalFullscreen() {
+    if (localStorage.getItem('fullscreenAutoEnabled') !== 'true') return;
+
+    // Fullscreen API requires a user gesture — listen for first click/touch
+    function _tryEnterFullscreen() {
+        const doc = document.documentElement;
+        const isFS = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        if (isFS) return; // already fullscreen
+
+        const req = doc.requestFullscreen || doc.webkitRequestFullscreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
+        if (req) {
+            req.call(doc).catch(() => {});
+        }
+        // Remove listener after first successful attempt
+        document.removeEventListener('click', _tryEnterFullscreen, true);
+        document.removeEventListener('touchstart', _tryEnterFullscreen, true);
+    }
+
+    // Use capture phase to catch clicks before any other handler
+    document.addEventListener('click', _tryEnterFullscreen, { capture: true, once: true, passive: true });
+    document.addEventListener('touchstart', _tryEnterFullscreen, { capture: true, once: true, passive: true });
+})();
