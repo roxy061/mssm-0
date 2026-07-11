@@ -305,7 +305,25 @@ function addMsg(sender, text) {
     const currentMode = document.getElementById('studyMode')?.value || 'General';
     
     let displayHtml = text;
-    if (sender === 'ai') {
+    let visualContainerId = "";
+    
+    const containsGreenhouse = /โรงเรือน|โครงสร้าง|หลังคา|bcr|mpi/i.test(text);
+    if (sender === 'ai' && containsGreenhouse) {
+        visualContainerId = `visual-container-${Date.now()}-${Math.floor(Math.random()*1000)}`;
+        displayHtml = text + `
+            <div class="mt-4 p-3 rounded-xl bg-slate-900 border border-slate-800 text-white overflow-hidden shadow-inner">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-black tracking-wider uppercase text-emerald-400 flex items-center gap-1">
+                        <i class="fas fa-cubes"></i> MSSM AI Visualizer
+                    </span>
+                    <span class="text-[9px] text-slate-500 font-bold">
+                        Mode: ${localStorage.getItem('globalRenderMode') === '3d' ? '3D Render' : '2D Specs'}
+                    </span>
+                </div>
+                <div id="${visualContainerId}" class="w-full min-h-[160px] md:min-h-[200px] flex items-center justify-center relative"></div>
+            </div>
+        ` + injectMemberPhotos(text) + injectExperimentPhotos(text);
+    } else if (sender === 'ai') {
         displayHtml = text + injectMemberPhotos(text) + injectExperimentPhotos(text);
     }
     
@@ -323,6 +341,227 @@ function addMsg(sender, text) {
     }</div>`;
     box.appendChild(row);
     scroll();
+    
+    if (visualContainerId) {
+        setTimeout(() => {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            if (mode === '3d') {
+                render3DVisualizer(visualContainerId);
+            } else {
+                render2DVisualizer(visualContainerId);
+            }
+        }, 50);
+    }
+}
+
+function render2DVisualizer(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = `
+        <div class="w-full text-left space-y-2.5 text-xs text-slate-300 font-semibold animate-pop-in">
+            <div class="grid grid-cols-2 gap-2">
+                <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-[9px] text-slate-500 block uppercase">ขนาดแนะนำ (Recommended Size)</span>
+                    <strong class="text-sm text-slate-200 font-mono">4.0 x 6.0 x 3.0 m</strong>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-[9px] text-slate-500 block uppercase">โครงสร้างหลังคา (Roof Skeleton)</span>
+                    <strong class="text-sm text-slate-200">หน้าจั่ว / พลาสติกใส PE กัน UV</strong>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-[9px] text-emerald-500 block uppercase">ประสิทธิภาพดัชนี (MPI Score)</span>
+                    <strong class="text-sm text-emerald-400 font-mono">0.853 (อันดับ 1: เห็ดแครง)</strong>
+                </div>
+                <div class="bg-slate-950/60 p-2.5 rounded-xl border border-slate-800">
+                    <span class="text-[9px] text-blue-500 block uppercase">ความคุ้มทุนการผลิต (BCR Ratio)</span>
+                    <strong class="text-sm text-blue-400 font-mono">2.69 (คุ้มค่าเชิงพาณิชย์สูง)</strong>
+                </div>
+            </div>
+            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800 flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-sm"><i class="fas fa-lightbulb"></i></div>
+                <div class="flex-1 text-[10px] leading-relaxed text-slate-400">
+                    คำแนะนำจากแบบจำลอง MSSM: เหมาะสำหรับการบ่มเพาะเห็ดแครงในสภาพอุณหภูมิเฉลี่ย 30-32°C และติดตั้งสเปรย์หมอกลดความร้อนสะสม
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function render3DVisualizer(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container || !window.THREE) return;
+
+    // Create Canvas
+    const canvas = document.createElement('canvas');
+    canvas.className = "w-full h-full rounded-xl cursor-grab active:cursor-grabbing";
+    container.appendChild(canvas);
+
+    const width = container.clientWidth;
+    const height = container.clientHeight || 200;
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Scene
+    const scene = new THREE.Scene();
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    camera.position.set(6, 4, 8);
+
+    // Controls
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2; // Don't go below floor
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    // Helpers
+    const grid = new THREE.GridHelper(10, 10, 0x4f46e5, 0x334155);
+    grid.position.y = -1.5;
+    scene.add(grid);
+
+    // Create 3D Greenhouse Model
+    const ghGroup = new THREE.Group();
+
+    // Floor / Ground
+    const floorGeo = new THREE.BoxGeometry(6, 0.1, 8);
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.position.y = -1.55;
+    ghGroup.add(floor);
+
+    // Pillars / Frames (Metal skeleton)
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.8, roughness: 0.2 });
+    
+    // Box skeletal outline
+    const makePillar = (w, h, d, x, z) => {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const mesh = new THREE.Mesh(geo, frameMat);
+        mesh.position.set(x, h/2 - 1.5, z);
+        ghGroup.add(mesh);
+    };
+
+    // Columns
+    makePillar(0.1, 3, 0.1, -2.5, -3.5);
+    makePillar(0.1, 3, 0.1, 2.5, -3.5);
+    makePillar(0.1, 3, 0.1, -2.5, 3.5);
+    makePillar(0.1, 3, 0.1, 2.5, 3.5);
+    makePillar(0.1, 3, 0.1, -2.5, 0);
+    makePillar(0.1, 3, 0.1, 2.5, 0);
+
+    // Horizontal Rails
+    const makeRail = (w, h, d, x, y, z) => {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const mesh = new THREE.Mesh(geo, frameMat);
+        mesh.position.set(x, y, z);
+        ghGroup.add(mesh);
+    };
+    makeRail(5, 0.1, 0.1, 0, 1.5, -3.5);
+    makeRail(5, 0.1, 0.1, 0, 1.5, 3.5);
+    makeRail(0.1, 0.1, 7, -2.5, 1.5, 0);
+    makeRail(0.1, 0.1, 7, 2.5, 1.5, 0);
+    makeRail(5, 0.1, 0.1, 0, -1.4, -3.5);
+    makeRail(5, 0.1, 0.1, 0, -1.4, 3.5);
+
+    // Gabled Roof
+    const roofMat = new THREE.MeshStandardMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+    const roofGeom = new THREE.BufferGeometry();
+    const vertices = new Float32Array([
+        -2.5, 1.5, -3.5,
+         0, 2.3, -3.5,
+         2.5, 1.5, -3.5,
+        -2.5, 1.5,  3.5,
+         0, 2.3,  3.5,
+         2.5, 1.5,  3.5,
+    ]);
+    const indices = [
+        0, 1, 3,  1, 4, 3, // left side
+        1, 2, 4,  2, 5, 4  // right side
+    ];
+    roofGeom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    roofGeom.setIndex(indices);
+    roofGeom.computeVertexNormals();
+    const roofMesh = new THREE.Mesh(roofGeom, roofMat);
+    ghGroup.add(roofMesh);
+
+    // Shelves (ภายใน)
+    const shelfMat = new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.6 });
+    const makeShelf = (w, h, d, x, y, z) => {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const mesh = new THREE.Mesh(geo, shelfMat);
+        mesh.position.set(x, y, z);
+        ghGroup.add(mesh);
+    };
+    // Let's make some simple shelves on sides
+    makeShelf(0.8, 0.05, 6, -2.0, -0.8, 0);
+    makeShelf(0.8, 0.05, 6, -2.0, 0.1, 0);
+    makeShelf(0.8, 0.05, 6, 2.0, -0.8, 0);
+    makeShelf(0.8, 0.05, 6, 2.0, 0.1, 0);
+
+    // Spinning Fan (พัดลมระบายอากาศ)
+    const fanGroup = new THREE.Group();
+    const fanCasingGeo = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 16);
+    const fanCasingMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+    const fanCasing = new THREE.Mesh(fanCasingGeo, fanCasingMat);
+    fanCasing.rotation.x = Math.PI / 2;
+    fanGroup.add(fanCasing);
+
+    const bladeGeo = new THREE.BoxGeometry(0.7, 0.08, 0.02);
+    const bladeMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e });
+    const blade1 = new THREE.Mesh(bladeGeo, bladeMat);
+    const blade2 = new THREE.Mesh(bladeGeo, bladeMat);
+    blade2.rotation.z = Math.PI / 2;
+    fanGroup.add(blade1);
+    fanGroup.add(blade2);
+
+    fanGroup.position.set(0, 1.0, -3.5);
+    ghGroup.add(fanGroup);
+
+    scene.add(ghGroup);
+
+    // Resize Handler
+    const handleResize = () => {
+        if (!container || !canvas) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight || 200;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
+    // Animation Loop
+    let animationId;
+    const animate = () => {
+        animationId = requestAnimationFrame(animate);
+        
+        // Spin fan
+        blade1.rotation.z += 0.15;
+        blade2.rotation.z += 0.15;
+
+        // Auto rotate scene slowly if not interacting
+        ghGroup.rotation.y += 0.005;
+
+        controls.update();
+        renderer.render(scene, camera);
+    };
+    animate();
+
+    // Clean up
+    container.addEventListener('remove', () => {
+        cancelAnimationFrame(animationId);
+        window.removeEventListener('resize', handleResize);
+    });
 }
 
 function speak(btn) {

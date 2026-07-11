@@ -360,6 +360,101 @@ function initCommandPalette() {
     });
 }
 
+// === CENTRALIZED SIDEBAR RENDERING ===
+function renderSidebar() {
+    const navContainers = document.querySelectorAll('nav.flex-1');
+    if (navContainers.length === 0) return;
+
+    const path = window.location.pathname;
+    const isIndex = path.endsWith('index.html') || path.endsWith('/') || !path.includes('.html');
+    const mode = localStorage.getItem('globalRenderMode') || '2d';
+
+    // Customize the Builder menu style based on Render Mode
+    let builderBtnClass = "bg-gradient-to-br from-indigo-500 to-purple-600 text-white";
+    let builderBadge = "";
+    if (mode === '3d') {
+        builderBtnClass = "bg-gradient-to-br from-purple-600 via-pink-650 to-indigo-650 text-white animate-pulse shadow-md shadow-pink-500/20";
+        builderBadge = '<span class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[8px] font-black bg-pink-500 text-white rounded-full uppercase tracking-widest animate-bounce">3D</span>';
+    }
+
+    const menuItems = [
+        { href: "index.html", label: "หน้าแรก", icon: "fa-home", colorClass: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400" },
+        { href: "lab.html", label: "MSSM Lab", icon: "fa-flask", colorClass: "bg-gradient-to-br from-emerald-400 to-emerald-600 text-white" },
+        { href: "ai.html", label: "AI Assistant", icon: "fa-robot", colorClass: "bg-gradient-to-br from-amber-400 to-amber-600 text-white" },
+        { href: "builder2d.html", label: "ออกแบบโรงเรือน (Builder)", icon: "fa-cubes", colorClass: builderBtnClass, isBuilder: true },
+        { href: "market.html", label: "ตลาดราคากลางสด", icon: "fa-chart-line", colorClass: "bg-gradient-to-br from-rose-500 to-rose-600 text-white" },
+        { href: "quiz_pvp.html", label: "ทดสอบความรู้", icon: "fa-trophy", colorClass: "bg-gradient-to-br from-amber-500 to-orange-600 text-white" },
+        { href: "dataset.html", label: "คลังข้อมูลวิจัย", icon: "fa-database", colorClass: "bg-gradient-to-br from-blue-400 to-blue-600 text-white" },
+        { href: "doc.html", label: "คู่มือวิจัย", icon: "fa-book", colorClass: "bg-gradient-to-br from-purple-400 to-purple-600 text-white" },
+        { href: "settings.html", label: "ศูนย์ตั้งค่าอัจฉริยะ", icon: "fa-cog", colorClass: "bg-gradient-to-br from-gray-500 to-slate-700 text-white" },
+        { href: "https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform", label: "แบบสอบถาม", icon: "fa-poll", colorClass: "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400", target: "_blank" }
+    ];
+
+    const indexAnchors = [
+        { href: isIndex ? "#products" : "index.html#products", label: "สายพันธุ์เห็ด", icon: "fa-seedling", colorClass: "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400" },
+        { href: isIndex ? "#charts" : "index.html#charts", label: "ประเมินผล", icon: "fa-chart-bar", colorClass: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
+        { href: isIndex ? "#zerowaste" : "index.html#zerowaste", label: "Zero Waste", icon: "fa-recycle", colorClass: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" },
+        { href: isIndex ? "#contact" : "index.html#contact", label: "ติดต่อ", icon: "fa-envelope", colorClass: "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400" }
+    ];
+
+    let html = `
+        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+    `;
+
+    menuItems.forEach((item, idx) => {
+        let isCurrent = path.includes(item.href);
+        if (item.isBuilder && (path.includes('builder2d.html') || path.includes('mushroom_3d.html'))) {
+            isCurrent = true;
+        } else if (item.href === 'index.html' && isIndex) {
+            isCurrent = true;
+        }
+
+        let linkHref = item.href;
+        
+        let activeClass = isCurrent 
+            ? "nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 transition-all" 
+            : "nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all";
+
+        let targetAttr = item.target ? `target="${item.target}"` : "";
+        let onclickAttr = isIndex && !item.target ? `onclick="closeMenu()"` : "";
+
+        html += `
+            <a href="${linkHref}" ${targetAttr} ${onclickAttr} class="${activeClass} relative">
+                <span class="w-7 h-7 flex items-center justify-center rounded-lg ${item.colorClass} text-xs"><i class="fas ${item.icon}"></i></span>
+                ${item.label}
+                ${item.isBuilder ? builderBadge : ""}
+            </a>
+        `;
+
+        if (idx === 0) {
+            html += `
+                <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+            `;
+            indexAnchors.forEach(anchor => {
+                html += `
+                    <a href="${anchor.href}" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg ${anchor.colorClass} text-xs"><i class="fas ${anchor.icon}"></i></span>
+                        ${anchor.label}
+                    </a>
+                `;
+            });
+            html += `
+                <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+                    <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
+            `;
+        }
+    });
+
+    html += `
+        </div>
+        </div>
+    `;
+
+    navContainers.forEach(container => {
+        container.outerHTML = `<nav class="flex-1 px-3 py-4 space-y-1">${html}</nav>`;
+    });
+}
+
 // === PWA SETUP ===
 function initPWA() {
     if ('serviceWorker' in navigator) {
@@ -373,6 +468,7 @@ function initPWA() {
 
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
+    renderSidebar();
     initParticles();
     initProgress();
     initBackToTop();
