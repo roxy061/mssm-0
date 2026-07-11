@@ -438,7 +438,7 @@ function renderSidebar() {
         if (item.isBuilder) {
             const is2DActive = path.includes('builder2d.html');
             const is3DActive = path.includes('mushroom_3d.html');
-            const isAnyActive = is2DActive || is3DActive;
+            const isAnyActive = is2DActive || is3DActive || isIndex;
             
             const active2DClass = is2DActive
                 ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
