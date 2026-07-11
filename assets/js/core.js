@@ -621,7 +621,7 @@ function initAutoTour() {
     // 2. Create Virtual Ghost Cursor element
     const cursor = document.createElement('div');
     cursor.id = 'virtualCursor';
-    cursor.style.cssText = 'position:fixed; pointer-events:none; z-index:10000; width:24px; height:24px; top:50%; left:50%; transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);';
+    cursor.style.cssText = 'position:fixed; pointer-events:none; z-index:10000; width:24px; height:24px; top:0; left:0; transform: translate3d(50vw, 50vh, 0); transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);';
     cursor.innerHTML = `
         <svg class="w-full h-full text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" viewBox="0 0 24 24" fill="currentColor">
             <path d="M4.5 3v15.3l4.3-4.3 3 5.3 2.1-1.2-3-5.2 5.5-.6L4.5 3z"/>
@@ -629,70 +629,167 @@ function initAutoTour() {
     `;
     document.body.appendChild(cursor);
 
-    // 3. Auto-Scroll logic (gradual scroll down)
-    let currentScroll = 0;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const scrollSpeed = maxScroll > 0 ? maxScroll / 160 : 0; // scroll over 8 seconds (160 * 50ms)
+    // 3. Auto-Scroll logic (Simulates random human reading patterns: scroll down, up, or pause on page & sidebar menu)
+    let currentScroll = window.scrollY;
     const scrollTimer = setInterval(() => {
-        if (currentScroll < maxScroll) {
-            currentScroll += scrollSpeed;
-            window.scrollTo(0, currentScroll);
+        if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+        
+        // Scroll main page
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll > 0) {
+            const rand = Math.random();
+            let scrollAmount = 0;
+            if (rand < 0.5) {
+                scrollAmount = 150 + Math.random() * 200;
+            } else if (rand < 0.8) {
+                scrollAmount = -(100 + Math.random() * 100);
+            } else {
+                scrollAmount = 0;
+            }
+
+            currentScroll = Math.max(0, Math.min(maxScroll, currentScroll + scrollAmount));
+            window.scrollTo({
+                top: currentScroll,
+                behavior: 'smooth'
+            });
         }
-    }, 50);
+
+        // Scroll the sidebar menu container
+        const menuNav = document.querySelector('#mobileMenu nav');
+        if (menuNav) {
+            const menuMaxScroll = menuNav.scrollHeight - menuNav.clientHeight;
+            if (menuMaxScroll > 0) {
+                const menuRand = Math.random();
+                let menuScrollAmount = 0;
+                if (menuRand < 0.5) {
+                    menuScrollAmount = 60 + Math.random() * 80;
+                } else if (menuRand < 0.8) {
+                    menuScrollAmount = -(60 + Math.random() * 80);
+                }
+                menuNav.scrollTo({
+                    top: Math.max(0, Math.min(menuMaxScroll, menuNav.scrollTop + menuScrollAmount)),
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }, 1800);
 
     // 4. Ghost Cursor Movement sequence
-    let targets = Array.from(document.querySelectorAll('a, button, input, select, [role="button"], .nav-item')).filter(el => {
-        const r = el.getBoundingClientRect();
-        const hasSize = r.width > 0 && r.height > 0;
-        const isSelf = el.id === 'themeToggle' || el.closest('#autoTourBadge');
-        const href = el.getAttribute('href') || '';
-        const isExternal = href.startsWith('http') && !href.includes(window.location.hostname);
-        return hasSize && !isSelf && !isExternal;
-    });
-
-    if (targets.length > 0) {
-        // Move to first target at 2 seconds
+    if (curPage.includes('mushroom_3d.html')) {
+        // --- 3D CAMERA ROTATION SIMULATION FOR MUSHROOM_3D.HTML ---
         setTimeout(() => {
             if (localStorage.getItem('autoTourEnabled') !== 'true') return;
-            moveCursorToElement(targets[Math.floor(Math.random() * targets.length)]);
-        }, 2000);
+            const container = document.getElementById('canvas3d') || document.querySelector('canvas');
+            if (!container) return;
 
-        // Move to second target and trigger ripple click + true click event at 5 seconds
-        setTimeout(() => {
-            if (localStorage.getItem('autoTourEnabled') !== 'true') return;
-            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
-            moveCursorToElement(randomTarget);
-            
+            const rect = container.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Move cursor to center of 3D view
+            cursor.style.transform = `translate3d(${centerX}px, ${centerY}px, 0)`;
+
             setTimeout(() => {
                 if (localStorage.getItem('autoTourEnabled') !== 'true') return;
-                
-                const rect = randomTarget.getBoundingClientRect();
-                const x = rect.left + rect.width / 2;
-                const y = rect.top + rect.height / 2;
-                
-                triggerClickRipple(x, y);
+                const canvas = container.querySelector('canvas') || container;
 
-                // True Event Dispatching using elementFromPoint
-                const clickedElement = document.elementFromPoint(x, y);
-                if (clickedElement) {
-                    const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window });
-                    const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window });
-                    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
-                    
-                    clickedElement.dispatchEvent(mousedownEvent);
-                    clickedElement.dispatchEvent(mouseupEvent);
-                    clickedElement.dispatchEvent(clickEvent);
+                // Helper to dispatch drag events (supports both modern PointerEvent and legacy MouseEvent)
+                function sendDrag(type, cx, cy) {
+                    try {
+                        const pe = new PointerEvent(type.replace('mouse', 'pointer'), {
+                            bubbles: true, cancelable: true, view: window,
+                            clientX: cx, clientY: cy,
+                            pointerId: 1, isPrimary: true
+                        });
+                        canvas.dispatchEvent(pe);
+                    } catch (e) {}
+                    try {
+                        const me = new MouseEvent(type, {
+                            bubbles: true, cancelable: true, view: window,
+                            clientX: cx, clientY: cy
+                        });
+                        canvas.dispatchEvent(me);
+                    } catch (e) {}
                 }
-            }, 1200);
-        }, 5000);
+
+                // Start dragging (pointerdown / mousedown)
+                sendDrag('mousedown', centerX, centerY);
+
+                // Slowly glide rightwards to rotate the camera
+                let step = 0;
+                const maxSteps = 30;
+                const dragTimer = setInterval(() => {
+                    if (localStorage.getItem('autoTourEnabled') !== 'true' || step >= maxSteps) {
+                        clearInterval(dragTimer);
+                        // Release drag
+                        sendDrag('mouseup', centerX + (step * 5), centerY);
+                        return;
+                    }
+                    step++;
+                    const currX = centerX + (step * 5);
+                    cursor.style.transform = `translate3d(${currX}px, ${centerY}px, 0)`;
+                    sendDrag('mousemove', currX, centerY);
+                }, 50);
+            }, 2300);
+        }, 1500);
+    } else {
+        // --- STANDARD NAVIGATION AND INTERACTION SIMULATION ---
+        let targets = Array.from(document.querySelectorAll('a, button, input, select, [role="button"], .nav-item')).filter(el => {
+            const r = el.getBoundingClientRect();
+            const hasSize = r.width > 0 && r.height > 0;
+            const isSelf = el.id === 'themeToggle' || el.closest('#autoTourBadge');
+            const href = el.getAttribute('href') || '';
+            const isExternal = href.startsWith('http') && !href.includes(window.location.hostname);
+            return hasSize && !isSelf && !isExternal;
+        });
+
+        if (targets.length > 0) {
+            // Move to first target at 1.5 seconds
+            setTimeout(() => {
+                if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+                moveCursorToElement(targets[Math.floor(Math.random() * targets.length)]);
+            }, 1500);
+
+            // Move to second target at 4.5 seconds
+            setTimeout(() => {
+                if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+                const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+                moveCursorToElement(randomTarget);
+                
+                setTimeout(() => {
+                    if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+                    
+                    const rect = randomTarget.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+                    
+                    triggerClickRipple(x, y);
+
+                    // True Event Dispatching using elementFromPoint with try-catch wrap
+                    try {
+                        const clickedElement = document.elementFromPoint(x, y);
+                        if (clickedElement) {
+                            const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window });
+                            const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window });
+                            const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+                            
+                            clickedElement.dispatchEvent(mousedownEvent);
+                            clickedElement.dispatchEvent(mouseupEvent);
+                            clickedElement.dispatchEvent(clickEvent);
+                        }
+                    } catch (err) {
+                        console.error("Auto-Tour Click Simulation Error: ", err);
+                    }
+                }, 2500);
+            }, 4500);
+        }
     }
 
     function moveCursorToElement(el) {
         const rect = el.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
         const y = rect.top + rect.height / 2;
-        cursor.style.left = `${x}px`;
-        cursor.style.top = `${y}px`;
+        cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     }
 
     function triggerClickRipple(x, y) {
@@ -711,7 +808,6 @@ function initAutoTour() {
             opacity: 1;
         `;
         document.body.appendChild(ripple);
-        // Force reflow
         ripple.offsetWidth;
         ripple.style.width = '50px';
         ripple.style.height = '50px';
@@ -738,6 +834,13 @@ function initAutoTour() {
 
     window.autoTourInterval = timer;
     window.autoTourScrollInterval = scrollTimer;
+
+    // Explicit unload cleanup to prevent memory leaks or stuttering
+    window.addEventListener('beforeunload', () => {
+        clearInterval(timer);
+        clearInterval(scrollTimer);
+    });
+}
 }
 
 window.stopAutoTourFromBadge = function(e) {
