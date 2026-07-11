@@ -74,6 +74,12 @@
             }
         })();
     </script>
+    <!-- PWA META TAGS -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
 </head>
 
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
@@ -207,6 +213,27 @@
                 </div>
             </section>
 
+            <!-- PANEL: PWA INSTALLATION -->
+            <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center text-sm"><i class="fas fa-download"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">ติดตั้งแอปพลิเคชัน (Install Web App)</h2>
+                        <p class="text-[10px] text-slate-400">ติดตั้ง MSSM ลงบนหน้าจอหลักมือถือหรือแท็บเล็ตของคุณ (รองรับ iOS และ Android)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-950/40 p-4 rounded-2xl border border-slate-850 mt-2">
+                    <div>
+                        <strong class="text-xs font-bold text-slate-200 block">เพิ่มลงหน้าจอโฮม (Add to Home Screen)</strong>
+                        <span class="text-[9px] text-slate-500 font-bold block mt-0.5">ใช้งานแอปพลิเคชันได้รวดเร็วเหมือนแอปพลิเคชันจริง พร้อมรองรับโหมดออฟไลน์</span>
+                    </div>
+                    <button onclick="installPWA()" id="btnInstallPWA" class="px-4 py-2 rounded-xl bg-pink-500 text-white hover:bg-pink-600 font-extrabold text-xs transition shadow-lg shadow-pink-500/30 flex items-center gap-2 cursor-pointer">
+                        <i class="fas fa-mobile-alt"></i> ติดตั้งทันที
+                    </button>
+                </div>
+            </section>
+
             <!-- PANEL 3: AI ETHICS & INTELLECTUAL SAFETY -->
             <section class="bg-slate-900/90 border border-slate-800 p-6 rounded-3xl space-y-4">
                 <div class="flex items-center gap-2.5">
@@ -296,8 +323,108 @@
             menu.classList.toggle('hidden');
         }
 
+        // PWA Install Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        function installPWA() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            
+            if (isIOS) {
+                showIOSInstallGuide();
+            } else if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the PWA install prompt');
+                    }
+                    deferredPrompt = null;
+                });
+            } else {
+                alert("แอปพลิเคชันถูกติดตั้งเรียบร้อยแล้ว หรือเบราว์เซอร์ของคุณไม่รองรับการติดตั้งอัตโนมัติ (เช่น ใช้งานบนเดสก์ท็อป หรือ Safari)");
+            }
+        }
+
+        function showIOSInstallGuide() {
+            let modal = document.getElementById('iosInstallModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'iosInstallModal';
+                modal.className = 'fixed inset-0 z-[10000] bg-black/60 backdrop-blur-md flex items-center justify-center px-4 animate-pop-in';
+                modal.innerHTML = `
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center relative overflow-hidden">
+                        <div class="absolute w-32 h-32 bg-pink-500/20 rounded-full blur-3xl -top-10 -right-10 pointer-events-none"></div>
+                        <button onclick="document.getElementById('iosInstallModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition"><i class="fas fa-times"></i></button>
+                        
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-xl shadow-pink-500/30">
+                            <i class="fab fa-apple"></i>
+                        </div>
+                        <h3 class="text-base font-black text-white mb-2">วิธีติดตั้งบน iOS</h3>
+                        <p class="text-xs text-slate-400 mb-6 leading-relaxed">Apple ไม่อนุญาตให้ติดตั้งแอปอัตโนมัติ<br>กรุณาทำตาม 2 ขั้นตอนง่ายๆ ด้านล่างนี้:</p>
+                        
+                        <div class="space-y-3 text-left">
+                            <div class="flex items-center gap-3 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg"><i class="fas fa-external-link-square-alt"></i></div>
+                                <div class="flex-1 text-xs text-slate-300">1. กดปุ่ม <strong class="text-white">Share (แชร์)</strong> ที่แถบเมนูด้านล่างของ Safari</div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+                                <div class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center text-lg"><i class="far fa-plus-square"></i></div>
+                                <div class="flex-1 text-xs text-slate-300">2. เลือก <strong class="text-white">Add to Home Screen<br>(เพิ่มไปยังหน้าจอโฮม)</strong></div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="document.getElementById('iosInstallModal').classList.add('hidden')" class="w-full mt-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">รับทราบและเข้าใจแล้ว</button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } else {
+                modal.classList.remove('hidden');
+            }
+        }
+
+        function setGlobalRenderMode(mode) {
+            localStorage.setItem('globalRenderMode', mode);
+            syncRenderModeUI();
+            
+            // Show toast
+            let toast = document.getElementById('themeToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'themeToast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:#4f46e5;color:#fff;font-weight:800;font-size:11px;padding:12px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(79,70,229,0.4);transition:opacity 0.3s;';
+                document.body.appendChild(toast);
+            }
+            toast.style.background = '#4f46e5';
+            toast.textContent = '✅ สลับเป็นโหมด ' + mode.toUpperCase() + ' เรียบร้อยแล้ว!';
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 1500);
+        }
+
+        function syncRenderModeUI() {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            const bg = document.getElementById('renderModeBg');
+            const btn2D = document.getElementById('btnRender2D');
+            const btn3D = document.getElementById('btnRender3D');
+            
+            if (mode === '2d') {
+                if(bg) bg.style.transform = 'translateX(0)';
+                if(btn2D) { btn2D.classList.add('text-white'); btn2D.classList.remove('text-slate-400'); }
+                if(btn3D) { btn3D.classList.add('text-slate-400'); btn3D.classList.remove('text-white'); }
+            } else {
+                if(bg) bg.style.transform = 'translateX(calc(100% + 0px))';
+                if(btn3D) { btn3D.classList.add('text-white'); btn3D.classList.remove('text-slate-400'); }
+                if(btn2D) { btn2D.classList.add('text-slate-400'); btn2D.classList.remove('text-white'); }
+            }
+        }
+
         window.onload = () => {
             syncPerformanceUI();
+            syncRenderModeUI();
         };
     </script>
 </body>
