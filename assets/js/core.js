@@ -429,7 +429,8 @@ function initCommandPalette() {
 
 // === CENTRALIZED SIDEBAR RENDERING ===
 function renderSidebar() {
-    const navContainers = document.querySelectorAll('nav.flex-1, nav.flex-grow, aside nav, #mobileMenu nav');
+    const sidebar = document.getElementById('mobileMenu');
+    if (!sidebar) return;
     const path = window.location.pathname;
     const isIndex = path.endsWith('index.html') || path.endsWith('/') || !path.includes('.html');
     const mode = localStorage.getItem('globalRenderMode') || '2d';
@@ -516,9 +517,27 @@ function renderSidebar() {
         </div>
     `;
 
-    navContainers.forEach(container => {
-        container.outerHTML = `<nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">${html}</nav>`;
-    });
+    sidebar.innerHTML = `
+        <!-- Brand Header -->
+        <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden flex items-center justify-between">
+            <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+            <div class="text-left relative z-10">
+                <div class="text-base font-extrabold text-white drop-shadow-lg flex items-center gap-1">🍄 Mush-Up NVC</div>
+                <div class="text-[9px] text-emerald-200 dark:text-emerald-300 font-medium -mt-0.5">MSSM Platform</div>
+            </div>
+            <button id="themeToggle" class="w-8 h-8 rounded-full bg-white/10 dark:bg-gray-800/30 text-white flex items-center justify-center border border-white/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer relative z-10">
+                <i id="themeToggleIcon" class="fas fa-sun text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Close Button (Mobile) -->
+        <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+
+        <!-- Nav Items -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            ${html}
+        </nav>
+    `;
 }
 
 // === COLLAPSIBLE BUILDER SUBMENU TOGGLE ===
