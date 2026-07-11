@@ -449,6 +449,7 @@ function renderSidebar() {
         { href: "market.html", label: "ตลาดราคากลางสด", icon: "fa-chart-line", colorClass: "bg-gradient-to-br from-rose-500 to-rose-600 text-white" },
         { href: "quiz_pvp.html", label: "ทดสอบความรู้", icon: "fa-trophy", colorClass: "bg-gradient-to-br from-amber-500 to-orange-600 text-white" },
         { href: "dataset.html", label: "คลังข้อมูลวิจัย", icon: "fa-database", colorClass: "bg-gradient-to-br from-blue-400 to-blue-600 text-white" },
+        { href: "management.html", label: "การจัดการฟาร์ม", icon: "fa-tasks", colorClass: "bg-gradient-to-br from-indigo-400 to-indigo-650 text-white" },
         { href: "doc.html", label: "คู่มือวิจัย", icon: "fa-book", colorClass: "bg-gradient-to-br from-purple-400 to-purple-600 text-white" },
         { href: "settings.html", label: "ศูนย์ตั้งค่าอัจฉริยะ", icon: "fa-cog", colorClass: "bg-gradient-to-br from-gray-500 to-slate-700 text-white" },
         { href: "https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform", label: "แบบสอบถาม", icon: "fa-poll", colorClass: "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400", target: "_blank" }
