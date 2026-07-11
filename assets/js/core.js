@@ -643,7 +643,11 @@ function initAutoTour() {
     // 4. Ghost Cursor Movement sequence
     let targets = Array.from(document.querySelectorAll('a, button, input, select, [role="button"], .nav-item')).filter(el => {
         const r = el.getBoundingClientRect();
-        return r.width > 0 && r.height > 0 && el.id !== 'themeToggle' && !el.closest('#autoTourBadge');
+        const hasSize = r.width > 0 && r.height > 0;
+        const isSelf = el.id === 'themeToggle' || el.closest('#autoTourBadge');
+        const href = el.getAttribute('href') || '';
+        const isExternal = href.startsWith('http') && !href.includes(window.location.hostname);
+        return hasSize && !isSelf && !isExternal;
     });
 
     if (targets.length > 0) {
@@ -653,7 +657,7 @@ function initAutoTour() {
             moveCursorToElement(targets[Math.floor(Math.random() * targets.length)]);
         }, 2000);
 
-        // Move to second target and trigger ripple click at 5 seconds
+        // Move to second target and trigger ripple click + true click event at 5 seconds
         setTimeout(() => {
             if (localStorage.getItem('autoTourEnabled') !== 'true') return;
             const randomTarget = targets[Math.floor(Math.random() * targets.length)];
@@ -661,7 +665,24 @@ function initAutoTour() {
             
             setTimeout(() => {
                 if (localStorage.getItem('autoTourEnabled') !== 'true') return;
-                triggerClickRipple(randomTarget);
+                
+                const rect = randomTarget.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                
+                triggerClickRipple(x, y);
+
+                // True Event Dispatching using elementFromPoint
+                const clickedElement = document.elementFromPoint(x, y);
+                if (clickedElement) {
+                    const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window });
+                    const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window });
+                    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+                    
+                    clickedElement.dispatchEvent(mousedownEvent);
+                    clickedElement.dispatchEvent(mouseupEvent);
+                    clickedElement.dispatchEvent(clickEvent);
+                }
             }, 1200);
         }, 5000);
     }
@@ -674,8 +695,7 @@ function initAutoTour() {
         cursor.style.top = `${y}px`;
     }
 
-    function triggerClickRipple(el) {
-        const rect = el.getBoundingClientRect();
+    function triggerClickRipple(x, y) {
         const ripple = document.createElement('div');
         ripple.style.cssText = `
             position: fixed;
@@ -685,8 +705,8 @@ function initAutoTour() {
             border-radius: 50%;
             width: 10px;
             height: 10px;
-            left: ${rect.left + rect.width / 2 - 5}px;
-            top: ${rect.top + rect.height / 2 - 5}px;
+            left: ${x - 5}px;
+            top: ${y - 5}px;
             transition: all 0.6s ease-out;
             opacity: 1;
         `;
@@ -695,8 +715,8 @@ function initAutoTour() {
         ripple.offsetWidth;
         ripple.style.width = '50px';
         ripple.style.height = '50px';
-        ripple.style.left = `${rect.left + rect.width / 2 - 25}px`;
-        ripple.style.top = `${rect.top + rect.height / 2 - 25}px`;
+        ripple.style.left = `${x - 25}px`;
+        ripple.style.top = `${y - 25}px`;
         ripple.style.opacity = '0';
         setTimeout(() => ripple.remove(), 600);
     }
