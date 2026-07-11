@@ -607,7 +607,7 @@ function initAutoTour() {
     const nextIdx = (curIdx + 1) % TOUR_PAGES.length;
     const nextUrl = TOUR_PAGES[nextIdx];
 
-    // Create floating countdown badge
+    // 1. Create floating countdown badge
     const badge = document.createElement('div');
     badge.id = 'autoTourBadge';
     badge.className = 'fixed bottom-4 right-4 z-[9999] bg-slate-900/95 dark:bg-slate-950/95 text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 backdrop-blur-md transition-all duration-300 font-sans';
@@ -618,6 +618,90 @@ function initAutoTour() {
     `;
     document.body.appendChild(badge);
 
+    // 2. Create Virtual Ghost Cursor element
+    const cursor = document.createElement('div');
+    cursor.id = 'virtualCursor';
+    cursor.style.cssText = 'position:fixed; pointer-events:none; z-index:10000; width:24px; height:24px; top:50%; left:50%; transition: all 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);';
+    cursor.innerHTML = `
+        <svg class="w-full h-full text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4.5 3v15.3l4.3-4.3 3 5.3 2.1-1.2-3-5.2 5.5-.6L4.5 3z"/>
+        </svg>
+    `;
+    document.body.appendChild(cursor);
+
+    // 3. Auto-Scroll logic (gradual scroll down)
+    let currentScroll = 0;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollSpeed = maxScroll > 0 ? maxScroll / 160 : 0; // scroll over 8 seconds (160 * 50ms)
+    const scrollTimer = setInterval(() => {
+        if (currentScroll < maxScroll) {
+            currentScroll += scrollSpeed;
+            window.scrollTo(0, currentScroll);
+        }
+    }, 50);
+
+    // 4. Ghost Cursor Movement sequence
+    let targets = Array.from(document.querySelectorAll('a, button, input, select, [role="button"], .nav-item')).filter(el => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && el.id !== 'themeToggle' && !el.closest('#autoTourBadge');
+    });
+
+    if (targets.length > 0) {
+        // Move to first target at 2 seconds
+        setTimeout(() => {
+            if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+            moveCursorToElement(targets[Math.floor(Math.random() * targets.length)]);
+        }, 2000);
+
+        // Move to second target and trigger ripple click at 5 seconds
+        setTimeout(() => {
+            if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+            const randomTarget = targets[Math.floor(Math.random() * targets.length)];
+            moveCursorToElement(randomTarget);
+            
+            setTimeout(() => {
+                if (localStorage.getItem('autoTourEnabled') !== 'true') return;
+                triggerClickRipple(randomTarget);
+            }, 1200);
+        }, 5000);
+    }
+
+    function moveCursorToElement(el) {
+        const rect = el.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        cursor.style.left = `${x}px`;
+        cursor.style.top = `${y}px`;
+    }
+
+    function triggerClickRipple(el) {
+        const rect = el.getBoundingClientRect();
+        const ripple = document.createElement('div');
+        ripple.style.cssText = `
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            border: 2px solid #06b6d4;
+            border-radius: 50%;
+            width: 10px;
+            height: 10px;
+            left: ${rect.left + rect.width / 2 - 5}px;
+            top: ${rect.top + rect.height / 2 - 5}px;
+            transition: all 0.6s ease-out;
+            opacity: 1;
+        `;
+        document.body.appendChild(ripple);
+        // Force reflow
+        ripple.offsetWidth;
+        ripple.style.width = '50px';
+        ripple.style.height = '50px';
+        ripple.style.left = `${rect.left + rect.width / 2 - 25}px`;
+        ripple.style.top = `${rect.top + rect.height / 2 - 25}px`;
+        ripple.style.opacity = '0';
+        setTimeout(() => ripple.remove(), 600);
+    }
+
+    // 5. Countdown timer
     let timeLeft = 10;
     const timer = setInterval(() => {
         timeLeft--;
@@ -626,11 +710,14 @@ function initAutoTour() {
 
         if (timeLeft <= 0) {
             clearInterval(timer);
+            clearInterval(scrollTimer);
+            if (cursor) cursor.remove();
             window.location.href = nextUrl;
         }
     }, 1000);
 
     window.autoTourInterval = timer;
+    window.autoTourScrollInterval = scrollTimer;
 }
 
 window.stopAutoTourFromBadge = function(e) {
@@ -642,8 +729,14 @@ window.stopAutoTourFromBadge = function(e) {
     if (window.autoTourInterval) {
         clearInterval(window.autoTourInterval);
     }
+    if (window.autoTourScrollInterval) {
+        clearInterval(window.autoTourScrollInterval);
+    }
     const badge = document.getElementById('autoTourBadge');
     if (badge) badge.remove();
+
+    const cursor = document.getElementById('virtualCursor');
+    if (cursor) cursor.remove();
 
     const toggle = document.getElementById('tourToggle');
     if (toggle) {
