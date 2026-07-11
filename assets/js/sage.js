@@ -911,7 +911,7 @@ function resetChat() {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
-    }
+    });
 }
 
 function saveAICache() {

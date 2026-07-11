@@ -294,12 +294,12 @@
     }
 
     function restoreDefaultDataset() {
-        if (confirm('คุณต้องการรีเซ็ตคลังข้อมูลวิจัยกลับสู่ค่าเริ่มต้นของรายงานใช่หรือไม่?')) {
+        window.showMushroomConfirm('คุณต้องการรีเซ็ตคลังข้อมูลวิจัยกลับสู่ค่าเริ่มต้นของรายงานใช่หรือไม่?', () => {
             dataset = [...DEFAULT_DATASET];
             saveDataset();
             renderAll();
             showToast('♻️ รีเซ็ตข้อมูลกลับสู่ค่าเริ่มต้นแล้ว');
-        }
+        });
     }
 
     function deleteRow(id) {

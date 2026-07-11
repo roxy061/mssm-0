@@ -671,7 +671,7 @@
                 if (Math.abs(gridX) <= 4.0 && Math.abs(gridZ) <= 4.0) {
                     const cost = toolPrices[activeTool];
                     let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
-                    if (cash < cost) { alert('งบประมาณสะสมไม่เพียงพอ!'); return; }
+                    if (cash < cost) { window.showMushroomAlert('งบประมาณสะสมไม่เพียงพอ!'); return; }
 
                     const heightVal = activeHeightOffset + getBaseHeight(activeTool);
                     const geom = toolGeometries[activeTool];
@@ -749,7 +749,7 @@
         // Export placed items layout as a downloadable JSON file
         function savePlanToFile() {
             if (placedObjects.length === 0) {
-                alert('ไม่พบวัตถุโครงสร้างที่จะบันทึก!');
+                window.showMushroomAlert('ไม่พบวัตถุโครงสร้างที่จะบันทึก!');
                 return;
             }
             
@@ -788,7 +788,7 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (!Array.isArray(data)) {
-                        alert('รูปแบบไฟล์แปลนไม่ถูกต้อง!');
+                        window.showMushroomAlert('รูปแบบไฟล์แปลนไม่ถูกต้อง!');
                         return;
                     }
 
@@ -812,9 +812,9 @@
                     });
 
                     syncWalletUI();
-                    alert('โหลดไฟล์แบบแปลนสำเร็จเรียบร้อย!');
+                    window.showMushroomAlert('โหลดไฟล์แบบแปลนสำเร็จเรียบร้อย!');
                 } catch (err) {
-                    alert('เกิดข้อผิดพลาดในการอ่านไฟล์แบบแปลน: ' + err.message);
+                    window.showMushroomAlert('เกิดข้อผิดพลาดในการอ่านไฟล์แบบแปลน: ' + err.message);
                 }
             };
             reader.readAsText(file);
