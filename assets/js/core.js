@@ -817,17 +817,61 @@ function initAutoTour() {
         setTimeout(() => ripple.remove(), 600);
     }
 
-    // 5. Countdown timer
+    // 5. Countdown timer with simulated mouse click navigation
     let timeLeft = 10;
     const timer = setInterval(() => {
         timeLeft--;
         const lbl = document.getElementById('autoTourSeconds');
         if (lbl) lbl.textContent = timeLeft;
 
+        // At 3 seconds remaining, glide cursor towards the sidebar menu link of nextUrl
+        if (timeLeft === 3) {
+            const nextLink = document.querySelector(`#mobileMenu a[href*="${nextUrl}"]`) || 
+                             document.querySelector(`aside a[href*="${nextUrl}"]`) || 
+                             document.querySelector(`a[href*="${nextUrl}"]`);
+            if (nextLink) {
+                const rect = nextLink.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    moveCursorToElement(nextLink);
+                }
+            }
+        }
+
+        // At 1 second remaining, simulate the click dispatch to open next page
+        if (timeLeft === 1) {
+            const nextLink = document.querySelector(`#mobileMenu a[href*="${nextUrl}"]`) || 
+                             document.querySelector(`aside a[href*="${nextUrl}"]`) || 
+                             document.querySelector(`a[href*="${nextUrl}"]`);
+            if (nextLink) {
+                const rect = nextLink.getBoundingClientRect();
+                if (rect.width > 0 && rect.height > 0) {
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+                    triggerClickRipple(x, y);
+
+                    try {
+                        const clickedElement = document.elementFromPoint(x, y) || nextLink;
+                        if (clickedElement) {
+                            const mousedownEvent = new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window });
+                            const mouseupEvent = new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window });
+                            const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true, view: window });
+                            
+                            clickedElement.dispatchEvent(mousedownEvent);
+                            clickedElement.dispatchEvent(mouseupEvent);
+                            clickedElement.dispatchEvent(clickEvent);
+                        }
+                    } catch (err) {
+                        console.error("Auto-Tour Menu Click Simulation Error: ", err);
+                    }
+                }
+            }
+        }
+
         if (timeLeft <= 0) {
             clearInterval(timer);
             clearInterval(scrollTimer);
             if (cursor) cursor.remove();
+            // Failsafe redirect in case click event did not successfully trigger navigation
             window.location.href = nextUrl;
         }
     }, 1000);
