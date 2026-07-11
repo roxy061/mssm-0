@@ -910,6 +910,378 @@ window.stopAutoTourFromBadge = function(e) {
     }
 };
 
+// === HELP GUIDE SYSTEM ===
+function initHelpGuide() {
+    const curPath = window.location.pathname;
+    let curPage = curPath.split('/').pop() || 'index.html';
+    if (curPage === '' || curPage === '/') curPage = 'index.html';
+
+    const helpData = {
+        'index.html': {
+            title: '🏠 หน้าแรก (Home)',
+            steps: [
+                { icon: 'fa-eye', text: 'ดูภาพรวมของโปรเจกต์วิจัยเห็ดทั้งหมดได้ในหน้านี้' },
+                { icon: 'fa-seedling', text: 'เลื่อนลงเพื่อดูรายละเอียดสายพันธุ์เห็ดทั้ง 4 ชนิด' },
+                { icon: 'fa-chart-bar', text: 'ดูแผนภูมิวิเคราะห์ผลผลิตและกราฟเปรียบเทียบ' },
+                { icon: 'fa-recycle', text: 'ศึกษาแนวคิด Zero Waste จากขยะก้อนเชื้อสู่ปุ๋ยชีวภาพ' },
+                { icon: 'fa-bars', text: 'ใช้แถบเมนูด้านซ้ายเพื่อเปลี่ยนหน้าไปยังโมดูลต่าง ๆ' }
+            ]
+        },
+        'lab.html': {
+            title: '🧪 MSSM Lab (ห้องปฏิบัติการ)',
+            steps: [
+                { icon: 'fa-sliders-h', text: 'ปรับค่าพารามิเตอร์สิ่งแวดล้อม เช่น อุณหภูมิ ความชื้น แสง' },
+                { icon: 'fa-calculator', text: 'ระบบจะคำนวณผลลัพธ์การจำลองสภาพแวดล้อมอัตโนมัติ' },
+                { icon: 'fa-chart-line', text: 'ดูกราฟแสดงผลการเจริญเติบโตของเห็ดแบบ Real-time' },
+                { icon: 'fa-save', text: 'ข้อมูลจะถูกบันทึกอัตโนมัติในเครื่องของคุณ (LocalStorage)' },
+                { icon: 'fa-undo', text: 'กดปุ่ม Reset เพื่อคืนค่าเริ่มต้นทั้งหมด' }
+            ]
+        },
+        'ai.html': {
+            title: '🤖 AI Assistant (ผู้ช่วยปัญญาประดิษฐ์)',
+            steps: [
+                { icon: 'fa-keyboard', text: 'พิมพ์คำถามเกี่ยวกับเห็ดลงในช่องแชท' },
+                { icon: 'fa-paper-plane', text: 'กดส่งหรือ Enter เพื่อรับคำตอบจาก AI' },
+                { icon: 'fa-brain', text: 'AI จะวิเคราะห์และตอบกลับด้วยข้อมูลเกี่ยวกับเห็ด' },
+                { icon: 'fa-cog', text: 'ตั้งค่า API Key ได้ที่ปุ่มตั้งค่าในหน้านี้' },
+                { icon: 'fa-trash', text: 'กดปุ่ม Reset เพื่อล้างประวัติการสนทนา' }
+            ]
+        },
+        'builder2d.html': {
+            title: '📐 ออกแบบโรงเรือน 2D (Builder)',
+            steps: [
+                { icon: 'fa-mouse-pointer', text: 'คลิกบนพื้นที่ Canvas เพื่อวางชิ้นส่วนโรงเรือน' },
+                { icon: 'fa-arrows-alt', text: 'ลากเพื่อย้ายตำแหน่งองค์ประกอบที่วางแล้ว' },
+                { icon: 'fa-palette', text: 'เลือกประเภทวัสดุและอุปกรณ์จากแถบเครื่องมือ' },
+                { icon: 'fa-save', text: 'ระบบจะบันทึกแบบโรงเรือนอัตโนมัติ' },
+                { icon: 'fa-cube', text: 'เปลี่ยนไปโหมด 3D ได้จากเมนูด้านซ้าย' }
+            ]
+        },
+        'mushroom_3d.html': {
+            title: '🎮 แบบจำลอง 3D (3D Viewer)',
+            steps: [
+                { icon: 'fa-hand-pointer', text: 'คลิกค้างแล้วลากเพื่อหมุนมุมมองกล้อง 360°' },
+                { icon: 'fa-search-plus', text: 'เลื่อน Scroll Wheel เพื่อซูมเข้า-ออก' },
+                { icon: 'fa-arrows-alt', text: 'คลิกขวาค้างแล้วลากเพื่อเลื่อนตำแหน่ง' },
+                { icon: 'fa-sync', text: 'ระบบจะหมุนโมเดลอัตโนมัติเมื่อไม่มีการสัมผัส' },
+                { icon: 'fa-cubes', text: 'ดูโครงสร้างโรงเรือนจำลองในมุมมอง 3 มิติ' }
+            ]
+        },
+        'market.html': {
+            title: '📈 ตลาดราคากลางสด (Market)',
+            steps: [
+                { icon: 'fa-chart-line', text: 'ดูราคาเห็ดสดล่าสุดจากตลาดกลางนครศรีธรรมราช' },
+                { icon: 'fa-filter', text: 'กรองข้อมูลตามสายพันธุ์เห็ดที่ต้องการ' },
+                { icon: 'fa-table', text: 'ดูตารางเปรียบเทียบราคาย้อนหลัง' },
+                { icon: 'fa-bell', text: 'ระบบจะแจ้งเตือนเมื่อราคาเปลี่ยนแปลงอย่างมีนัยสำคัญ' },
+                { icon: 'fa-download', text: 'ส่งออกข้อมูลราคาได้ในรูปแบบต่าง ๆ' }
+            ]
+        },
+        'quiz_pvp.html': {
+            title: '🏆 ทดสอบความรู้ (Quiz PvP)',
+            steps: [
+                { icon: 'fa-play', text: 'กดเริ่มเพื่อทำแบบทดสอบความรู้เกี่ยวกับเห็ด' },
+                { icon: 'fa-check-circle', text: 'เลือกคำตอบที่ถูกต้องภายในเวลาที่กำหนด' },
+                { icon: 'fa-star', text: 'ได้คะแนนสะสมและดูผลลัพธ์เมื่อจบแบบทดสอบ' },
+                { icon: 'fa-redo', text: 'ทำซ้ำได้ไม่จำกัดเพื่อฝึกฝนความรู้' },
+                { icon: 'fa-trophy', text: 'ท้าทายตัวเองเพื่อทำคะแนนสูงสุด!' }
+            ]
+        },
+        'dataset.html': {
+            title: '📊 คลังข้อมูลวิจัย (Dataset)',
+            steps: [
+                { icon: 'fa-database', text: 'ดูชุดข้อมูลวิจัยเห็ดที่รวบรวมจากการทดลองจริง' },
+                { icon: 'fa-search', text: 'ค้นหาข้อมูลตามหมวดหมู่หรือคำสำคัญ' },
+                { icon: 'fa-chart-pie', text: 'ดูแผนภูมิสรุปข้อมูลเชิงสถิติ' },
+                { icon: 'fa-file-csv', text: 'ส่งออกข้อมูลในรูปแบบ CSV เพื่อใช้ใน Excel' },
+                { icon: 'fa-lock', text: 'ข้อมูลถูกจัดเก็บอย่างปลอดภัยในเครื่อง' }
+            ]
+        },
+        'management.html': {
+            title: '💼 ระบบบริหารจัดการฟาร์ม (Control Suite)',
+            steps: [
+                { icon: 'fa-tachometer-alt', text: 'ดูสถิติสรุปฟาร์ม 4 การ์ด: BCR, ก้อนเชื้อ, เก็บเกี่ยว, Zero Waste' },
+                { icon: 'fa-calendar-alt', text: 'ใช้ปฏิทินเพาะปลูกวางแผนกิจกรรมดูแลเห็ด' },
+                { icon: 'fa-plus-circle', text: 'กดปุ่ม "เพิ่มแผนงาน" เพื่อเพิ่มกิจกรรมใหม่' },
+                { icon: 'fa-wallet', text: 'บันทึกรายรับ-รายจ่ายในสมุดบัญชีต้นทุนฟาร์ม' },
+                { icon: 'fa-file-csv', text: 'กดปุ่ม "ส่งออก (.CSV)" เพื่อดาวน์โหลดข้อมูลบัญชี' }
+            ]
+        },
+        'doc.html': {
+            title: '📖 คู่มือวิจัย (Documentation)',
+            steps: [
+                { icon: 'fa-book-open', text: 'อ่านเอกสารวิจัยฉบับเต็มจากโปรเจกต์ MSSM' },
+                { icon: 'fa-list', text: 'เลือกบทที่ต้องการอ่านจากสารบัญ' },
+                { icon: 'fa-bookmark', text: 'ระบบจะจดจำตำแหน่งที่อ่านล่าสุด' },
+                { icon: 'fa-print', text: 'สามารถพิมพ์เอกสารออกมาเป็นกระดาษได้' },
+                { icon: 'fa-search', text: 'ใช้ Ctrl+F เพื่อค้นหาคำในเอกสาร' }
+            ]
+        },
+        'settings.html': {
+            title: '⚙️ ศูนย์ตั้งค่าอัจฉริยะ (Settings)',
+            steps: [
+                { icon: 'fa-palette', text: 'เปลี่ยนสีธีมหลักของแพลตฟอร์ม (5 สีให้เลือก)' },
+                { icon: 'fa-moon', text: 'สลับโหมดมืด/สว่าง (Dark/Light Mode)' },
+                { icon: 'fa-play-circle', text: 'เปิด/ปิดโหมดนำเสนออัตโนมัติ (Auto-Tour)' },
+                { icon: 'fa-key', text: 'ตั้งค่า API Key สำหรับ AI Assistant' },
+                { icon: 'fa-database', text: 'จัดการข้อมูลที่จัดเก็บใน LocalStorage' }
+            ]
+        }
+    };
+
+    const pageHelp = helpData[curPage] || {
+        title: '📋 วิธีใช้งานหน้านี้',
+        steps: [
+            { icon: 'fa-bars', text: 'ใช้แถบเมนูด้านซ้ายเพื่อนำทางไปยังหน้าต่าง ๆ' },
+            { icon: 'fa-mouse-pointer', text: 'คลิกที่ปุ่มหรือลิงก์เพื่อใช้งานฟีเจอร์ต่าง ๆ' },
+            { icon: 'fa-moon', text: 'สลับโหมดมืด/สว่างได้ที่ปุ่มด้านบนของเมนู' },
+            { icon: 'fa-keyboard', text: 'กด Ctrl+K เพื่อเปิดค้นหาด่วน (Command Palette)' }
+        ]
+    };
+
+    // Create floating help FAB button
+    const fab = document.createElement('button');
+    fab.id = 'helpGuideFab';
+    fab.setAttribute('aria-label', 'วิธีใช้งาน');
+    fab.className = 'help-guide-fab';
+    fab.innerHTML = '<i class="fas fa-question"></i>';
+    document.body.appendChild(fab);
+
+    // Inject styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .help-guide-fab {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 9990;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 0 0 rgba(16, 185, 129, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: helpFabPulse 3s ease-in-out infinite;
+        }
+        .help-guide-fab:hover {
+            transform: scale(1.12) rotate(15deg);
+            box-shadow: 0 6px 28px rgba(16, 185, 129, 0.5);
+        }
+        .help-guide-fab:active {
+            transform: scale(0.92);
+        }
+        @keyframes helpFabPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 0 8px rgba(16, 185, 129, 0); }
+        }
+        .help-guide-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .help-guide-overlay.show { opacity: 1; }
+        .help-guide-modal {
+            background: linear-gradient(165deg, rgba(15,23,42,0.97) 0%, rgba(30,41,59,0.97) 100%);
+            border: 1px solid rgba(51,65,85,0.6);
+            border-radius: 24px;
+            padding: 0;
+            width: 100%;
+            max-width: 460px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .help-guide-overlay.show .help-guide-modal {
+            transform: scale(1) translateY(0);
+        }
+        .help-guide-header {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            padding: 24px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .help-guide-header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .help-guide-header-title {
+            font-size: 16px;
+            font-weight: 900;
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .help-guide-header-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 4px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .help-guide-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .help-guide-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .help-guide-steps {
+            padding: 20px 24px;
+            overflow-y: auto;
+            max-height: calc(85vh - 140px);
+        }
+        .help-guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(51,65,85,0.3);
+            opacity: 0;
+            transform: translateX(-12px);
+            animation: helpStepIn 0.4s ease forwards;
+        }
+        .help-guide-step:last-child { border-bottom: none; }
+        .help-guide-step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #10b981;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .help-guide-step-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            padding-top: 4px;
+        }
+        .help-guide-step-text strong {
+            color: #f1f5f9;
+        }
+        .help-guide-footer {
+            padding: 16px 24px;
+            border-top: 1px solid rgba(51,65,85,0.4);
+            text-align: center;
+        }
+        .help-guide-footer-text {
+            font-size: 10px;
+            color: #64748b;
+        }
+        .help-guide-footer-text i { color: #10b981; }
+        @keyframes helpStepIn {
+            to { opacity: 1; transform: translateX(0); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Build the modal
+    function showHelpModal() {
+        // Remove if already exists
+        const old = document.getElementById('helpGuideOverlay');
+        if (old) old.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'helpGuideOverlay';
+        overlay.className = 'help-guide-overlay';
+
+        let stepsHTML = '';
+        pageHelp.steps.forEach((step, idx) => {
+            stepsHTML += `
+                <div class="help-guide-step" style="animation-delay: ${idx * 0.08}s">
+                    <div class="help-guide-step-num"><i class="fas ${step.icon}"></i></div>
+                    <div class="help-guide-step-text">${step.text}</div>
+                </div>
+            `;
+        });
+
+        overlay.innerHTML = `
+            <div class="help-guide-modal">
+                <div class="help-guide-header">
+                    <h3 class="help-guide-header-title">
+                        <span style="font-size:22px;">🍄</span> ${pageHelp.title}
+                    </h3>
+                    <p class="help-guide-header-sub">MSSM Platform · วิธีใช้งานหน้านี้ Step-by-Step</p>
+                    <button class="help-guide-close" id="helpGuideCloseBtn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="help-guide-steps">
+                    ${stepsHTML}
+                </div>
+                <div class="help-guide-footer">
+                    <span class="help-guide-footer-text"><i class="fas fa-lightbulb"></i> กด <strong>Ctrl+K</strong> เพื่อเปิดค้นหาด่วนได้ทุกหน้า</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        // Trigger animation
+        requestAnimationFrame(() => {
+            overlay.classList.add('show');
+        });
+
+        // Close handlers
+        document.getElementById('helpGuideCloseBtn').onclick = () => closeHelpModal(overlay);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeHelpModal(overlay);
+        });
+        window.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') {
+                closeHelpModal(overlay);
+                window.removeEventListener('keydown', escHandler);
+            }
+        });
+    }
+
+    function closeHelpModal(overlay) {
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.remove(), 300);
+    }
+
+    fab.addEventListener('click', showHelpModal);
+}
+
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
@@ -922,6 +1294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollReveal();
     initCommandPalette();
     initPWA();
+    initHelpGuide();
     initAutoTour();
 });
 
