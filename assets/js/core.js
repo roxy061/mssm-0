@@ -438,6 +438,7 @@ function renderSidebar() {
         if (item.isBuilder) {
             const is2DActive = path.includes('builder2d.html');
             const is3DActive = path.includes('mushroom_3d.html');
+            const isAnyActive = is2DActive || is3DActive;
             
             const active2DClass = is2DActive
                 ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
@@ -447,8 +448,19 @@ function renderSidebar() {
                 ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
                 : "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-700 dark:hover:text-gray-300 transition-all";
 
+            // Add chevron to main link
+            const chevronClass = isAnyActive ? "fa-chevron-up" : "fa-chevron-down";
+            const hiddenClass = isAnyActive ? "" : "hidden";
+
+            // Inject toggle button into the link container HTML above
+            // We need to modify the builder link container to have a chevron
+            html = html.replace('ออกแบบโรงเรือน (Builder)', `
+                <span>ออกแบบโรงเรือน (Builder)</span>
+                <span onclick="toggleBuilderSubmenu(event)" class="ml-auto p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white transition cursor-pointer z-20"><i id="builderChevron" class="fas ${chevronClass} text-[10px]"></i></span>
+            `);
+
             html += `
-                <div class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 animate-slide-down">
+                <div id="builderSubmenu" class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 animate-slide-down ${hiddenClass}">
                     <a href="builder2d.html?mode=2d" ${onclickAttr} class="${active2DClass}">
                         <i class="fas fa-cubes text-[10px]"></i> โหมด 2D (Classic)
                     </a>
@@ -484,8 +496,23 @@ function renderSidebar() {
     `;
 
     navContainers.forEach(container => {
-        container.outerHTML = `<nav class="flex-1 px-3 py-4 space-y-1">${html}</nav>`;
+        container.outerHTML = `<nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">${html}</nav>`;
     });
+}
+
+// === COLLAPSIBLE BUILDER SUBMENU TOGGLE ===
+function toggleBuilderSubmenu(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const submenu = document.getElementById('builderSubmenu');
+    const chevron = document.getElementById('builderChevron');
+    if (submenu) {
+        submenu.classList.toggle('hidden');
+        const isHidden = submenu.classList.contains('hidden');
+        if (chevron) {
+            chevron.className = isHidden ? "fas fa-chevron-down text-[10px]" : "fas fa-chevron-up text-[10px]";
+        }
+    }
 }
 
 // === PWA SETUP ===
