@@ -250,7 +250,8 @@ function injectMemberPhotos(text) {
         { keys: ["กวินธิดา", "นิก", "kawinthida"], img: "assets/images/member4.jpg", name: "นางสาวกวินธิดา คชรัตน์ (นิก)" },
         { keys: ["ศิรภัสสร", "ปังปอนด์", "ปอนด์", "sirapassorn"], img: "assets/images/member5.jpg", name: "นางสาวศิรภัสสร สิทธิพิทักษ์" },
         { keys: ["ทานุฑัต", "ฟาม", "thanututt", "thanutut"], img: "assets/images/member3.jpg", name: "นายทานุฑัต ทิพย์เสภา (ฟาม)" },
-        { keys: ["สัณห์", "โต๊ะ", "โต็ะ", "san", "thoezaab"], img: "assets/images/member1.jpg", name: "นายสัณห์ สังขพงศ์ (โต๊ะ)" }
+        { keys: ["สัณห์", "โต๊ะ", "โต็ะ", "san", "thoezaab"], img: "assets/images/member1.jpg", name: "นายสัณห์ สังขพงศ์ (โต๊ะ)" },
+        { keys: ["ภคพล", "ฟีล", "บัง", "feel", "pakapon"], img: "assets/images/member6.jpg", name: "นายภคพล สมัยแก้ว (ฟีล / บัง)" }
     ];
     
     let injected = '';

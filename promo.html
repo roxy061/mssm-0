@@ -55,15 +55,15 @@
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
     .dark ::-webkit-scrollbar-thumb { background: #475569; }
-    .glow-effect { box-shadow: 0 0 25px rgba(59, 130, 246, 0.5); }
+    .glow-effect { box-shadow: 0 0 35px rgba(6, 182, 212, 0.4); }
 </style>
 </head>
-<body class="bg-gray-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-700">
 
     <canvas id="particleCanvas"></canvas>
 
     <!-- Navigation Bar (Simple for Promo Page) -->
-    <nav class="fixed top-0 inset-x-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-6 z-50">
+    <nav class="fixed top-0 inset-x-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-6 z-50 transition-colors duration-700">
         <div class="flex items-center gap-3">
             <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white text-base shadow-md">🍄</span>
             <span class="font-extrabold text-lg text-slate-800 dark:text-white tracking-tight">MSSM Platform</span>
@@ -78,22 +78,23 @@
     <main class="pt-24 pb-12">
         
         <!-- 1. HERO SECTION -->
-        <section class="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 relative py-12">
-            <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent dark:from-blue-900/20 z-0"></div>
-            <div class="relative z-10 max-w-4xl mx-auto space-y-6">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-sm mb-4">
-                    <i class="fas fa-bolt"></i> Unified Enterprise Platform
+        <section class="min-h-[75vh] flex flex-col items-center justify-center text-center px-6 relative py-16 overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.08),transparent_50%),radial-gradient(circle_at_70%_70%,rgba(59,130,246,0.08),transparent_50%)] z-0"></div>
+            
+            <div class="relative z-10 max-w-4xl mx-auto bg-slate-900/90 dark:bg-slate-950/80 border border-slate-200/10 dark:border-slate-850/40 rounded-[2.5rem] p-8 md:p-16 backdrop-blur-lg shadow-2xl transition-all duration-700">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 font-black text-xs uppercase tracking-widest mb-6">
+                    <i class="fas fa-bolt animate-pulse"></i> Unified Enterprise Platform
                 </div>
-                <h1 class="text-4xl md:text-6xl font-black text-slate-900 dark:text-white leading-tight">
+                <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
                     เปลี่ยนการทำฟาร์มเห็ดแบบเดิม ๆ <br class="hidden md:block">
-                    สู่ <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-500">ระบบนิเวศเกษตรแม่นยำขั้นสูง</span> <br class="hidden md:block">ด้วย MSSM
+                    สู่ <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400">ระบบนิเวศเกษตรแม่นยำขั้นสูง</span> <br class="hidden md:block">ด้วย MSSM
                 </h1>
-                <p class="text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium mt-6">
+                <p class="text-sm md:text-base text-slate-300 max-w-2xl mx-auto font-medium mt-6 leading-relaxed">
                     แพลตฟอร์มจัดการฟาร์มเห็ดแบบครบวงจร รองรับ 2D/3D Rendering, มี AI Assistant อัจฉริยะ, และระบบตลาดออนไลน์ 24 ชม. ขับเคลื่อนประสิทธิภาพด้วย Low-Spec Optimization
                 </p>
                 <div class="pt-8">
-                    <a href="index.html" class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-white font-extrabold text-lg transition-all glow-effect hover:scale-105 active:scale-95 cursor-pointer animate-pulse">
-                        <i class="fas fa-rocket"></i> เข้าสู่แพลตฟอร์ม / ลองใช้งานฟรี
+                    <a href="index.html" class="inline-flex items-center justify-center gap-3 px-8 py-4 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 hover:from-cyan-300 hover:to-indigo-500 text-slate-950 dark:text-white font-extrabold text-base md:text-lg transition-all glow-effect hover:scale-105 active:scale-95 cursor-pointer">
+                        🚀 เข้าสู่แพลตฟอร์ม / ลองใช้งานฟรี
                     </a>
                 </div>
             </div>
@@ -102,72 +103,72 @@
         <!-- 2. FEATURE SHOWCASE GRID -->
         <section class="max-w-6xl mx-auto px-6 py-16">
             <div class="text-center mb-12">
-                <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">ฟีเจอร์เด่นระดับองค์กร</h2>
+                <h2 class="text-2xl md:text-3xl font-black text-slate-850 dark:text-white">ฟีเจอร์เด่นระดับองค์กร</h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">เทคโนโลยีอัจฉริยะเพื่อการจัดการฟาร์มที่ดีที่สุด</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- AI Assistant -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all group">
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-700 group">
                     <div class="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-6 group-hover:-translate-y-1 transition-transform">
                         <i class="fas fa-brain"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">สมองกล AI Assistant</h3>
+                    <h3 class="text-xl font-bold text-slate-850 dark:text-slate-100 mb-3 flex items-center gap-2">🧠 สมองกล AI Assistant</h3>
                     <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                        พรีวิวมุมมองห้องแชทวิเคราะห์ค่าดัชนีผลผลิต (MPI) ให้คำปรึกษาปัญหาการเพาะปลูก และคำนวณอัตราความสำเร็จแบบเรียลไทม์
+                        พรีวิวมุมมองห้องแชทวิเคราะห์ค่าดัชนีผลผลิต (<span class="font-mono text-cyan-500 font-bold">$MPI$</span>) ให้คำปรึกษาปัญหาการเพาะปลูก และคำนวณอัตราความสำเร็จแบบเรียลไทม์
                     </p>
                 </div>
                 <!-- 2D/3D Builder -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all group">
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-700 group">
                     <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-6 group-hover:-translate-y-1 transition-transform">
                         <i class="fas fa-cubes"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">แบบจำลองคู่ขนาน 2D/3D</h3>
+                    <h3 class="text-xl font-bold text-slate-850 dark:text-slate-100 mb-3 flex items-center gap-2">📊 แบบจำลองคู่ขนาน 2D/3D</h3>
                     <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                         รองรับการจำลองโครงสร้างโรงเรือน 2 มิติและ 3 มิติ ที่สลับโหมดเรนเดอร์ตามสเปกมือถือได้อย่างยืดหยุ่น ประหยัดทรัพยากร
                     </p>
                 </div>
                 <!-- Live Market -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all group">
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-700 group">
                     <div class="w-14 h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-6 group-hover:-translate-y-1 transition-transform">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-3">ตลาดราคาเห็ด 24 ชม.</h3>
+                    <h3 class="text-xl font-bold text-slate-850 dark:text-slate-100 mb-3 flex items-center gap-2">📈 ตลาดราคาเห็ด 24 ชม.</h3>
                     <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                        กราฟจำลองราคากลางสดจากตลาดจริง พร้อมการคำนวณผลตอบแทนต่อต้นทุน (BCR) และส่งออกรายงาน (CSV) 
+                        กราฟจำลองราคากลางสดจากตลาดจริง พร้อมการคำนวณผลตอบแทนต่อต้นทุน (<span class="font-mono text-cyan-500 font-bold">$BCR$</span>) และส่งออกรายงาน (CSV) 
                     </p>
                 </div>
             </div>
         </section>
 
         <!-- 3. STABILITY & TRUST SECTION -->
-        <section class="bg-blue-50 dark:bg-slate-900/50 py-16">
+        <section class="bg-blue-50/50 dark:bg-slate-900/30 py-16 transition-colors duration-700">
             <div class="max-w-6xl mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">ความเสถียรและความปลอดภัยสูงสุด</h2>
+                    <h2 class="text-2xl md:text-3xl font-black text-slate-850 dark:text-white">ความเสถียรและความปลอดภัยสูงสุด</h2>
                     <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">วิศวกรรมซอฟต์แวร์ที่พัฒนามาเพื่อความลื่นไหลระดับ Enterprise</p>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                     <div>
-                        <div class="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-blue-200 dark:border-blue-800">
-                            <i class="fas fa-bolt"></i>
+                        <div class="w-16 h-16 mx-auto bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-blue-200 dark:border-blue-850">
+                            ⚡
                         </div>
-                        <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">Web PWA Ready</h4>
+                        <h4 class="font-bold text-slate-805 dark:text-slate-200 mb-2">Web PWA Ready</h4>
                         <p class="text-xs text-slate-500 dark:text-slate-400">ดาวน์โหลดติดตั้งเป็นแอปฯ ลงเครื่องได้ทันที ไม่ต้องผ่าน App Store ใช้งานออฟไลน์บางส่วนได้</p>
                     </div>
                     <div>
-                        <div class="w-16 h-16 mx-auto bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-emerald-200 dark:border-emerald-800">
-                            <i class="fas fa-battery-full"></i>
+                        <div class="w-16 h-16 mx-auto bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-emerald-200 dark:border-emerald-850">
+                            🔋
                         </div>
-                        <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">Low-Spec Optimization</h4>
+                        <h4 class="font-bold text-slate-805 dark:text-slate-200 mb-2">Low-Spec Optimization</h4>
                         <p class="text-xs text-slate-500 dark:text-slate-400">ประหยัด RAM ด้วยระบบปรับลดกราฟิก 2D อัตโนมัติ ป้องกันเครื่องค้าง 100% ตอบโจทย์สมาร์ทโฟนทุกรุ่น</p>
                     </div>
                     <div>
-                        <div class="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-purple-200 dark:border-purple-800">
-                            <i class="fas fa-shield-alt"></i>
+                        <div class="w-16 h-16 mx-auto bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center text-2xl mb-4 border border-purple-200 dark:border-purple-850">
+                            🔒
                         </div>
-                        <h4 class="font-bold text-slate-800 dark:text-slate-200 mb-2">Local Storage Base</h4>
+                        <h4 class="font-bold text-slate-805 dark:text-slate-200 mb-2">Local Storage Base</h4>
                         <p class="text-xs text-slate-500 dark:text-slate-400">รักษาความปลอดภัยขั้นสูงสุด เก็บข้อมูลโปรไฟล์ฟาร์มของคุณไว้ภายในเครื่อง ไม่มีการรั่วไหลสู่ภายนอก</p>
                     </div>
                 </div>
@@ -180,43 +181,42 @@
                 <div class="w-20 h-20 mx-auto bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-lg mb-4">
                     <i class="fas fa-university"></i>
                 </div>
-                <h2 class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white">วิทยาลัยอาชีวศึกษานครศรีธรรมราช</h2>
+                <h2 class="text-2xl md:text-3xl font-black text-slate-850 dark:text-white">วิทยาลัยอาชีวศึกษานครศรีธรรมราช</h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">ผลงานพัฒนานวัตกรรมโดยทีมนักศึกษา</p>
             </div>
             
             <!-- Team Grid -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member3.jpg" alt="ฟาม" onerror="this.src='https://ui-avatars.com/api/?name=F&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
-                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฟาม</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member6.jpg" alt="ฟีล" onerror="this.src='https://ui-avatars.com/api/?name=Feel&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฟีล</h5>
+                    <p class="text-[10px] text-slate-400">Developer</p>
                 </div>
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member2.jpg" alt="อาม" onerror="this.src='https://ui-avatars.com/api/?name=A&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
-                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">อาม</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member1.jpg" alt="โต๊ะ" onerror="this.src='https://ui-avatars.com/api/?name=T&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
-                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">โต๊ะ</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member4.jpg" alt="นิก" onerror="this.src='https://ui-avatars.com/api/?name=N&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
-                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">นิก</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
-                </div>
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member5.jpg" alt="ปอนด์" onerror="this.src='https://ui-avatars.com/api/?name=P&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
-                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">ปอนด์</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
-                </div>
-                <!-- Example Member 6 -->
-                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm">
-                    <img src="assets/images/member6.jpg" alt="มีน" onerror="this.src='https://ui-avatars.com/api/?name=M&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member5.jpg" alt="มีน" onerror="this.src='https://ui-avatars.com/api/?name=Mean&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
                     <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">มีน</h5>
-                    <p class="text-[10px] text-slate-400">Team Member</p>
+                    <p class="text-[10px] text-slate-400">Developer</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member2.jpg" alt="อาร์ม" onerror="this.src='https://ui-avatars.com/api/?name=Arm&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">อาร์ม</h5>
+                    <p class="text-[10px] text-slate-400">Developer</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member4.jpg" alt="กล้า" onerror="this.src='https://ui-avatars.com/api/?name=Kla&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">กล้า</h5>
+                    <p class="text-[10px] text-slate-400">Developer</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member1.jpg" alt="อ้ำ" onerror="this.src='https://ui-avatars.com/api/?name=Am&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">อ้ำ</h5>
+                    <p class="text-[10px] text-slate-400">Developer</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-4 rounded-2xl shadow-sm hover:scale-[1.03] transition-all">
+                    <img src="assets/images/member3.jpg" alt="ฟาร์ม" onerror="this.src='https://ui-avatars.com/api/?name=Farm&background=random'" class="w-16 h-16 mx-auto rounded-full object-cover border-2 border-slate-100 dark:border-slate-800 mb-3">
+                    <h5 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฟาร์ม</h5>
+                    <p class="text-[10px] text-slate-400">Developer</p>
                 </div>
 
             </div>
@@ -225,12 +225,11 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500">
+    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 transition-colors duration-700">
         &copy; 2026 MSSM Platform - Nakhon Si Thammarat Vocational College. All rights reserved.
     </footer>
 
     <!-- Scripts -->
-    <!-- Core.js handles the global theme synchronization automatically without rendering the sidebar, as #mobileMenu is missing! -->
     <script src="assets/js/core.js"></script>
 </body>
 </html>
