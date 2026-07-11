@@ -3,26 +3,39 @@
    Particles, Nav, Scroll, Progress
    ----------------------------------------------- */
 
+// === MOBILE DETECTION UTILITY ===
+const _isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
 // === PARTICLE BACKGROUND ===
-function initParticles(count = 24) {
+function initParticles(count) {
     const c = document.getElementById('particleCanvas');
     if (!c) return;
+    // On mobile: fewer particles + skip if low-perf mode
+    if (localStorage.getItem('performanceMode') === 'low') return;
+    const mobileCount = _isMobile ? 8 : (count || 24);
     const ctx = c.getContext('2d');
-    let particles = [], frame;
+    let particles = [], frame, lastTime = 0;
+    const targetFPS = _isMobile ? 20 : 60;
+    const frameInterval = 1000 / targetFPS;
 
     const resize = () => { c.width = window.innerWidth; c.height = window.innerHeight; };
     window.addEventListener('resize', resize, { passive: true });
     resize();
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < mobileCount; i++) {
         particles.push({
             x: Math.random() * c.width, y: Math.random() * -c.height,
             size: Math.random() * 14 + 6, speed: Math.random() * 0.6 + 0.3,
-            type: Math.random() > 0.5 ? '🍄' : '🍃', opacity: Math.random() * 0.2 + 0.05
+            type: Math.random() > 0.5 ? '🍄' : '🍃', opacity: Math.random() * 0.15 + 0.03
         });
     }
 
-    function animate() {
+    function animate(timestamp) {
+        frame = requestAnimationFrame(animate);
+        const delta = timestamp - lastTime;
+        if (delta < frameInterval) return;
+        lastTime = timestamp - (delta % frameInterval);
+
         ctx.clearRect(0, 0, c.width, c.height);
         for (const p of particles) {
             p.y += p.speed;
@@ -31,9 +44,8 @@ function initParticles(count = 24) {
             ctx.font = `${p.size}px Arial`;
             ctx.fillText(p.type, p.x, p.y);
         }
-        frame = requestAnimationFrame(animate);
     }
-    animate();
+    frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
 }
 
@@ -86,10 +98,17 @@ function initProgress() {
 function initBackToTop() {
     const btn = document.getElementById('back-to-top');
     if (!btn) return;
+    let bttTicking = false;
     window.addEventListener('scroll', () => {
-        const show = window.scrollY > 300;
-        btn.style.opacity = show ? '1' : '0';
-        btn.style.pointerEvents = show ? 'auto' : 'none';
+        if (!bttTicking) {
+            requestAnimationFrame(() => {
+                const show = window.scrollY > 300;
+                btn.style.opacity = show ? '1' : '0';
+                btn.style.pointerEvents = show ? 'auto' : 'none';
+                bttTicking = false;
+            });
+            bttTicking = true;
+        }
     }, { passive: true });
 }
 
@@ -195,28 +214,28 @@ function initSmartHeader() {
     const themeBtn = document.getElementById('themeToggle');
     const hamBtn = document.getElementById('hamburgerBtn');
     const connBtn = document.getElementById('connBadge');
+    let smartTicking = false;
 
     window.addEventListener('scroll', () => {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > 150) {
-            if (currentScrollY > lastScrollY) {
-                // scrolling down -> hide
-                themeBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                hamBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                connBtn?.classList.add('-translate-y-24', 'opacity-0', 'pointer-events-none');
-            } else {
-                // scrolling up -> show
-                themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-            }
-        } else {
-            // near top -> show
-            themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-            hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-            connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+        if (!smartTicking) {
+            requestAnimationFrame(() => {
+                const currentScrollY = window.scrollY;
+                if (currentScrollY > 150) {
+                    const hide = currentScrollY > lastScrollY;
+                    const method = hide ? 'add' : 'remove';
+                    themeBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                    hamBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                    connBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                } else {
+                    themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                    hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                    connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
+                }
+                lastScrollY = currentScrollY;
+                smartTicking = false;
+            });
+            smartTicking = true;
         }
-        lastScrollY = currentScrollY;
     }, { passive: true });
 }
 
@@ -224,7 +243,9 @@ function initSmartHeader() {
 function initNetworkStatus() {
     const badge = document.createElement('div');
     badge.id = 'connBadge';
-    badge.className = 'fixed top-3 right-16 md:top-5 md:right-24 z-[100] flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 shadow-md backdrop-blur-md transition-all duration-300';
+    // On mobile: skip heavy backdrop-blur
+    const blurClass = _isMobile ? 'bg-white/95 dark:bg-gray-800/95' : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-md';
+    badge.className = `fixed top-3 right-16 md:top-5 md:right-24 z-[100] flex items-center gap-1.5 px-2.5 py-2 rounded-xl ${blurClass} border border-gray-200 dark:border-gray-700 shadow-md transition-all duration-300`;
     document.body.appendChild(badge);
 
     const toast = document.createElement('div');
@@ -275,11 +296,13 @@ function initScrollReveal() {
         .scroll-reveal {
             opacity: 0;
             transform: translateY(15px);
-            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: opacity, transform;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
         .scroll-reveal.reveal-active {
             opacity: 1;
             transform: translateY(0);
+            will-change: auto;
         }
     `;
     document.head.appendChild(style);
@@ -296,7 +319,9 @@ function initScrollReveal() {
         rootMargin: '0px 0px -40px 0px'
     });
 
-    const targets = document.querySelectorAll('section, .card-shine, .p-5, .p-7, main > div');
+    // On mobile: target fewer elements to reduce layout thrashing
+    const selector = _isMobile ? 'section' : 'section, .card-shine, .p-5, .p-7, main > div';
+    const targets = document.querySelectorAll(selector);
     targets.forEach(t => {
         t.classList.add('scroll-reveal');
         observer.observe(t);
@@ -610,9 +635,10 @@ function initAutoTour() {
     // 1. Create floating countdown badge
     const badge = document.createElement('div');
     badge.id = 'autoTourBadge';
-    badge.className = 'fixed bottom-4 right-4 z-[9999] bg-slate-900/95 dark:bg-slate-950/95 text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 backdrop-blur-md transition-all duration-300 font-sans';
+    const tourBlur = _isMobile ? 'bg-slate-900/98' : 'bg-slate-900/95 backdrop-blur-md';
+    badge.className = `fixed bottom-4 right-4 z-[9999] ${tourBlur} dark:bg-slate-950/95 text-white px-4 py-2.5 rounded-2xl shadow-2xl border border-slate-700/50 flex items-center gap-3 transition-all duration-300 font-sans`;
     badge.innerHTML = `
-        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-red-500" style="animation:pulse 2s ease-in-out infinite;"></span>
         <span class="text-xs font-bold">โหมดนำเสนอ: หน้าถัดไปใน <span id="autoTourSeconds" class="font-mono text-cyan-400">10</span> วินาที</span>
         <button onclick="stopAutoTourFromBadge(event)" class="text-[10px] bg-red-550/20 text-red-400 hover:bg-red-500 hover:text-white px-2.5 py-1 rounded-lg font-black transition cursor-pointer border-none">หยุดทัวร์</button>
     `;
@@ -621,16 +647,17 @@ function initAutoTour() {
     // 2. Create Virtual Ghost Cursor element
     const cursor = document.createElement('div');
     cursor.id = 'virtualCursor';
-    cursor.style.cssText = 'position:fixed; pointer-events:none; z-index:10000; width:24px; height:24px; top:0; left:0; transform: translate3d(50vw, 50vh, 0); transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);';
+    cursor.style.cssText = 'position:fixed; pointer-events:none; z-index:10000; width:24px; height:24px; top:0; left:0; transform: translate3d(50vw, 50vh, 0); transition: transform 2.2s cubic-bezier(0.16, 1, 0.3, 1); will-change: transform;';
     cursor.innerHTML = `
-        <svg class="w-full h-full text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.8)]" viewBox="0 0 24 24" fill="currentColor">
+        <svg class="w-full h-full text-cyan-400" style="filter:drop-shadow(0 0 6px rgba(6,182,212,0.6));" viewBox="0 0 24 24" fill="currentColor">
             <path d="M4.5 3v15.3l4.3-4.3 3 5.3 2.1-1.2-3-5.2 5.5-.6L4.5 3z"/>
         </svg>
     `;
     document.body.appendChild(cursor);
 
-    // 3. Auto-Scroll logic (Simulates random human reading patterns: scroll down, up, or pause on page & sidebar menu)
+    // 3. Auto-Scroll logic — slower interval on mobile to prevent stuttering
     let currentScroll = window.scrollY;
+    const scrollInterval = _isMobile ? 3000 : 1800;
     const scrollTimer = setInterval(() => {
         if (localStorage.getItem('autoTourEnabled') !== 'true') return;
         
@@ -640,9 +667,9 @@ function initAutoTour() {
             const rand = Math.random();
             let scrollAmount = 0;
             if (rand < 0.5) {
-                scrollAmount = 150 + Math.random() * 200;
+                scrollAmount = (_isMobile ? 100 : 150) + Math.random() * (_isMobile ? 120 : 200);
             } else if (rand < 0.8) {
-                scrollAmount = -(100 + Math.random() * 100);
+                scrollAmount = -((_isMobile ? 60 : 100) + Math.random() * (_isMobile ? 60 : 100));
             } else {
                 scrollAmount = 0;
             }
@@ -654,25 +681,27 @@ function initAutoTour() {
             });
         }
 
-        // Scroll the sidebar menu container
-        const menuNav = document.querySelector('#mobileMenu nav');
-        if (menuNav) {
-            const menuMaxScroll = menuNav.scrollHeight - menuNav.clientHeight;
-            if (menuMaxScroll > 0) {
-                const menuRand = Math.random();
-                let menuScrollAmount = 0;
-                if (menuRand < 0.5) {
-                    menuScrollAmount = 60 + Math.random() * 80;
-                } else if (menuRand < 0.8) {
-                    menuScrollAmount = -(60 + Math.random() * 80);
+        // Scroll sidebar — skip on mobile (sidebar hidden anyway)
+        if (!_isMobile) {
+            const menuNav = document.querySelector('#mobileMenu nav');
+            if (menuNav) {
+                const menuMaxScroll = menuNav.scrollHeight - menuNav.clientHeight;
+                if (menuMaxScroll > 0) {
+                    const menuRand = Math.random();
+                    let menuScrollAmount = 0;
+                    if (menuRand < 0.5) {
+                        menuScrollAmount = 60 + Math.random() * 80;
+                    } else if (menuRand < 0.8) {
+                        menuScrollAmount = -(60 + Math.random() * 80);
+                    }
+                    menuNav.scrollTo({
+                        top: Math.max(0, Math.min(menuMaxScroll, menuNav.scrollTop + menuScrollAmount)),
+                        behavior: 'smooth'
+                    });
                 }
-                menuNav.scrollTo({
-                    top: Math.max(0, Math.min(menuMaxScroll, menuNav.scrollTop + menuScrollAmount)),
-                    behavior: 'smooth'
-                });
             }
         }
-    }, 1800);
+    }, scrollInterval);
 
     // 4. Ghost Cursor Movement sequence
     if (curPage.includes('mushroom_3d.html')) {
@@ -1066,9 +1095,11 @@ function initHelpGuide() {
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35), 0 0 0 0 rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            animation: helpFabPulse 3s ease-in-out infinite;
+        }
+        @media (min-width: 768px) {
+            .help-guide-fab { animation: helpFabPulse 3s ease-in-out infinite; }
         }
         .help-guide-fab:hover {
             transform: scale(1.12) rotate(15deg);
@@ -1536,11 +1567,22 @@ document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initSmartHeader();
     initNetworkStatus();
-    initScrollReveal();
-    initCommandPalette();
-    initPWA();
-    initHelpGuide();
-    initAutoTour();
+    // Defer non-critical systems on mobile to avoid initial jank
+    if (_isMobile) {
+        requestAnimationFrame(() => {
+            initScrollReveal();
+            initCommandPalette();
+            initPWA();
+            initHelpGuide();
+            initAutoTour();
+        });
+    } else {
+        initScrollReveal();
+        initCommandPalette();
+        initPWA();
+        initHelpGuide();
+        initAutoTour();
+    }
 });
 
 function filterMushrooms() {
