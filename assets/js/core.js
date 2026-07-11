@@ -39,13 +39,21 @@ function initParticles(count = 24) {
 
 // === HAMBURGER MENU (mobile) ===
 function toggleMenu() {
-    document.getElementById('mobileMenu')?.classList.toggle('-translate-x-full');
+    const menu = document.getElementById('mobileMenu');
+    if (menu) {
+        menu.classList.toggle('-translate-x-full');
+        menu.classList.toggle('hidden');
+    }
     document.getElementById('menuOverlay')?.classList.toggle('hidden');
     document.body.classList.toggle('overflow-hidden');
 }
 
 function closeMenu() {
-    document.getElementById('mobileMenu')?.classList.add('-translate-x-full');
+    const menu = document.getElementById('mobileMenu');
+    if (menu) {
+        menu.classList.add('-translate-x-full');
+        menu.classList.add('hidden');
+    }
     document.getElementById('menuOverlay')?.classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
 }
@@ -362,7 +370,7 @@ function initCommandPalette() {
 
 // === CENTRALIZED SIDEBAR RENDERING ===
 function renderSidebar() {
-    const navContainers = document.querySelectorAll('nav.flex-1');
+    const navContainers = document.querySelectorAll('nav.flex-1, nav.flex-grow, aside nav, #mobileMenu nav');
     if (navContainers.length === 0) return;
 
     const path = window.location.pathname;
