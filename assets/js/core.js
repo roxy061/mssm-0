@@ -49,31 +49,101 @@ function initParticles(count) {
     return () => cancelAnimationFrame(frame);
 }
 
-// === HAMBURGER MENU (mobile) ===
-function toggleMenu() {
-    const menu = document.getElementById('mobileMenu');
-    if (menu) {
-        menu.classList.toggle('-translate-x-full');
-        menu.classList.toggle('hidden');
-    }
-    document.getElementById('menuOverlay')?.classList.toggle('hidden');
-    document.body.classList.toggle('overflow-hidden');
+// === HAMBURGER MENU (mobile) — Bulletproof Version ===
+(function() {
+    // Inject GPU-composited sidebar style once
+    const s = document.createElement('style');
+    s.textContent = `
+        #mobileMenu {
+            will-change: transform;
+            contain: layout style;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            touch-action: pan-y;
+        }
+        #menuOverlay {
+            will-change: opacity;
+        }
+    `;
+    document.head.appendChild(s);
+})();
+
+// State flag to prevent double-toggle glitch
+let _menuOpen = false;
+
+function _getMenuEls() {
+    return {
+        menu: document.getElementById('mobileMenu'),
+        overlay: document.getElementById('menuOverlay')
+    };
+}
+
+function openMenu() {
+    const { menu, overlay } = _getMenuEls();
+    if (!menu || _menuOpen) return;
+    _menuOpen = true;
+    // Remove hidden first so transition plays
+    menu.classList.remove('hidden');
+    // Force reflow to ensure transition fires
+    void menu.offsetHeight;
+    menu.classList.remove('-translate-x-full');
+    menu.setAttribute('aria-hidden', 'false');
+    overlay?.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
 }
 
 function closeMenu() {
-    if (window.innerWidth >= 1024) return; // Don't close/hide menu on desktop sizes
-    const menu = document.getElementById('mobileMenu');
-    if (menu) {
-        menu.classList.add('-translate-x-full');
-        menu.classList.add('hidden');
-    }
-    document.getElementById('menuOverlay')?.classList.add('hidden');
+    if (window.innerWidth >= 1024) return;
+    const { menu, overlay } = _getMenuEls();
+    if (!menu) return;
+    _menuOpen = false;
+    menu.classList.add('-translate-x-full');
+    menu.setAttribute('aria-hidden', 'true');
+    overlay?.classList.add('hidden');
     document.body.classList.remove('overflow-hidden');
+    // Add hidden AFTER transition ends (300ms) to keep it off-screen
+    setTimeout(() => {
+        if (!_menuOpen) menu.classList.add('hidden');
+    }, 310);
+}
+
+function toggleMenu() {
+    _menuOpen ? closeMenu() : openMenu();
 }
 
 // Close menu on resize to desktop
+let _resizeMTimer;
 window.addEventListener('resize', () => {
-    if (window.innerWidth > 992) closeMenu();
+    clearTimeout(_resizeMTimer);
+    _resizeMTimer = setTimeout(() => {
+        if (window.innerWidth >= 1024) {
+            const { menu, overlay } = _getMenuEls();
+            if (menu) {
+                _menuOpen = false;
+                menu.classList.remove('hidden', '-translate-x-full');
+                menu.setAttribute('aria-hidden', 'false');
+            }
+            overlay?.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    }, 150);
+}, { passive: true });
+
+// Swipe-left to close gesture on mobile
+document.addEventListener('DOMContentLoaded', () => {
+    const { menu } = _getMenuEls();
+    if (!menu) return;
+    let swipeStartX = 0, swipeStartY = 0;
+    menu.addEventListener('touchstart', (e) => {
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+    }, { passive: true });
+    menu.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - swipeStartX;
+        const dy = Math.abs(e.changedTouches[0].clientY - swipeStartY);
+        // Swipe left >= 60px and mostly horizontal
+        if (dx < -60 && dy < 80) closeMenu();
+    }, { passive: true });
 });
 
 // === READING PROGRESS ===

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="th" class="dark">
 <head>
 <script>
@@ -311,8 +311,7 @@ input:focus,select:focus{outline:none;border-color:#10b981!important;box-shadow:
 </div>
 
 <script>
-function toggleMenu(){const d=document.getElementById("mobileMenu"),o=document.getElementById("menuOverlay");if(d){d.classList.toggle("-translate-x-full");o&&o.classList.toggle("hidden");}}
-function closeMenu(){document.getElementById("mobileMenu")?.classList.add("-translate-x-full");document.getElementById("menuOverlay")?.classList.add("hidden");}
+// menu handled by core.js
 
 let ledgerHistory=[];
 window.addEventListener("DOMContentLoaded",()=>{loadLedgerData();});
