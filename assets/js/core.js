@@ -431,6 +431,14 @@ function initCommandPalette() {
 function renderSidebar() {
     const sidebar = document.getElementById('mobileMenu');
     if (!sidebar) return;
+    
+    // Parse URL parameter ?mode= to override global render mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const modeParam = urlParams.get('mode');
+    if (modeParam === '2d' || modeParam === '3d') {
+        localStorage.setItem('globalRenderMode', modeParam);
+    }
+    
     const path = window.location.pathname;
     const isIndex = path.endsWith('index.html') || path.endsWith('/') || !path.includes('.html');
     const mode = localStorage.getItem('globalRenderMode') || '2d';

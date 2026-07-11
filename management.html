@@ -70,9 +70,26 @@
     <div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
 
     <!-- Sidebar -->
-    <aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    
+
+<!-- Sidebar -->
+<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    <!-- Brand Header -->
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+        <div class="text-2xl mb-1">🍄</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">Mush-Up NVC</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">MSSM Platform</div>
+    </div>
+
+    <!-- Close Button (Mobile) -->
+    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+
+    <!-- Nav Items -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <!-- Will be overwritten by core.js renderSidebar -->
-    </aside>
+    </nav>
+</aside>
 
     <!-- MOBILE HEADER -->
     <header class="fixed top-0 inset-x-0 h-14 bg-white/90 dark:bg-slate-900/90 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
