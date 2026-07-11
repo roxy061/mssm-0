@@ -249,8 +249,8 @@ function injectMemberPhotos(text) {
         { keys: ["วุฒิภัทร", "อาม", "wuttiphar", "wuttiphat"], img: "assets/images/member2.jpg", name: "นายวุฒิภัทร มากด้วง (อาม)" },
         { keys: ["กวินธิดา", "นิก", "kawinthida"], img: "assets/images/member4.jpg", name: "นางสาวกวินธิดา คชรัตน์ (นิก)" },
         { keys: ["ศิรภัสสร", "ปังปอนด์", "ปอนด์", "sirapassorn"], img: "assets/images/member5.jpg", name: "นางสาวศิรภัสสร สิทธิพิทักษ์" },
-        { keys: ["ทานุฑัต", "ฟาม", "thanututt", "thanutut"], img: "assets/images/member1.jpg", name: "นายทานุฑัต ทิพย์เสภา (ฟาม)" },
-        { keys: ["สัณห์", "โต๊ะ", "san", "thoezaab"], img: "assets/images/member3.jpg", name: "นายสัณห์ สังขพงศ์ (โต๊ะ)" }
+        { keys: ["ทานุฑัต", "ฟาม", "thanututt", "thanutut"], img: "assets/images/member3.jpg", name: "นายทานุฑัต ทิพย์เสภา (ฟาม)" },
+        { keys: ["สัณห์", "โต๊ะ", "san", "thoezaab"], img: "assets/images/member1.jpg", name: "นายสัณห์ สังขพงศ์ (โต๊ะ)" }
     ];
     
     let injected = '';
@@ -269,38 +269,7 @@ function injectMemberPhotos(text) {
     return injected;
 }
 
-function injectExperimentPhotos(text) {
-    const keywords = ["ภาพการทดลอง", "รูปการทดลอง", "รูปทดลอง", "ภาพทดลอง", "ภาพในแล็บ", "ภาพในห้องปฏิบัติการ", "ห้องปฏิบัติการ", "ขั้นตอนการทดลอง"];
-    const found = keywords.some(k => text.includes(k));
-    if (!found) return '';
 
-    return `
-    <div class="mt-3 block border-t border-gray-155 dark:border-gray-700/50 pt-2.5 space-y-3">
-        <span class="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">📸 ภาพบรรยากาศการทดลองในห้องปฏิบัติการ:</span>
-        <div class="grid grid-cols-2 gap-2">
-            <div class="space-y-1">
-                <img src="assets/images/exp1.jpg" alt="บรรจุก้อนขี้เลื่อย" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
-                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">บรรจุวัสดุเพาะ</span>
-            </div>
-            <div class="space-y-1">
-                <img src="assets/images/exp2.jpg" alt="หยอดเชื้อ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
-                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">หยอดหัวเชื้อเห็ด</span>
-            </div>
-            <div class="space-y-1">
-                <img src="assets/images/exp3.jpg" alt="ปิดฝาก้อนเชื้อ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
-                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">สวมคอขวดและปิดฝา</span>
-            </div>
-            <div class="space-y-1">
-                <img src="assets/images/exp4.jpg" alt="คณะผู้จัดทำ" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-24 hover:scale-[1.03] transition-all">
-                <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">ผู้จัดทำในห้องแล็บ</span>
-            </div>
-        </div>
-        <div class="space-y-1">
-            <img src="assets/images/exp5.jpg" alt="ชั่งน้ำหนักขี้เลื่อย" class="rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 object-cover w-full h-32 hover:scale-[1.02] transition-all">
-            <span class="text-[8px] font-semibold text-gray-500 dark:text-gray-400 block text-center">ชั่งน้ำหนักส่วนผสมตามอัตราส่วนสูตรชุมชน (650 กรัม)</span>
-        </div>
-    </div>`;
-}
 
 function addMsg(sender, text) {
     const box = document.getElementById('chatHistory');
@@ -328,9 +297,9 @@ function addMsg(sender, text) {
                 </div>
                 <div id="${visualContainerId}" class="w-full min-h-[160px] md:min-h-[200px] flex items-center justify-center relative"></div>
             </div>
-        ` + injectMemberPhotos(text) + injectExperimentPhotos(text);
+        ` + injectMemberPhotos(text);
     } else if (sender === 'ai') {
-        displayHtml = text + injectMemberPhotos(text) + injectExperimentPhotos(text);
+        displayHtml = text + injectMemberPhotos(text);
     }
     
     row.innerHTML = `<div class="max-w-[85%] md:max-w-[75%] p-3 md:p-4 rounded-2xl text-sm md:text-base leading-relaxed ${
