@@ -1053,7 +1053,7 @@ function initHelpGuide() {
         .help-guide-fab {
             position: fixed;
             bottom: 24px;
-            left: 24px;
+            right: 24px;
             z-index: 9990;
             width: 48px;
             height: 48px;
@@ -1281,6 +1281,251 @@ function initHelpGuide() {
 
     fab.addEventListener('click', showHelpModal);
 }
+
+// === SPLIT SCREEN / DUAL VIEW SYSTEM ===
+window.activateSplitView = function() {
+    // Prevent duplicate
+    if (document.getElementById('splitViewOverlay')) return;
+
+    const PAGES = [
+        { url: 'index.html', label: '🏠 หน้าแรก' },
+        { url: 'lab.html', label: '🧪 MSSM Lab' },
+        { url: 'ai.html', label: '🤖 AI Assistant' },
+        { url: 'builder2d.html', label: '📐 Builder 2D' },
+        { url: 'mushroom_3d.html', label: '🎮 3D Viewer' },
+        { url: 'market.html', label: '📈 ตลาดราคา' },
+        { url: 'quiz_pvp.html', label: '🏆 ทดสอบความรู้' },
+        { url: 'dataset.html', label: '📊 คลังข้อมูล' },
+        { url: 'management.html', label: '💼 จัดการฟาร์ม' },
+        { url: 'doc.html', label: '📖 คู่มือวิจัย' },
+        { url: 'settings.html', label: '⚙️ ตั้งค่า' }
+    ];
+
+    // Detect current page
+    let curPage = window.location.pathname.split('/').pop() || 'index.html';
+    if (curPage === '' || curPage === '/') curPage = 'index.html';
+    const curIdx = PAGES.findIndex(p => curPage.includes(p.url));
+    const leftUrl = PAGES[curIdx >= 0 ? curIdx : 0].url;
+    const rightUrl = PAGES[curIdx >= 0 ? (curIdx + 1) % PAGES.length : 1].url;
+
+    // Build dropdown options
+    function buildOptions(selectedUrl) {
+        return PAGES.map(p => `<option value="${p.url}" ${p.url === selectedUrl ? 'selected' : ''}>${p.label}</option>`).join('');
+    }
+
+    // Inject styles
+    const style = document.createElement('style');
+    style.id = 'splitViewStyles';
+    style.textContent = `
+        .split-overlay {
+            position: fixed; inset: 0; z-index: 99999;
+            background: #0b0f19;
+            display: flex; flex-direction: column;
+            opacity: 0; transition: opacity 0.35s ease;
+        }
+        .split-overlay.show { opacity: 1; }
+        .split-toolbar {
+            height: 48px; flex-shrink: 0;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #334155;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px; gap: 12px;
+        }
+        .split-toolbar-title {
+            font-size: 13px; font-weight: 900; color: #fff;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .split-toolbar-title i { color: #818cf8; }
+        .split-toolbar select {
+            background: #1e293b; border: 1px solid #475569;
+            color: #e2e8f0; font-size: 11px; font-weight: 700;
+            padding: 6px 10px; border-radius: 10px; cursor: pointer;
+            outline: none; transition: border-color 0.2s;
+        }
+        .split-toolbar select:focus { border-color: #818cf8; }
+        .split-close-btn {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);
+            color: #f87171; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .split-close-btn:hover { background: #ef4444; color: #fff; transform: scale(1.08); }
+        .split-body {
+            flex: 1; display: flex; min-height: 0; position: relative;
+        }
+        .split-panel {
+            flex: 1; min-width: 80px; overflow: hidden; position: relative;
+        }
+        .split-panel iframe {
+            width: 100%; height: 100%; border: none; background: #0b0f19;
+        }
+        .split-panel-label {
+            position: absolute; top: 8px; left: 12px; z-index: 2;
+            font-size: 9px; font-weight: 900; color: #94a3b8;
+            background: rgba(15,23,42,0.85); backdrop-filter: blur(8px);
+            padding: 4px 10px; border-radius: 8px;
+            border: 1px solid rgba(51,65,85,0.5);
+            text-transform: uppercase; letter-spacing: 1px;
+            pointer-events: none;
+        }
+        .split-gutter {
+            width: 6px; background: #1e293b; cursor: col-resize;
+            position: relative; flex-shrink: 0;
+            border-left: 1px solid #334155; border-right: 1px solid #334155;
+            transition: background 0.2s;
+        }
+        .split-gutter:hover, .split-gutter.dragging {
+            background: #818cf8;
+        }
+        .split-gutter::after {
+            content: ''; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 2px; height: 32px;
+            background: #475569; border-radius: 2px;
+        }
+        .split-gutter:hover::after, .split-gutter.dragging::after {
+            background: #fff;
+        }
+        .split-selector-group {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .split-selector-label {
+            font-size: 10px; font-weight: 800; color: #64748b;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Build overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'splitViewOverlay';
+    overlay.className = 'split-overlay';
+    overlay.innerHTML = `
+        <div class="split-toolbar">
+            <div class="split-toolbar-title"><i class="fas fa-columns"></i> โหมดจอคู่ขนาน (Split View)</div>
+            <div style="display:flex;align-items:center;gap:16px;flex:1;justify-content:center;">
+                <div class="split-selector-group">
+                    <span class="split-selector-label">ฝั่งซ้าย</span>
+                    <select id="splitLeftSelect">${buildOptions(leftUrl)}</select>
+                </div>
+                <div class="split-selector-group">
+                    <span class="split-selector-label">ฝั่งขวา</span>
+                    <select id="splitRightSelect">${buildOptions(rightUrl)}</select>
+                </div>
+            </div>
+            <button class="split-close-btn" id="splitCloseBtn" title="ปิดจอคู่ขนาน"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="split-body" id="splitBody">
+            <div class="split-panel" id="splitLeft">
+                <span class="split-panel-label">◀ ฝั่งซ้าย</span>
+                <iframe id="splitLeftFrame" src="${leftUrl}"></iframe>
+            </div>
+            <div class="split-gutter" id="splitGutter"></div>
+            <div class="split-panel" id="splitRight">
+                <span class="split-panel-label">▶ ฝั่งขวา</span>
+                <iframe id="splitRightFrame" src="${rightUrl}"></iframe>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Trigger show animation
+    requestAnimationFrame(() => overlay.classList.add('show'));
+
+    // Page selector change handlers
+    document.getElementById('splitLeftSelect').addEventListener('change', function() {
+        document.getElementById('splitLeftFrame').src = this.value;
+    });
+    document.getElementById('splitRightSelect').addEventListener('change', function() {
+        document.getElementById('splitRightFrame').src = this.value;
+    });
+
+    // Close button
+    document.getElementById('splitCloseBtn').addEventListener('click', function() {
+        overlay.classList.remove('show');
+        setTimeout(() => {
+            overlay.remove();
+            style.remove();
+        }, 350);
+    });
+
+    // ESC to close
+    function escHandler(e) {
+        if (e.key === 'Escape') {
+            overlay.classList.remove('show');
+            setTimeout(() => {
+                overlay.remove();
+                style.remove();
+            }, 350);
+            window.removeEventListener('keydown', escHandler);
+        }
+    }
+    window.addEventListener('keydown', escHandler);
+
+    // Resizable Splitter (drag to resize)
+    const gutter = document.getElementById('splitGutter');
+    const splitBody = document.getElementById('splitBody');
+    const leftPanel = document.getElementById('splitLeft');
+    const rightPanel = document.getElementById('splitRight');
+    let isDragging = false;
+
+    function onDragStart(e) {
+        e.preventDefault();
+        isDragging = true;
+        gutter.classList.add('dragging');
+
+        // Create cover iframes overlay to prevent iframe from eating mouse events
+        const coverL = document.createElement('div');
+        coverL.id = 'splitCoverL';
+        coverL.style.cssText = 'position:absolute;inset:0;z-index:5;cursor:col-resize;';
+        leftPanel.appendChild(coverL);
+        const coverR = document.createElement('div');
+        coverR.id = 'splitCoverR';
+        coverR.style.cssText = 'position:absolute;inset:0;z-index:5;cursor:col-resize;';
+        rightPanel.appendChild(coverR);
+
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+        document.addEventListener('touchmove', onDragMove, { passive: false });
+        document.addEventListener('touchend', onDragEnd);
+    }
+
+    function onDragMove(e) {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const bodyRect = splitBody.getBoundingClientRect();
+        const offset = clientX - bodyRect.left;
+        const totalW = bodyRect.width;
+        const gutterW = 6;
+        const minW = 80;
+
+        let leftW = Math.max(minW, Math.min(totalW - minW - gutterW, offset));
+        let rightW = totalW - leftW - gutterW;
+
+        leftPanel.style.flex = 'none';
+        leftPanel.style.width = leftW + 'px';
+        rightPanel.style.flex = 'none';
+        rightPanel.style.width = rightW + 'px';
+    }
+
+    function onDragEnd() {
+        isDragging = false;
+        gutter.classList.remove('dragging');
+        document.removeEventListener('mousemove', onDragMove);
+        document.removeEventListener('mouseup', onDragEnd);
+        document.removeEventListener('touchmove', onDragMove);
+        document.removeEventListener('touchend', onDragEnd);
+
+        const coverL = document.getElementById('splitCoverL');
+        const coverR = document.getElementById('splitCoverR');
+        if (coverL) coverL.remove();
+        if (coverR) coverR.remove();
+    }
+
+    gutter.addEventListener('mousedown', onDragStart);
+    gutter.addEventListener('touchstart', onDragStart, { passive: false });
+};
 
 // === BOOT ===
 document.addEventListener('DOMContentLoaded', () => {
