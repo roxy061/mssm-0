@@ -434,6 +434,31 @@ function renderSidebar() {
             </a>
         `;
 
+        // Render sub-menus for the Builder item
+        if (item.isBuilder) {
+            const is2DActive = path.includes('builder2d.html');
+            const is3DActive = path.includes('mushroom_3d.html');
+            
+            const active2DClass = is2DActive
+                ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
+                : "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-700 dark:hover:text-gray-300 transition-all";
+                
+            const active3DClass = is3DActive
+                ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
+                : "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-700 dark:hover:text-gray-300 transition-all";
+
+            html += `
+                <div class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 animate-slide-down">
+                    <a href="builder2d.html?mode=2d" ${onclickAttr} class="${active2DClass}">
+                        <i class="fas fa-cubes text-[10px]"></i> โหมด 2D (Classic)
+                    </a>
+                    <a href="mushroom_3d.html?mode=3d" ${onclickAttr} class="${active3DClass}">
+                        <i class="fas fa-cube text-[10px]"></i> โหมด 3D (Interactive)
+                    </a>
+                </div>
+            `;
+        }
+
         if (idx === 0) {
             html += `
                 <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
