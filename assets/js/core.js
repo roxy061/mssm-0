@@ -841,7 +841,6 @@ function initAutoTour() {
         clearInterval(scrollTimer);
     });
 }
-}
 
 window.stopAutoTourFromBadge = function(e) {
     if (e) {
