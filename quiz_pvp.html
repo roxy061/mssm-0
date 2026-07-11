@@ -501,11 +501,31 @@ function startQuiz() {
     loadQuestion();
 }
 
+// ─── SHUFFLE CHOICES HELPER ──────────────────────────────────────────────────
+// Returns { shuffledChoices, newCorrectIdx } so submitAnswer always knows the truth
+function shuffleChoices(choices, correctIdx) {
+    // Build index array and Fisher-Yates shuffle using Math.random (per-render)
+    const indices = choices.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    const shuffledChoices = indices.map(i => choices[i]);
+    const newCorrectIdx   = indices.indexOf(correctIdx);
+    return { shuffledChoices, newCorrectIdx };
+}
+
 // ─── LOAD QUESTION ───────────────────────────────────────────────────────────
 function loadQuestion() {
     if (activeIdx >= quizList.length) { endQuiz(); return; }
 
     const q = quizList[activeIdx];
+
+    // Shuffle choices — store shuffled correct index back on the live item
+    const { shuffledChoices, newCorrectIdx } = shuffleChoices(q.choices, q.correct);
+    q._shuffledChoices   = shuffledChoices;   // save for submitAnswer
+    q._shuffledCorrect   = newCorrectIdx;      // shuffled position of correct answer
+
     // Animate in
     const quizPanel = document.getElementById('phaseQuiz').querySelector('.glass-panel');
     quizPanel.style.opacity = '0';
@@ -521,10 +541,10 @@ function loadQuestion() {
     document.getElementById('quizAlert').classList.add('hidden');
     document.getElementById('quizExplain').classList.add('hidden');
 
-    // Choices
+    // Choices — render shuffled order, labels ก/ข/ค/ง always sequential
     const container = document.getElementById('choicesList');
     container.innerHTML = '';
-    q.choices.forEach((choice, i) => {
+    shuffledChoices.forEach((choice, i) => {
         const btn = document.createElement('button');
         btn.id = 'choice_' + i;
         btn.className = 'w-full p-3.5 gaming-btn rounded-2xl text-xs font-bold text-slate-200 text-left cursor-pointer flex items-center gap-2.5';
@@ -561,17 +581,19 @@ function submitAnswer(idx) {
     clearInterval(timerInterval);
 
     const q = quizList[activeIdx];
+    // Use the shuffled correct index (set by loadQuestion)
+    const correctPos = q._shuffledCorrect;
     const btns = document.getElementById('choicesList').getElementsByTagName('button');
 
-    // Disable all and highlight
+    // Disable all and highlight correct / wrong positions
     for (let i = 0; i < btns.length; i++) {
         btns[i].disabled = true;
         btns[i].style.cursor = 'default';
-        if (i === q.correct) {
+        if (i === correctPos) {
             btns[i].classList.add('choice-correct');
             btns[i].querySelector('span').style.background = 'rgba(16,185,129,0.3)';
             btns[i].querySelector('span').style.color = '#34d399';
-        } else if (i === idx && idx !== q.correct) {
+        } else if (i === idx && idx !== correctPos) {
             btns[i].classList.add('choice-wrong');
             btns[i].querySelector('span').style.background = 'rgba(239,68,68,0.3)';
             btns[i].querySelector('span').style.color = '#f87171';
@@ -579,22 +601,22 @@ function submitAnswer(idx) {
     }
 
     // Alert + score
-    const alert = document.getElementById('quizAlert');
-    alert.classList.remove('hidden');
+    const alertEl = document.getElementById('quizAlert');
+    alertEl.classList.remove('hidden');
     let change = 0;
 
-    if (idx === q.correct) {
+    if (idx === correctPos) {
         change = 10000; countCorrect++;
-        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400';
-        alert.innerHTML = `🟢 ถูกต้อง! <span class="text-white font-black">+${change.toLocaleString()} บาท</span>`;
+        alertEl.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400';
+        alertEl.innerHTML = `🟢 ถูกต้อง! <span class="text-white font-black">+${change.toLocaleString()} บาท</span>`;
     } else if (idx === -1) {
         change = -2000; countTimeout++;
-        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400';
-        alert.innerHTML = `⏰ หมดเวลา! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
+        alertEl.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-yellow-500/10 border border-yellow-500/20 text-yellow-400';
+        alertEl.innerHTML = `⏰ หมดเวลา! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
     } else {
         change = -3000; countWrong++;
-        alert.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-red-500/10 border border-red-500/20 text-red-400';
-        alert.innerHTML = `🔴 ผิด! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
+        alertEl.className = 'p-3 rounded-xl text-center font-bold text-[11px] bg-red-500/10 border border-red-500/20 text-red-400';
+        alertEl.innerHTML = `🔴 ผิด! <span class="text-white font-black">${change.toLocaleString()} บาท</span>`;
     }
 
     myScore = Math.max(0, myScore + change);
@@ -608,7 +630,7 @@ function submitAnswer(idx) {
     }
 
     // Next question after delay
-    const delay = idx === q.correct ? 1400 : 1800;
+    const delay = idx === correctPos ? 1400 : 1800;
     setTimeout(() => {
         activeIdx++;
         loadQuestion();
