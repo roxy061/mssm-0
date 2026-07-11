@@ -77,6 +77,9 @@
 <body class="bg-[#060d1a] text-slate-100 min-h-screen flex overflow-x-hidden star-bg">
 
 <!-- ══════════ LEFT SIDEBAR ══════════ -->
+
+
+<!-- Sidebar -->
 <!-- Mobile Overlay -->
 <div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
 
@@ -85,16 +88,16 @@
     <!-- Brand Header -->
     <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
         <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
-        <div class="text-2xl mb-1">🧠</div>
-        <div class="text-lg font-extrabold text-white drop-shadow-lg">MSSM Quiz</div>
-        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">MSSM Intelligence Platform</div>
+        <div class="text-2xl mb-1">🍄</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">Mush-Up NVC</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">MSSM Platform</div>
     </div>
 
     <!-- Close Button (Mobile) -->
     <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
 
     <!-- Nav Items -->
-    <nav class="flex-1 px-3 py-4 space-y-1">
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <!-- Will be overwritten by core.js renderSidebar -->
     </nav>
 </aside>
@@ -133,13 +136,6 @@
                     <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">รวมเล่นแล้ว</div>
                     <div class="text-sm font-black text-emerald-400" id="introTotalRounds">0 รอบ</div>
                 </div>
-            </div>
-
-            <!-- Nickname -->
-            <div class="text-left">
-                <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">ชื่อผู้เล่น</label>
-                <input type="text" id="txtNickname" value="" placeholder="พิมพ์ชื่อของคุณ..." maxlength="20"
-                    class="w-full bg-slate-950 border border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30 p-3 rounded-2xl text-sm font-bold text-slate-200 outline-none transition placeholder:text-slate-600">
             </div>
 
             <!-- Difficulty select -->
@@ -434,8 +430,6 @@ function getUniqueRoundQuestions() {
 window.addEventListener('load', () => {
     loadStats();
     updateWalletDisplay();
-    const saved = localStorage.getItem('mssm_quiz_nickname');
-    if (saved) document.getElementById('txtNickname').value = saved;
     setDifficulty(15, '⚡ กลาง');
 });
 
@@ -477,8 +471,7 @@ function setDifficulty(secs, label) {
 
 // ─── START QUIZ ──────────────────────────────────────────────────────────────
 function startQuiz() {
-    const nick = document.getElementById('txtNickname').value.trim() || 'ผู้เล่น';
-    localStorage.setItem('mssm_quiz_nickname', nick);
+    const nick = 'ผู้เล่น';
 
     myScore = 0; countCorrect = 0; countWrong = 0; countTimeout = 0;
     quizList = getUniqueRoundQuestions();
@@ -695,7 +688,7 @@ function backToIntro() {
 }
 
 // ─── MOBILE MENU ─────────────────────────────────────────────────────────────
-function toggleMobileMenu() {
+function toggleMenu() {
     document.getElementById('mobileMenu').classList.toggle('hidden');
 }
 </script>

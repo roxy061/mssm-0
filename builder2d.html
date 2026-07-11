@@ -118,51 +118,27 @@
 <body class="bg-gradient-to-br from-emerald-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 min-h-screen text-gray-800 dark:text-gray-100 flex overflow-x-hidden">
 
     <!-- LEFT SIDEBAR -->
-    <aside class="fixed inset-y-0 left-0 w-64 glass-panel border-r border-gray-200 dark:border-slate-800 z-50 transition-all duration-300 hidden lg:flex flex-col">
-        <div class="p-6 border-b border-gray-200 dark:border-slate-800 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-base shadow-md"><i class="fas fa-gamepad"></i></span>
-                <span class="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">MSSM Simulator</span>
-            </div>
-            <button onclick="document.documentElement.classList.toggle('dark')" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition flex items-center justify-center cursor-pointer">
-                <i class="fas fa-moon dark:hidden"></i>
-                <i class="fas fa-sun hidden dark:block text-amber-500"></i>
-            </button>
-        </div>
-        
-        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
-            </a>
-            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
-            </a>
-            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
-            </a>
-            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 2D
-            </a>
-            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-cube text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
-            </a>
-            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
-            </a>
-            <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-trophy text-sm"></i> ทดสอบความรู้
-            </a>
-            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
-            </a>
-            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
-            </a>
-            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 dark:hover:text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-cog text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
-            </a>
-        </nav>
-    </aside>
+    <!-- Mobile Overlay -->
+<div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full lg:!translate-x-0">
+    <!-- Brand Header -->
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-800 dark:from-emerald-600 dark:to-gray-900 p-5 text-center shrink-0 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image:radial-gradient(circle at 20% 50%,#fff 0,transparent 50%)"></div>
+        <div class="text-2xl mb-1">🍄</div>
+        <div class="text-lg font-extrabold text-white drop-shadow-lg">Mush-Up NVC</div>
+        <div class="text-[10px] text-emerald-200 dark:text-emerald-300 font-medium mt-0.5">MSSM Platform</div>
+    </div>
+
+    <!-- Close Button (Mobile) -->
+    <button onclick="closeMenu()" class="lg:hidden absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-all cursor-pointer"><i class="fas fa-times text-sm"></i></button>
+
+    <!-- Nav Items -->
+    <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <!-- Will be overwritten by core.js renderSidebar -->
+    </nav>
+</aside>
 
     <!-- MOBILE HEADER -->
     <header class="fixed top-0 inset-x-0 h-14 glass-panel border-b border-gray-200 dark:border-slate-800 flex items-center justify-between px-4 z-40 lg:hidden shrink-0">
@@ -175,34 +151,15 @@
                 <i class="fas fa-moon dark:hidden"></i>
                 <i class="fas fa-sun hidden dark:block text-amber-500"></i>
             </button>
-            <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-gray-150 dark:hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
+            <button onclick="toggleMenu()" class="w-8 h-8 rounded-full hover:bg-gray-150 dark:hover:bg-slate-800 transition flex items-center justify-center cursor-pointer"><i class="fas fa-bars"></i></button>
         </div>
     </header>
 
     <!-- MOBILE MENU DRAWER -->
-    <div id="mobileMenu" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden lg:hidden">
-        <div class="w-64 glass-panel border-r border-gray-200 dark:border-slate-800 h-full flex flex-col p-4">
-            <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-slate-800">
-                <span class="font-black text-sm text-gray-800 dark:text-gray-100 uppercase">เมนูหลัก</span>
-                <button onclick="toggleMobileMenu()" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 flex items-center justify-center cursor-pointer"><i class="fas fa-times"></i></button>
-            </div>
-            <nav class="space-y-1.5 flex-grow">
-                <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">แดชบอร์ดผลการทดลอง</a>
-                <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ห้องปฏิบัติการวิจัย</a>
-                <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ผู้ช่วยวิเคราะห์ AI</a>
-                <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold bg-emerald-500/10 text-emerald-600 text-xs">ออกแบบโรงเรือน 2D</a>
-                <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">การออกแบบโรงเพาะเห็ด 3D</a>
-                <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ตลาดราคากลางสด</a>
-                <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ทดสอบความรู้</a>
-                <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">คลังข้อมูลดิบ Dataset</a>
-                <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">คู่มือและเอกสารโครงงาน</a>
-                <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold hover:bg-emerald-50 dark:hover:bg-slate-800/50 hover:text-emerald-600 text-xs">ศูนย์ตั้งค่าอัจฉริยะ</a>
-            </nav>
-        </div>
-    </div>
+    <!-- Mobile Menu Container Removed -->
 
     <!-- MAIN CONTAINER -->
-    <div class="lg:pl-64 min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6">
+    <div class="lg:pl-[260px] min-h-screen w-full flex flex-col max-lg:pt-[60px] pb-6">
         <header class="text-center px-4 py-3 shrink-0 relative overflow-hidden flex flex-col md:flex-row items-center justify-between border-b border-gray-200 dark:border-slate-855 gap-2">
             <div class="text-left">
                 <h1 class="text-base md:text-lg font-black text-gray-800 dark:text-gray-100 flex items-center gap-1.5"><i class="fas fa-map text-emerald-500"></i> Interactive 2D Farm Grid & Control Dashboard</h1>
@@ -484,7 +441,7 @@
         });
 
         // Toggle mobile drawer
-        function toggleMobileMenu() {
+        function toggleMenu() {
             const menu = document.getElementById('mobileMenu');
             if (menu) menu.classList.toggle('hidden');
         }
