@@ -56,7 +56,26 @@
             border: 1px solid rgba(51, 65, 85, 0.4);
         }
     </style>
+
+    <!-- GLOBAL RENDER MODE ROUTER -->
+    <script>
+        (function() {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            const path = window.location.pathname;
+            
+            // Allow manual override via ?mode=2d or ?mode=3d query params just in case
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mode')) return;
+
+            if (path.includes('builder2d.html') && mode === '3d') {
+                window.location.replace('mushroom_3d.html');
+            } else if (path.includes('mushroom_3d.html') && mode === '2d') {
+                window.location.replace('builder2d.html');
+            }
+        })();
+    </script>
 </head>
+
 <body class="bg-[#0b0f19] text-slate-100 min-h-screen flex overflow-x-hidden">
 
     <!-- LEFT SIDEBAR -->
@@ -68,38 +87,23 @@
             </div>
         </div>
         
-        <nav class="flex-1 p-4 space-y-1.5 overflow-y-auto">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-chart-pie text-sm"></i> แดชบอร์ดผลการทดลอง
-            </a>
-            <a href="lab.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-flask text-sm"></i> ห้องปฏิบัติการวิจัย
-            </a>
-            <a href="ai.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-robot text-sm"></i> ผู้ช่วยวิเคราะห์ AI
-            </a>
-            <a href="builder2d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cubes text-sm"></i> ออกแบบโรงเรือน 2D
-            </a>
-            <a href="mushroom_3d.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-cube text-sm"></i> การออกแบบโรงเพาะเห็ด 3D
-            </a>
-            <a href="market.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-chart-line text-sm"></i> ตลาดราคากลางสด
-            </a>
-            <a href="quiz_pvp.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-trophy text-sm"></i> ทดสอบความรู้
-            </a>
-            <a href="dataset.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-database text-sm"></i> คลังข้อมูลดิบ Dataset
-            </a>
-            <a href="doc.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800/50 hover:text-white font-bold transition-all text-xs">
-                <i class="fas fa-file-invoice text-sm"></i> คู่มือและเอกสารโครงงาน
-            </a>
-            <a href="settings.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 text-emerald-400 font-bold transition-all text-xs">
-                <i class="fas fa-cog text-sm"></i> ศูนย์ตั้งค่าอัจฉริยะ
-            </a>
-        </nav>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
+        <a href="index.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs"><i class="fas fa-home"></i></span> หน้าแรก</a>
+        
+        <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+            <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
+            <a href="lab.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
+            <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
+            <a href="builder2d.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs"><i class="fas fa-cubes"></i></span> ออกแบบโรงเรือน (Builder)</a>
+            <a href="market.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white text-xs"><i class="fas fa-chart-line"></i></span> ตลาดราคากลางสด</a>
+            <a href="quiz_pvp.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs"><i class="fas fa-trophy"></i></span> ทดสอบความรู้</a>
+            <a href="dataset.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs"><i class="fas fa-database"></i></span> คลังข้อมูลวิจัย</a>
+            <a href="doc.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white text-xs"><i class="fas fa-book"></i></span> คู่มือวิจัย</a>
+            <a href="settings.html" class="nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-gray-500 to-slate-700 text-white text-xs"><i class="fas fa-cog"></i></span> ศูนย์ตั้งค่าอัจฉริยะ</a>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform" target="_blank" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 text-xs"><i class="fas fa-poll"></i></span> แบบสอบถาม</a>
+        </div>
+    </nav>
     </aside>
 
     <!-- MOBILE HEADER -->

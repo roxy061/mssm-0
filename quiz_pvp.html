@@ -48,7 +48,26 @@
         .timer-warning { animation:pulseGlow 0.9s infinite; }
         .star-bg { background:radial-gradient(ellipse at 60% 20%,rgba(16,185,129,0.08) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(99,102,241,0.06) 0%,transparent 60%); }
     </style>
+
+    <!-- GLOBAL RENDER MODE ROUTER -->
+    <script>
+        (function() {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            const path = window.location.pathname;
+            
+            // Allow manual override via ?mode=2d or ?mode=3d query params just in case
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mode')) return;
+
+            if (path.includes('builder2d.html') && mode === '3d') {
+                window.location.replace('mushroom_3d.html');
+            } else if (path.includes('mushroom_3d.html') && mode === '2d') {
+                window.location.replace('builder2d.html');
+            }
+        })();
+    </script>
 </head>
+
 <body class="bg-[#060d1a] text-slate-100 min-h-screen flex overflow-x-hidden star-bg">
 
 <!-- ══════════ LEFT SIDEBAR ══════════ -->

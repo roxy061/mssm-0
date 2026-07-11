@@ -98,6 +98,21 @@
     .card-shine::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.06) 50%,transparent 60%); transition: transform .6s; transform: translateX(-100%); }
     .card-shine:hover::after { transform: translateX(100%); }
 </style>
+    <!-- GLOBAL RENDER MODE ROUTER -->
+    <script>
+        (function() {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            const path = window.location.pathname;
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mode')) return;
+
+            if (path.includes('builder2d.html') && mode === '3d') {
+                window.location.replace('mushroom_3d.html');
+            } else if (path.includes('mushroom_3d.html') && mode === '2d') {
+                window.location.replace('builder2d.html');
+            }
+        })();
+    </script>
 </head>
 <body class="bg-gray-50 dark:bg-gray-950 text-gray-700 dark:text-gray-300 overflow-x-hidden transition-colors duration-300">
 
@@ -149,8 +164,7 @@
             <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
             <a href="lab.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 text-white text-xs"><i class="fas fa-flask"></i></span> MSSM Lab</a>
             <a href="ai.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs"><i class="fas fa-robot"></i></span> AI Assistant</a>
-            <a href="builder2d.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white text-xs"><i class="fas fa-cubes"></i></span> ออกแบบโรงเรือน 2D</a>
-            <a href="mushroom_3d.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 text-white text-xs"><i class="fas fa-cube"></i></span> การออกแบบโรงเพาะเห็ด 3D</a>
+            <a href="builder2d.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-xs"><i class="fas fa-cubes"></i></span> ออกแบบโรงเรือน (Builder)</a>
             <a href="market.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white text-xs"><i class="fas fa-chart-line"></i></span> ตลาดราคากลางสด</a>
             <a href="quiz_pvp.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 text-white text-xs"><i class="fas fa-trophy"></i></span> ทดสอบความรู้</a>
             <a href="dataset.html" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all"><span class="w-7 h-7 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs"><i class="fas fa-database"></i></span> คลังข้อมูลวิจัย</a>

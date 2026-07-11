@@ -97,7 +97,26 @@
             font-weight: 700;
         }
     </style>
+
+    <!-- GLOBAL RENDER MODE ROUTER -->
+    <script>
+        (function() {
+            const mode = localStorage.getItem('globalRenderMode') || '2d';
+            const path = window.location.pathname;
+            
+            // Allow manual override via ?mode=2d or ?mode=3d query params just in case
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('mode')) return;
+
+            if (path.includes('builder2d.html') && mode === '3d') {
+                window.location.replace('mushroom_3d.html');
+            } else if (path.includes('mushroom_3d.html') && mode === '2d') {
+                window.location.replace('builder2d.html');
+            }
+        })();
+    </script>
 </head>
+
 <body class="text-gray-150 min-h-screen flex overflow-x-hidden">
 
     <!-- LEFT SIDEBAR -->
