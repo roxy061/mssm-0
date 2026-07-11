@@ -49,6 +49,7 @@ function toggleMenu() {
 }
 
 function closeMenu() {
+    if (window.innerWidth >= 1024) return; // Don't close/hide menu on desktop sizes
     const menu = document.getElementById('mobileMenu');
     if (menu) {
         menu.classList.add('-translate-x-full');
@@ -114,20 +115,78 @@ function initTheme() {
         playClick();
     });
 
-    function syncTheme(dark) {
-        const icon = document.getElementById('themeToggleIcon');
-        if (dark) {
-            document.documentElement.classList.add('dark');
-            if (icon) {
-                icon.className = 'fas fa-sun text-lg text-amber-400 transition-transform duration-500 rotate-0 scale-100';
-            }
-        } else {
-            document.documentElement.classList.remove('dark');
-            if (icon) {
-                icon.className = 'fas fa-moon text-lg text-emerald-600 transition-transform duration-500 rotate-[360deg] scale-100';
-            }
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'theme') {
+            const dark = localStorage.getItem('theme') === 'dark';
+            syncTheme(dark);
+        }
+        if (e.key === 'themeColor') {
+            applyThemeColorOverride();
+        }
+    });
+
+    // Run on boot to ensure current tab color override matches localStorage
+    applyThemeColorOverride();
+}
+
+function syncTheme(dark) {
+    const icon = document.getElementById('themeToggleIcon');
+    if (dark) {
+        document.documentElement.classList.add('dark');
+        if (icon) {
+            icon.className = 'fas fa-sun text-sm text-amber-400 transition-transform duration-500 rotate-0 scale-100';
+        }
+    } else {
+        document.documentElement.classList.remove('dark');
+        if (icon) {
+            icon.className = 'fas fa-moon text-sm text-emerald-100 transition-transform duration-500 rotate-[360deg] scale-100';
         }
     }
+}
+
+function applyThemeColorOverride() {
+    const themeColor = localStorage.getItem('themeColor') || 'emerald';
+    const colorMap = {
+        emerald: { brand: '#10b981', hover: '#059669', bg: 'rgba(16, 185, 129, 0.1)' },
+        blue: { brand: '#3b82f6', hover: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)' },
+        violet: { brand: '#8b5cf6', hover: '#7c3aed', bg: 'rgba(139, 92, 246, 0.1)' },
+        amber: { brand: '#f59e0b', hover: '#d97706', bg: 'rgba(245, 158, 11, 0.1)' },
+        rose: { brand: '#f43f5e', hover: '#e11d48', bg: 'rgba(244, 63, 94, 0.1)' }
+    };
+    const colors = colorMap[themeColor] || colorMap.emerald;
+    
+    let style = document.getElementById('theme-color-override');
+    if (!style) {
+        style = document.createElement('style');
+        style.id = 'theme-color-override';
+        document.head.appendChild(style);
+    }
+    
+    const hexToRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '16, 185, 129';
+    };
+
+    style.innerHTML = `
+        :root {
+            --color-brand: ${colors.brand};
+            --color-brand-hover: ${colors.hover};
+            --color-brand-bg: ${colors.bg};
+        }
+        .text-emerald-400 { color: ${colors.brand} !important; }
+        .text-emerald-500 { color: ${colors.brand} !important; }
+        .text-emerald-600 { color: ${colors.hover} !important; }
+        .bg-emerald-500 { background-color: ${colors.brand} !important; }
+        .bg-emerald-600 { background-color: ${colors.hover} !important; }
+        .border-emerald-500 { border-color: ${colors.brand} !important; }
+        .border-emerald-600 { border-color: ${colors.hover} !important; }
+        .focus\\:border-emerald-500:focus { border-color: ${colors.brand} !important; }
+        .focus\\:ring-emerald-500\\/20:focus { --tw-ring-color: rgba(${hexToRgb(colors.brand)}, 0.2) !important; }
+        .hover\\:bg-emerald-50:hover { background-color: ${colors.bg} !important; }
+        .hover\\:bg-emerald-600:hover { background-color: ${colors.hover} !important; }
+        .hover\\:text-emerald-400:hover { color: ${colors.brand} !important; }
+        .bg-gradient-to-br.from-emerald-500.to-emerald-800 { background-image: linear-gradient(135deg, ${colors.brand}, ${colors.hover}) !important; }
+    `;
 }
 
 // === SMART SCROLL CONTROLS ===
@@ -371,13 +430,10 @@ function initCommandPalette() {
 // === CENTRALIZED SIDEBAR RENDERING ===
 function renderSidebar() {
     const navContainers = document.querySelectorAll('nav.flex-1, nav.flex-grow, aside nav, #mobileMenu nav');
-    if (navContainers.length === 0) return;
-
     const path = window.location.pathname;
     const isIndex = path.endsWith('index.html') || path.endsWith('/') || !path.includes('.html');
     const mode = localStorage.getItem('globalRenderMode') || '2d';
 
-    // Customize the Builder menu style based on Render Mode
     let builderBtnClass = "bg-gradient-to-br from-indigo-500 to-purple-600 text-white";
     let builderBadge = "";
     if (mode === '3d') {
@@ -405,88 +461,52 @@ function renderSidebar() {
         { href: isIndex ? "#contact" : "index.html#contact", label: "ติดต่อ", icon: "fa-envelope", colorClass: "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400" }
     ];
 
-    let html = `
-        <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>
-    `;
+    let html = `<div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>`;
 
     menuItems.forEach((item, idx) => {
         let isCurrent = path.includes(item.href);
-        if (item.isBuilder && (path.includes('builder2d.html') || path.includes('mushroom_3d.html'))) {
-            isCurrent = true;
-        } else if (item.href === 'index.html' && isIndex) {
-            isCurrent = true;
-        }
+        if (item.isBuilder && (path.includes('builder2d.html') || path.includes('mushroom_3d.html'))) isCurrent = true;
+        else if (item.href === 'index.html' && isIndex) isCurrent = true;
 
-        let linkHref = item.href;
-        
         let activeClass = isCurrent 
             ? "nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 transition-all" 
             : "nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all";
 
-        let targetAttr = item.target ? `target="${item.target}"` : "";
-        let onclickAttr = isIndex && !item.target ? `onclick="closeMenu()"` : "";
-
-        html += `
-            <a href="${linkHref}" ${targetAttr} ${onclickAttr} class="${activeClass} relative">
+        let linkContent = `
+            <a href="${item.href}" ${item.target ? `target="${item.target}"` : ""} class="${activeClass} relative">
                 <span class="w-7 h-7 flex items-center justify-center rounded-lg ${item.colorClass} text-xs"><i class="fas ${item.icon}"></i></span>
-                ${item.label}
+                <span>${item.label}</span>
                 ${item.isBuilder ? builderBadge : ""}
             </a>
         `;
 
-        // Render sub-menus for the Builder item
         if (item.isBuilder) {
-            const is2DActive = path.includes('builder2d.html');
-            const is3DActive = path.includes('mushroom_3d.html');
-            const isAnyActive = is2DActive || is3DActive || isIndex;
-            
-            const active2DClass = is2DActive
-                ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
-                : "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-700 dark:hover:text-gray-300 transition-all";
-                
-            const active3DClass = is3DActive
-                ? "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-900/10 transition-all"
-                : "pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-700 dark:hover:text-gray-300 transition-all";
-
-            // Add chevron to main link
-            const chevronClass = isAnyActive ? "fa-chevron-up" : "fa-chevron-down";
-            const hiddenClass = isAnyActive ? "" : "hidden";
-
-            // Inject toggle button into the link container HTML above
-            // We need to modify the builder link container to have a chevron
-            html = html.replace('ออกแบบโรงเรือน (Builder)', `
+            const isAnyActive = path.includes('builder2d.html') || path.includes('mushroom_3d.html');
+            linkContent = linkContent.replace('<span>ออกแบบโรงเรือน (Builder)</span>', `
                 <span>ออกแบบโรงเรือน (Builder)</span>
-                <span onclick="toggleBuilderSubmenu(event)" class="ml-auto p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white transition cursor-pointer z-20"><i id="builderChevron" class="fas ${chevronClass} text-[10px]"></i></span>
+                <span onclick="toggleBuilderSubmenu(event)" class="ml-auto p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white transition cursor-pointer z-20"><i id="builderChevron" class="fas ${isAnyActive ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px]"></i></span>
             `);
-
-            html += `
-                <div id="builderSubmenu" class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 animate-slide-down ${hiddenClass}">
-                    <a href="builder2d.html?mode=2d" ${onclickAttr} class="${active2DClass}">
-                        <i class="fas fa-cubes text-[10px]"></i> โหมด 2D (Classic)
-                    </a>
-                    <a href="mushroom_3d.html?mode=3d" ${onclickAttr} class="${active3DClass}">
-                        <i class="fas fa-cube text-[10px]"></i> โหมด 3D (Interactive)
-                    </a>
-                </div>
-            `;
+            html += linkContent + `
+                <div id="builderSubmenu" class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 ${isAnyActive ? '' : 'hidden'}">
+                    <a href="builder2d.html?mode=2d" class="pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"><i class="fas fa-cubes text-[10px]"></i> โหมด 2D</a>
+                    <a href="mushroom_3d.html?mode=3d" class="pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"><i class="fas fa-cube text-[10px]"></i> โหมด 3D</a>
+                </div>`;
+        } else {
+            html += linkContent;
         }
 
         if (idx === 0) {
-            html += `
-                <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
-            `;
+            html += `<div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">`;
             indexAnchors.forEach(anchor => {
                 html += `
-                    <a href="${anchor.href}" onclick="closeMenu()" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all">
+                    <a href="${anchor.href}" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all">
                         <span class="w-7 h-7 flex items-center justify-center rounded-lg ${anchor.colorClass} text-xs"><i class="fas ${anchor.icon}"></i></span>
                         ${anchor.label}
                     </a>
                 `;
             });
-            html += `
-                <div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
-                    <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>
-            `;
+            html += `</div><div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
+                    <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>`;
         }
     });
 

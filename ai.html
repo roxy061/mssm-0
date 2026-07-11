@@ -233,7 +233,7 @@
             <!-- Two-row beautiful, responsive and spacious input controls -->
             <div class="p-3 sm:p-4 bg-white/80 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 space-y-2.5 shrink-0">
                 <div id="imagePreview" class="hidden mb-1 relative inline-block">
-                    <img id="previewImg" class="h-14 w-14 md:h-20 md:w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <img loading="lazy" id="previewImg" class="h-14 w-14 md:h-20 md:w-20 object-cover rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
                     <button onclick="clearImage()" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[11px] font-bold shadow-md hover:bg-red-600 transition-all cursor-pointer">&times;</button>
                 </div>
                 <!-- Action Row: Camera, Mic, and Study Mode Selection -->
@@ -407,7 +407,7 @@
             </div>
             <div id="modalLogImageArea" class="hidden">
                 <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1">รูปภาพที่แนบ</span>
-                <img id="modalLogImg" class="max-h-48 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm object-contain">
+                <img loading="lazy" id="modalLogImg" class="max-h-48 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm object-contain">
             </div>
             <div class="grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-gray-800/80 pt-4">
                 <div>

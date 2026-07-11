@@ -181,9 +181,12 @@
                 <h1 class="text-base md:text-xl font-black text-white flex items-center gap-2"><i class="fas fa-chart-line text-emerald-500 animate-pulse"></i> Financial Trading Center & Live Market</h1>
                 <p class="text-[10px] md:text-xs text-slate-400">ประเมินโอกาสสร้างรายได้ เชื่อมโยงสภาพแวดล้อมและราคากลางกระทรวงพาณิชย์ (DIT) ตลอด 24 ชั่วโมง</p>
             </div>
-            <div class="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-400 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                <span>DIT Scraper: <strong class="text-emerald-400">Active</strong> (อัปเดต 06:00 น.)</span>
+            <div class="flex items-center gap-2">
+                <button onclick="exportMarketDataCSV()" class="px-3.5 py-2 bg-gradient-to-br from-blue-600 to-indigo-650 text-white rounded-xl font-bold text-[10px] hover:shadow-lg transition flex items-center gap-1.5 border border-blue-500/30 cursor-pointer shadow-md"><i class="fas fa-file-csv"></i> ส่งออกข้อมูล (CSV)</button>
+                <div class="text-xs bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-slate-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>DIT Scraper: <strong class="text-emerald-400">Active</strong> (อัปเดต 06:00 น.)</span>
+                </div>
             </div>
         </header>
 
@@ -563,45 +566,76 @@
         }
 
         function simulateMarketTicks() {
-            const weather = localStorage.getItem('sandboxWeatherMode') || 'sunny';
-            const weatherMultiplier = weather === 'rainy' ? 2.3 : 1.0;
+            try {
+                const weather = localStorage.getItem('sandboxWeatherMode') || 'sunny';
+                const weatherMultiplier = weather === 'rainy' ? 2.3 : 1.0;
 
-            // Fluctuate prices slightly
-            for (let key in currentPrices) {
-                let variance = (key === 'เห็ดแครง' ? 0.8 : 0.4) * weatherMultiplier;
+                // Fluctuate prices slightly
+                for (let key in currentPrices) {
+                    let variance = (key === 'เห็ดแครง' ? 0.8 : 0.4) * weatherMultiplier;
+                    
+                    // Apply news event multiplier
+                    if (activeMarketEvent && activeMarketEvent.target === key) {
+                        variance = variance * activeMarketEvent.change;
+                    }
+
+                    currentPrices[key] += (Math.random() - 0.5) * variance;
+                    currentPrices[key] = Math.max(10, currentPrices[key]);
+                }
+
+                // Handle news event timer countdown
+                if (activeMarketEvent) {
+                    activeEventTimeLeft -= 3;
+                    if (activeEventTimeLeft <= 0) {
+                        activeMarketEvent = null;
+                        document.getElementById('breakingNewsBar').classList.add('hidden');
+                    } else {
+                        document.getElementById('lblNewsText').textContent = `${activeMarketEvent.text} (ผลกระทบเหลืออีก ${activeEventTimeLeft} วินาที)`;
+                    }
+                }
                 
-                // Apply news event multiplier
-                if (activeMarketEvent && activeMarketEvent.target === key) {
-                    variance = variance * activeMarketEvent.change;
+                // Check stop loss alert for Hed Hoo Nu
+                const alertBox = document.getElementById('stopLossAlert');
+                if (alertBox) {
+                    if (currentPrices['เห็ดหูหนู'] < 60.0) {
+                        alertBox.classList.remove('hidden');
+                    } else {
+                        alertBox.classList.add('hidden');
+                    }
                 }
 
-                currentPrices[key] += (Math.random() - 0.5) * variance;
-                currentPrices[key] = Math.max(10, currentPrices[key]);
+                // Update ticker & table
+                startTicker();
+                renderHoldingsTable();
+                updateEstimatedCost();
+            } catch (err) {
+                console.error("Market tick error ignored for stability: ", err);
             }
+        }
 
-            // Handle news event timer countdown
-            if (activeMarketEvent) {
-                activeEventTimeLeft -= 3;
-                if (activeEventTimeLeft <= 0) {
-                    activeMarketEvent = null;
-                    document.getElementById('breakingNewsBar').classList.add('hidden');
-                } else {
-                    document.getElementById('lblNewsText').textContent = `${activeMarketEvent.text} (ผลกระทบเหลืออีก ${activeEventTimeLeft} วินาที)`;
+        function exportMarketDataCSV() {
+            try {
+                let csvContent = "\ufeff"; // Add UTF-8 BOM to prevent Thai encoding issues in Excel
+                csvContent += "ชนิดเห็ด,ราคากลางล่าสุด (บาท),ดีมานด์คะแนน (%),ราคาแนะนำช่วงวิจัย\n";
+                
+                for (let key in currentPrices) {
+                    const price = currentPrices[key];
+                    const demand = demands[key]?.score || 0;
+                    const range = demands[key]?.range || '—';
+                    csvContent += `"${key}",${price.toFixed(2)},${demand}%,${range}\n`;
                 }
+                
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", "mssm_market_prices_report.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (err) {
+                alert("เกิดข้อผิดพลาดในการส่งออกไฟล์รายงาน: " + err.message);
             }
-            
-            // Check stop loss alert for Hed Hoo Nu
-            const alertBox = document.getElementById('stopLossAlert');
-            if (currentPrices['เห็ดหูหนู'] < 60.0) {
-                alertBox.classList.remove('hidden');
-            } else {
-                alertBox.classList.add('hidden');
-            }
-
-            // Update ticker & table
-            startTicker();
-            renderHoldingsTable();
-            updateEstimatedCost();
         }
 
         function startTicker() {

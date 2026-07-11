@@ -404,6 +404,7 @@ let countTimeout   = 0;
 let diffSeconds    = 15;
 let diffLabel      = '⚡ กลาง';
 let usedSeedOffsets = []; // Track used seed offsets to prevent question repeat across rounds
+let transitionTimeout = null;
 
 // ─── SEEDED SHUFFLE ─────────────────────────────────────────────────────────
 // Uses a deterministic shuffle based on seed, but seed changes every round to rotate questions
@@ -431,6 +432,11 @@ window.addEventListener('load', () => {
     loadStats();
     updateWalletDisplay();
     setDifficulty(15, '⚡ กลาง');
+});
+
+window.addEventListener('beforeunload', () => {
+    clearInterval(timerInterval);
+    if (transitionTimeout) clearTimeout(transitionTimeout);
 });
 
 function loadStats() {
@@ -618,7 +624,8 @@ function submitAnswer(idx) {
 
     // Next question after delay
     const delay = idx === correctPos ? 1400 : 1800;
-    setTimeout(() => {
+    if (transitionTimeout) clearTimeout(transitionTimeout);
+    transitionTimeout = setTimeout(() => {
         activeIdx++;
         loadQuestion();
     }, delay);

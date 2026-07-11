@@ -146,7 +146,9 @@ function clearImage() {
     if (inp) inp.value = '';
 }
 
+let isSending = false;
 async function send() {
+    if (isSending) return;
     const input = document.getElementById('userInput');
     const msg = input?.value.trim();
     const fileInput = document.getElementById('imageInput');
@@ -168,6 +170,7 @@ async function send() {
         return;
     }
 
+    isSending = true;
     toggleChatLoading(true);
 
     const parts = [];
@@ -186,6 +189,8 @@ async function send() {
             parts.push(createPartFromBase64(base64Data, file.type || 'image/jpeg'));
         } catch (e) {
             addMsg('ai', '⚠️ <strong>ผิดพลาด:</strong> ไม่สามารถอ่านไฟล์ภาพได้');
+            isSending = false;
+            toggleChatLoading(false);
             return;
         }
     }
@@ -223,7 +228,6 @@ async function send() {
         chatCtx.push(userMessage);
         chatCtx.push({ role: 'model', parts: [{ text: reply }] });
         addMsg('ai', fmt(reply));
-        toggleChatLoading(false);
     } catch (e) {
         if (typing) typing.classList.add('hidden');
         addMsg('ai', `
@@ -234,6 +238,8 @@ async function send() {
             <button onclick="retrySend()" class="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"><i class="fas fa-arrows-rotate"></i> ลองเชื่อมต่อใหม่อีกครั้ง</button>
         </div>
         `);
+    } finally {
+        isSending = false;
         toggleChatLoading(false);
     }
 }
