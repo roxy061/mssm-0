@@ -885,15 +885,15 @@ function exportAIChatCSV() {
 }
 
 function clearAIChatTable() {
-    if (confirm('คุณต้องการลบข้อมูลทั้งหมดในตารางสะสมข้อมูลใช่หรือไม่?')) {
+    window.showMushroomConfirm('คุณต้องการลบข้อมูลทั้งหมดในตารางสะสมข้อมูลใช่หรือไม่?', () => {
         aiSavedLogs = [];
         localStorage.removeItem('mssm_ai_saved_logs');
         renderAIChatTable();
-    }
+    });
 }
 
 function resetChat() {
-    if (confirm('คุณต้องการรีเซ็ตประวัติการสนทนาทั้งหมดใช่หรือไม่?')) {
+    window.showMushroomConfirm('คุณต้องการรีเซ็ตประวัติการสนทนาทั้งหมดใช่หรือไม่?', () => {
         chatCtx = [];
         const box = document.getElementById('chatHistory');
         if (box) {

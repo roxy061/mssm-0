@@ -939,3 +939,73 @@ function filterMushrooms() {
         }
     });
 }
+
+// === MUSHROOM STYLE CUSTOM DIALOGS ===
+window.showMushroomConfirm = function(message, onOk, onCancel) {
+    const oldModal = document.getElementById('mushroomModalContainer');
+    if (oldModal) oldModal.remove();
+
+    const container = document.createElement('div');
+    container.id = 'mushroomModalContainer';
+    container.className = 'fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-md px-4 font-sans';
+    container.innerHTML = `
+        <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center relative overflow-hidden shadow-2xl transition-all duration-300">
+            <div class="absolute w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -top-10 -right-10 pointer-events-none"></div>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-xl shadow-emerald-500/30">
+                🍄
+            </div>
+            <h3 class="text-sm font-black text-white mb-2">แจ้งเตือนระบบ MSSM</h3>
+            <p class="text-xs text-slate-300 mb-6 leading-relaxed">${message}</p>
+            
+            <div class="flex items-center gap-3">
+                <button id="mushroomModalBtnOk" class="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer border-none">ตกลง</button>
+                <button id="mushroomModalBtnCancel" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-extrabold text-xs transition cursor-pointer border-none">ยกเลิก</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(container);
+
+    document.getElementById('mushroomModalBtnOk').onclick = () => {
+        container.remove();
+        if (onOk) onOk();
+    };
+
+    document.getElementById('mushroomModalBtnCancel').onclick = () => {
+        container.remove();
+        if (onCancel) onCancel();
+    };
+};
+
+window.showMushroomAlert = function(message, onOk) {
+    const oldModal = document.getElementById('mushroomModalContainer');
+    if (oldModal) oldModal.remove();
+
+    const container = document.createElement('div');
+    container.id = 'mushroomModalContainer';
+    container.className = 'fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-md px-4 font-sans';
+    container.innerHTML = `
+        <div class="bg-slate-900/95 border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center relative overflow-hidden shadow-2xl transition-all duration-300">
+            <div class="absolute w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -top-10 -right-10 pointer-events-none"></div>
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-3xl mx-auto mb-4 shadow-xl shadow-emerald-500/30">
+                🍄
+            </div>
+            <h3 class="text-sm font-black text-white mb-2">แจ้งเตือนระบบ MSSM</h3>
+            <p class="text-xs text-slate-300 mb-6 leading-relaxed">${message}</p>
+            
+            <div class="flex items-center justify-center">
+                <button id="mushroomModalBtnOk" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs transition shadow-lg shadow-emerald-500/20 cursor-pointer border-none">ตกลง</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(container);
+
+    document.getElementById('mushroomModalBtnOk').onclick = () => {
+        container.remove();
+        if (onOk) onOk();
+    };
+};
+
+// Override window.alert globally
+window.alert = function(message) {
+    window.showMushroomAlert(message);
+};

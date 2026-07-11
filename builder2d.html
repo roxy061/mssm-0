@@ -511,7 +511,7 @@
 
         // Reset and clear grid
         function clearGrid() {
-            if (confirm('คุณต้องการรีเซ็ตแผ่นผังโรงเรือนทิ้งทั้งหมดใช่หรือไม่?')) {
+            window.showMushroomConfirm('คุณต้องการรีเซ็ตแผ่นผังโรงเรือนทิ้งทั้งหมดใช่หรือไม่?', () => {
                 currentCash = parseFloat(localStorage.getItem('virtualWalletCash') || '100000');
                 // Refund items
                 gridData.forEach(item => {
@@ -522,7 +522,7 @@
                 renderGrid();
                 updateEnvironmentalPhysics();
                 syncWalletUI();
-            }
+            });
         }
 
         // Set weather mode modifier
