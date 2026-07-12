@@ -75,6 +75,35 @@
     .nav-item:hover::before, .nav-item.active::before { transform: scaleY(1); }
     .nav-item.active { background: rgba(16,185,129,0.1); }
     .dark .nav-item.active { background: rgba(52,211,153,0.1); }
+    @media print {
+        body {
+            background: white !important;
+            color: black !important;
+        }
+        aside, #themeToggle, button, footer, a[href="index.html"] {
+            display: none !important;
+        }
+        main {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .print\:border-none {
+            border: none !important;
+        }
+        .print\:shadow-none {
+            box-shadow: none !important;
+        }
+        .print\:p-0 {
+            padding: 0 !important;
+        }
+        .print\:text-black {
+            color: black !important;
+        }
+        section {
+            page-break-inside: avoid;
+        }
+    }
 </style>
 
     <!-- GLOBAL RENDER MODE ROUTER -->
@@ -173,12 +202,42 @@
                         การเพาะเห็ดทั้ง 4 สายพันธุ์ถูกควบคุมตัวแปรสารอาหารให้อยู่บนก้อนเพาะเชื้อสูตรมาตรฐานชุมชน (ก้อนน้ำหนักคงที่ 650 กรัม) เพื่อรับประกันความเท่าเทียมทางสถิติ ดังนี้:
                     </p>
                     <ul class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
-                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ขี้เลื่อยไม้ยางพารา</span><strong>575 กรัม</strong></li>
-                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>รำละเอียด</span><strong>32.5 กรัม</strong></li>
-                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ปลายข้าวสาร</span><strong>32.5 กรัม</strong></li>
-                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ปูนขาว / ดีเกลือ</span><strong>6.5g / 1.2g</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ขี้เลื่อยไม้ยางพารา (88.5%)</span><strong>575 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>รำละเอียด (8.0%)</span><strong>52 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ปูนขาว (2.0%)</span><strong>13 กรัม</strong></li>
+                        <li class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/50 flex justify-between"><span>ดีเกลือ / แร่ธาตุ (1.5%)</span><strong>10 กรัม</strong></li>
                     </ul>
-                    <span class="text-[10px] block italic text-gray-400 dark:text-gray-500 text-right mt-1">* ควบคุมความชื้นสัมพัทธ์โดยเฉลี่ยอยู่ที่ 60 - 65%</span>
+                    <span class="text-[10px] block italic text-gray-400 dark:text-gray-500 text-right mt-1">* สูตรก้อนมาตรฐานน้ำหนักก้อนสด 650 กรัม (ความชื้น 65%)</span>
+
+                    <!-- Live Substrate calculator in Documentation -->
+                    <div class="mt-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 dark:border-emerald-500/15">
+                        <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase block tracking-wider mb-2">เครื่องคำนวณวัตถุดิบตามจำนวนก้อน</span>
+                        <div class="flex gap-2 mb-3">
+                            <input type="number" id="docInGons" value="100" min="1" oninput="calcDocSubstrate()" class="w-full h-8 px-2.5 text-xs rounded-xl border border-gray-250 dark:border-gray-700 bg-white dark:bg-gray-950 outline-none text-gray-800 dark:text-gray-200">
+                            <span class="text-xs text-gray-400 font-bold self-center">ก้อน</span>
+                        </div>
+                        <ul class="space-y-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                            <li class="flex justify-between"><span>ขี้เลื่อยไม้ยางพารา (88.5%)</span><strong id="docSawdust" class="font-mono text-emerald-500">22.75 กก.</strong></li>
+                            <li class="flex justify-between"><span>รำละเอียด (8.0%)</span><strong id="docRiceBran" class="font-mono text-emerald-500">2.06 กก.</strong></li>
+                            <li class="flex justify-between"><span>ปูนขาว (2.0%)</span><strong id="docLime" class="font-mono text-emerald-500">0.51 กก.</strong></li>
+                            <li class="flex justify-between"><span>ดีเกลือ / แร่ธาตุ (1.5%)</span><strong id="docMinerals" class="font-mono text-emerald-500">0.39 กก.</strong></li>
+                            <li class="flex justify-between border-t border-gray-200 dark:border-gray-800 pt-1.5"><span>น้ำสะอาด (ความชื้น 65%)</span><strong id="docWater" class="font-mono text-blue-500">42.25 ลิตร</strong></li>
+                        </ul>
+                    </div>
+                    <script>
+                    function calcDocSubstrate() {
+                        const gons = parseFloat(document.getElementById('docInGons').value) || 0;
+                        const dryWeightPerBag = 227.5;
+                        const totalDryWeight = (gons * dryWeightPerBag) / 1000;
+                        
+                        document.getElementById('docSawdust').textContent = (totalDryWeight * 0.885).toFixed(2) + ' กก.';
+                        document.getElementById('docRiceBran').textContent = (totalDryWeight * 0.08).toFixed(2) + ' กก.';
+                        document.getElementById('docLime').textContent = (totalDryWeight * 0.02).toFixed(2) + ' กก.';
+                        document.getElementById('docMinerals').textContent = (totalDryWeight * 0.015).toFixed(2) + ' กก.';
+                        document.getElementById('docWater').textContent = (gons * 0.4225).toFixed(2) + ' ลิตร';
+                    }
+                    window.addEventListener('DOMContentLoaded', calcDocSubstrate);
+                    </script>
                 </div>
             </div>
 
@@ -344,7 +403,142 @@
 
             </div>
         </section>
+
+        <!-- SECTION 4: Final Research Report Generation -->
+        <section id="secReportBuilder" class="p-6 md:p-8 rounded-3xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm space-y-6 print:border-none print:shadow-none print:p-0 animate-pop-in">
+            <div class="flex items-center justify-between border-b border-gray-150 dark:border-gray-800 pb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-lg"><i class="fas fa-file-pdf"></i></div>
+                    <h2 class="text-lg md:text-xl font-extrabold text-gray-800 dark:text-gray-100 print:text-black">ส่วนที่ 4: สรุปผลรายงานการประเมินโครงการวิจัย (Project Assessment Summary)</h2>
+                </div>
+                <button onclick="printReport()" class="px-5 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-500 to-indigo-650 shadow hover:shadow-lg active:scale-95 transition-all flex items-center gap-1.5 justify-center print:hidden cursor-pointer border-none"><i class="fas fa-print"></i> พิมพ์ / ดาวน์โหลด PDF</button>
+            </div>
+            
+            <div id="reportPlaceholder" class="p-8 text-center text-xs text-gray-400 dark:text-gray-500 italic">
+                <i class="fas fa-info-circle text-lg mb-2 block"></i> ยังไม่มีข้อมูลประมวลผล กรุณาทำการทดสอบคำนวณและเลือกสายพันธุ์ที่หน้า <a href="lab.html" class="text-emerald-500 font-bold hover:underline">MSSM Lab</a> ก่อน เพื่อนำเข้าข้อมูลจัดทำเล่มรายงานสรุป
+            </div>
+            
+            <div id="reportContent" class="hidden space-y-6 print:text-black">
+                <div class="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/10 border border-indigo-100 dark:border-indigo-900/40 print:bg-white print:border-gray-200">
+                    <h3 class="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-3 print:text-black">สรุปภาพรวมแผนการผลิต (Production Plan Overview)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-semibold">
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 print:border-gray-300">
+                            <span class="text-[9.5px] text-gray-400 block mb-0.5">จำนวนก้อนเชื้อทั้งหมด</span>
+                            <strong id="repBags" class="text-base text-gray-800 dark:text-gray-100 print:text-black font-black">0 ก้อน</strong>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 print:border-gray-300">
+                            <span class="text-[9.5px] text-gray-400 block mb-0.5">ต้นทุนผลิตต่อก้อน</span>
+                            <strong id="repCpg" class="text-base text-gray-800 dark:text-gray-100 print:text-black font-black">0.00 บาท</strong>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 print:border-gray-300">
+                            <span class="text-[9.5px] text-gray-400 block mb-0.5">ภูมิภาคเพาะปลูก</span>
+                            <strong id="repRegion" class="text-base text-gray-800 dark:text-gray-100 print:text-black font-black">-</strong>
+                        </div>
+                        <div class="p-3 bg-white dark:bg-gray-950 rounded-xl border border-gray-200 dark:border-gray-800 print:border-gray-300">
+                            <span class="text-[9.5px] text-gray-400 block mb-0.5">ต้นทุนลงทุนรวม</span>
+                            <strong id="repTotalCost" class="text-base text-rose-500 font-black">0.00 บาท</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-3 print:text-black">ตารางจัดอันดับการวิเคราะห์เปรียบเทียบ (MCDM Ranking Matrix)</h3>
+                    <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                        <table class="w-full text-xs text-center border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold border-b border-gray-200 dark:border-gray-700">
+                                    <th class="p-2.5 text-left">พันธุ์เห็ด</th>
+                                    <th class="p-2.5">ดัชนี MPI</th>
+                                    <th class="p-2.5">อากาศเหมาะสม</th>
+                                    <th class="p-2.5">ผลผลิตคาดการณ์</th>
+                                    <th class="p-2.5">ประมาณการกำไร</th>
+                                    <th class="p-2.5">ค่า BCR</th>
+                                    <th class="p-2.5">ระยะคืนทุน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <!-- Dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 shadow-inner">
+                        <h3 class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-2">⭐ คำแนะนำของโมดูลปัญญาประดิษฐ์ (AI Core Recommendation)</h3>
+                        <p id="repAiSuggestion" class="text-xs text-gray-650 dark:text-gray-350 leading-relaxed font-semibold">
+                            กำลังประมวลผลคำแนะนำ...
+                        </p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/20 shadow-inner">
+                        <h3 class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">⚠️ ปัจจัยความเสี่ยงและมาตรการแก้ไข (Risk Management)</h3>
+                        <p id="repRiskManagement" class="text-xs text-gray-650 dark:text-gray-350 leading-relaxed">
+                            กำลังประมวลผลความเสี่ยง...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
+
+    <script>
+    function initReport() {
+        const params = new URLSearchParams(window.location.search);
+        const generate = params.get('generate');
+        
+        const saved = localStorage.getItem('mssm_latest_report');
+        if (!saved) return;
+        
+        try {
+            const report = JSON.parse(saved);
+            
+            document.getElementById('reportPlaceholder').classList.add('hidden');
+            document.getElementById('reportContent').classList.remove('hidden');
+            
+            document.getElementById('repBags').textContent = report.gons.toLocaleString() + ' ก้อน';
+            document.getElementById('repCpg').textContent = report.cpg.toFixed(2) + ' บาท';
+            document.getElementById('repRegion').textContent = report.regionName;
+            document.getElementById('repTotalCost').textContent = (report.gons * report.cpg).toLocaleString() + ' บาท';
+            
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = report.results.map((r, i) => {
+                const paybackText = r.payback > 90 ? 'มากกว่า 90 วัน' : r.payback.toFixed(1) + ' วัน';
+                return `
+                    <tr class="hover:bg-gray-50/50 text-center">
+                        <td class="p-2.5 text-left font-bold text-gray-800 dark:text-gray-200">${i+1}. ${r.name}</td>
+                        <td class="p-2.5 font-mono font-bold text-amber-500">${r.mpi.toFixed(4)}</td>
+                        <td class="p-2.5 font-bold text-blue-500">${r.suitability}%</td>
+                        <td class="p-2.5 font-mono">${r.yieldKg.toFixed(2)} กก.</td>
+                        <td class="p-2.5 font-mono font-bold text-emerald-500">${r.profit.toLocaleString(undefined, {maximumFractionDigits:0})} บ.</td>
+                        <td class="p-2.5 font-mono">${r.bcr.toFixed(2)}</td>
+                        <td class="p-2.5 font-mono">${paybackText}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            const top = report.results[0];
+            let aiRec = `จากการคำนวณแบบจำลองประเมินหลายเกณฑ์ (MCDM) พบว่า **${top.name}** เป็นสายพันธุ์ที่ได้คะแนนดัชนีประสิทธิภาพดีที่สุด (**MPI: ${top.mpi.toFixed(4)}**) สำหรับการเลี้ยงใน**พื้นที่${report.regionName}** เนื่องจากความสอดคล้องกับพารามิเตอร์สภาพอากาศสูงถึง **${top.suitability}%** แนะนำให้จัดลำดับความสำคัญของพื้นที่โรงเรือนสำหรับการเพาะเห็ดชนิดนี้เป็นอันดับแรกเพื่อเพิ่มผลตอบแทนต่อก้อนสูงสุด`;
+            let riskRec = `แนะนำให้เฝ้าระวังความต้านทานโรคซึ่งอยู่ในระดับ **${top.resistance}** ควรควบคุมความชื้นโรงเรือนให้อยู่ในช่วงมาตรฐาน และรักษาความสะอาดชั้นวางอย่างเข้มงวดเพื่อป้องกันสปอร์ปนเปื้อน`;
+            
+            document.getElementById('repAiSuggestion').innerHTML = aiRec;
+            document.getElementById('repRiskManagement').innerHTML = riskRec;
+            
+            if (generate === 'true') {
+                setTimeout(() => {
+                    window.print();
+                }, 800);
+            }
+        } catch (e) {
+            console.error("Error generating report", e);
+        }
+    }
+
+    function printReport() {
+        window.print();
+    }
+
+    window.addEventListener('DOMContentLoaded', initReport);
+    </script>
 
     <footer class="text-center px-4 py-8 text-xs opacity-60 text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-transparent to-gray-100/50 dark:to-gray-900/50 mt-12">
         &copy; 2026 Mush-up NVC. All rights reserved.

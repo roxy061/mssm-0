@@ -34,6 +34,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>tailwind.config={darkMode:"class"}</script>
+<!-- Chart.js for Dashboard Visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 body{font-family:"Outfit","Prompt",sans-serif;}
 #particleCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none;}
@@ -297,6 +299,114 @@ input:focus,select:focus{outline:none;border-color:#10b981!important;box-shadow:
         </section>
     </div>
 
+    <!-- ============ PRODUCTION LOG & HISTORICAL CHARTS ============ -->
+    <div class="px-6 pt-5 pb-0 space-y-6">
+        <section class="glass-card rounded-3xl p-5 md:p-6 shadow-lg space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-lg"><i class="fas fa-clipboard-list"></i></span>
+                    <div>
+                        <h2 class="text-sm font-black text-white">รอบการผลิตและปริมาณการเก็บเกี่ยว (Production Log & Harvest Record)</h2>
+                        <p class="text-[10px] text-slate-500">บันทึกข้อมูลการเพาะเลี้ยงและการเก็บเกี่ยวจริง เพื่อส่งออกสถิติเข้าห้องปฏิบัติการ (MSSM Lab)</p>
+                    </div>
+                </div>
+                
+                <button onclick="syncBaselinesToLab()" class="px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-emerald-500 to-teal-650 hover:brightness-110 active:scale-95 transition shadow-lg cursor-pointer border-none flex items-center gap-1.5">
+                    <i class="fas fa-sync-alt animate-spin" style="animation-duration: 8s"></i> 🔄 อัปเดตข้อมูลเข้าห้องแล็บ
+                </button>
+            </div>
+
+            <!-- Form and Table Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Record Form -->
+                <div class="bg-slate-900/40 border border-slate-800/80 p-4 rounded-2xl space-y-3">
+                    <h3 class="text-xs font-bold text-slate-350 uppercase tracking-widest flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> กรอกบันทึกรอบใหม่</h3>
+                    
+                    <form id="prodLogForm" onsubmit="addProdLog(event)" class="space-y-3">
+                        <div>
+                            <label class="text-[9px] text-slate-400 font-bold block mb-1">ชื่อรอบ / รหัสล็อต:</label>
+                            <input type="text" id="logRoundName" required placeholder="เช่น Lot A/2569" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-200 placeholder-slate-600 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-slate-400 font-bold block mb-1">สายพันธุ์เห็ด:</label>
+                            <select id="logSpecies" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-350 font-bold outline-none cursor-pointer">
+                                <option value="เห็ดแครง">เห็ดแครง</option>
+                                <option value="เห็ดนางฟ้าภูฐาน">เห็ดนางฟ้าภูฐาน</option>
+                                <option value="เห็ดนางรมฮังการี">เห็ดนางรมฮังการี</option>
+                                <option value="เห็ดหูหนู">เห็ดหูหนู</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] text-slate-400 font-bold block mb-1">วันเริ่มเลี้ยง:</label>
+                                <input type="date" id="logStartDate" required class="w-full bg-slate-950 border border-slate-700 px-2.5 py-2 rounded-xl text-xs text-slate-200 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-400 font-bold block mb-1">วันสิ้นสุด:</label>
+                                <input type="date" id="logEndDate" required class="w-full bg-slate-950 border border-slate-700 px-2.5 py-2 rounded-xl text-xs text-slate-200 outline-none">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-[9px] text-slate-400 font-bold block mb-1">ผลผลิตรวม (กก.):</label>
+                                <input type="number" id="logHarvest" required step="0.1" min="0.1" placeholder="เช่น 45.5" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-200 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[9px] text-slate-400 font-bold block mb-1">ต้นทุนก้อนเฉลี่ย (บ.):</label>
+                                <input type="number" id="logCost" required step="0.5" min="1" placeholder="เช่น 16.5" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs text-slate-200 outline-none">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-650 hover:brightness-110 text-white font-extrabold text-xs rounded-xl shadow active:scale-95 transition cursor-pointer border-none">
+                            <i class="fas fa-save mr-1"></i> บันทึกข้อมูลรอบการผลิต
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Record Log Table -->
+                <div class="lg:col-span-2 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-350 uppercase tracking-widest flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span> ประวัติรอบการเพาะเลี้ยงและการเก็บเกี่ยว</h3>
+                        <button onclick="clearProdLogs()" class="text-[9.5px] text-red-400 hover:text-red-300 font-bold bg-transparent border-none cursor-pointer transition"><i class="fas fa-trash-alt mr-1"></i> ล้างประวัติ</button>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950/40">
+                        <table class="w-full text-xs text-center border-collapse min-w-[500px]">
+                            <thead>
+                                <tr class="text-slate-500 border-b border-slate-850 pb-1.5 font-bold">
+                                    <th class="py-2.5 px-3 text-left">รอบการผลิต</th>
+                                    <th class="py-2.5">สายพันธุ์</th>
+                                    <th class="py-2.5">ระยะเวลาเลี้ยง</th>
+                                    <th class="py-2.5 font-bold text-emerald-400">ผลผลิตรวม (กก)</th>
+                                    <th class="py-2.5 font-bold text-rose-400">ต้นทุน/ก้อน (บ)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prodLogTableBody" class="divide-y divide-slate-850/50">
+                                <!-- Dynamically generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Graphical Dashboard Panel -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-800">
+                <div class="bg-slate-900/30 border border-slate-800/80 p-4 rounded-2xl h-[280px] flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><i class="fas fa-chart-bar text-cyan-400"></i> เปรียบเทียบผลผลิตเก็บเกี่ยวจริง (Historical Yield Compare)</span>
+                    <div class="flex-grow w-full relative min-h-0 mt-2">
+                        <canvas id="mgmtYieldChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-900/30 border border-slate-800/80 p-4 rounded-2xl h-[280px] flex flex-col justify-between">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5"><i class="fas fa-chart-pie text-pink-400"></i> ดัชนีประสิทธิภาพต้นทุนผลิตก้อนเชื้อ (Cost Efficiency Matrix)</span>
+                    <div class="flex-grow w-full relative min-h-0 mt-2">
+                        <canvas id="mgmtCostChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <!-- ============ GLOBAL FOOTER ============ -->
     <footer class="mt-8 mx-6 mb-6 pt-4 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-slate-500">
         <div class="flex items-center gap-2">
@@ -399,6 +509,209 @@ function addTask(event){
     setTimeout(()=>msg.classList.add("hidden"),3000);
     document.getElementById("taskInput").value="";
 }
+    let prodLogs = [];
+    let yieldChartObj = null;
+    let costChartObj = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+        loadProdLogs();
+    });
+
+    function loadProdLogs() {
+        const saved = localStorage.getItem("mssm_production_logs");
+        if (saved) {
+            try {
+                prodLogs = JSON.parse(saved);
+            } catch(e) {
+                prodLogs = [];
+            }
+        } else {
+            prodLogs = [
+                { roundName: "รอบทดลอง A/69", species: "เห็ดแครง", startDate: "2026-05-01", endDate: "2026-05-25", harvest: 52.5, cost: 18.0 },
+                { roundName: "รอบวิจัย B/69", species: "เห็ดนางฟ้าภูฐาน", startDate: "2026-05-05", endDate: "2026-06-10", harvest: 42.0, cost: 16.5 },
+                { roundName: "ล็อต C/69", species: "เห็ดนางรมฮังการี", startDate: "2026-05-10", endDate: "2026-06-15", harvest: 38.0, cost: 15.0 },
+                { roundName: "ล็อต D/69", species: "เห็ดหูหนู", startDate: "2026-05-15", endDate: "2026-06-25", harvest: 33.5, cost: 14.5 }
+            ];
+            saveProdLogs();
+        }
+        renderProdLogs();
+        initProdCharts();
+    }
+
+    function saveProdLogs() {
+        localStorage.setItem("mssm_production_logs", JSON.stringify(prodLogs));
+    }
+
+    function clearProdLogs() {
+        window.showMushroomConfirm("คุณแน่ใจหรือไม่ที่จะล้างประวัติการเก็บเกี่ยวทั้งหมด?", () => {
+            prodLogs = [];
+            saveProdLogs();
+            renderProdLogs();
+            updateProdCharts();
+        });
+    }
+
+    function addProdLog(event) {
+        event.preventDefault();
+        const roundName = document.getElementById("logRoundName").value.trim();
+        const species = document.getElementById("logSpecies").value;
+        const startDate = document.getElementById("logStartDate").value;
+        const endDate = document.getElementById("logEndDate").value;
+        const harvest = parseFloat(document.getElementById("logHarvest").value);
+        const cost = parseFloat(document.getElementById("logCost").value);
+        
+        prodLogs.unshift({ roundName, species, startDate, endDate, harvest, cost });
+        saveProdLogs();
+        renderProdLogs();
+        updateProdCharts();
+        
+        document.getElementById("logRoundName").value = "";
+        document.getElementById("logHarvest").value = "";
+        document.getElementById("logCost").value = "";
+        
+        window.showMushroomAlert("บันทึกรอบการผลิตเรียบร้อยแล้ว!");
+    }
+
+    function renderProdLogs() {
+        const tbody = document.getElementById("prodLogTableBody");
+        if (!tbody) return;
+        
+        tbody.innerHTML = "";
+        if (prodLogs.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-slate-500 italic">ไม่มีบันทึกข้อมูลรอบการผลิต</td></tr>`;
+            return;
+        }
+        
+        prodLogs.forEach(log => {
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-slate-850 hover:bg-slate-900/30 text-slate-350";
+            tr.innerHTML = `
+                <td class="py-2.5 px-3 text-left font-bold text-slate-200">${log.roundName}</td>
+                <td class="py-2.5 font-bold">${log.species}</td>
+                <td class="py-2.5 font-mono text-[10px]">${log.startDate} ถึง ${log.endDate}</td>
+                <td class="py-2.5 font-mono font-black text-emerald-400">${log.harvest.toFixed(1)} กก.</td>
+                <td class="py-2.5 font-mono font-bold text-rose-400">${log.cost.toFixed(1)} บ.</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function initProdCharts() {
+        const speciesList = ["เห็ดแครง", "เห็ดนางฟ้าภูฐาน", "เห็ดนางรมฮังการี", "เห็ดหูหนู"];
+        const yieldData = [];
+        const costData = [];
+        
+        speciesList.forEach(sp => {
+            const matches = prodLogs.filter(l => l.species === sp);
+            if (matches.length > 0) {
+                const avgYield = matches.reduce((acc, c) => acc + c.harvest, 0) / matches.length;
+                const avgCost = matches.reduce((acc, c) => acc + c.cost, 0) / matches.length;
+                yieldData.push(avgYield);
+                costData.push(avgCost);
+            } else {
+                const defaults = { "เห็ดแครง": 35.0, "เห็ดนางฟ้าภูฐาน": 28.0, "เห็ดนางรมฮังการี": 25.0, "เห็ดหูหนู": 22.0 };
+                const defaultCosts = { "เห็ดแครง": 18.0, "เห็ดนางฟ้าภูฐาน": 16.5, "เห็ดนางรมฮังการี": 15.0, "เห็ดหูหนู": 14.5 };
+                yieldData.push(defaults[sp]);
+                costData.push(defaultCosts[sp]);
+            }
+        });
+
+        const ctxYield = document.getElementById("mgmtYieldChart").getContext("2d");
+        yieldChartObj = new Chart(ctxYield, {
+            type: 'bar',
+            data: {
+                labels: speciesList,
+                datasets: [{
+                    label: 'ผลผลิตรวมเฉลี่ย (กิโลกรัม)',
+                    data: yieldData,
+                    backgroundColor: ['rgba(16, 185, 129, 0.45)', 'rgba(59, 130, 246, 0.45)', 'rgba(139, 92, 246, 0.45)', 'rgba(239, 68, 68, 0.45)'],
+                    borderColor: ['#10b981', '#3b82f6', '#8b5cf6', '#ef4444'],
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 9 } } },
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', font: { size: 8 } } }
+                }
+            }
+        });
+
+        const ctxCost = document.getElementById("mgmtCostChart").getContext("2d");
+        costChartObj = new Chart(ctxCost, {
+            type: 'doughnut',
+            data: {
+                labels: speciesList,
+                datasets: [{
+                    data: costData,
+                    backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#ef4444'],
+                    borderWidth: 2,
+                    borderColor: '#0f172a'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 9 } } }
+                }
+            }
+        });
+    }
+
+    function updateProdCharts() {
+        if (!yieldChartObj || !costChartObj) return;
+        const speciesList = ["เห็ดแครง", "เห็ดนางฟ้าภูฐาน", "เห็ดนางรมฮังการี", "เห็ดหูหนู"];
+        const yieldData = [];
+        const costData = [];
+        
+        speciesList.forEach(sp => {
+            const matches = prodLogs.filter(l => l.species === sp);
+            if (matches.length > 0) {
+                const avgYield = matches.reduce((acc, c) => acc + c.harvest, 0) / matches.length;
+                const avgCost = matches.reduce((acc, c) => acc + c.cost, 0) / matches.length;
+                yieldData.push(avgYield);
+                costData.push(avgCost);
+            } else {
+                const defaults = { "เห็ดแครง": 35.0, "เห็ดนางฟ้าภูฐาน": 28.0, "เห็ดนางรมฮังการี": 25.0, "เห็ดหูหนู": 22.0 };
+                const defaultCosts = { "เห็ดแครง": 18.0, "เห็ดนางฟ้าภูฐาน": 16.5, "เห็ดนางรมฮังการี": 15.0, "เห็ดหูหนู": 14.5 };
+                yieldData.push(defaults[sp]);
+                costData.push(defaultCosts[sp]);
+            }
+        });
+
+        yieldChartObj.data.datasets[0].data = yieldData;
+        yieldChartObj.update();
+        
+        costChartObj.data.datasets[0].data = costData;
+        costChartObj.update();
+    }
+
+    function syncBaselinesToLab() {
+        const speciesList = ["เห็ดแครง", "เห็ดนางฟ้าภูฐาน", "เห็ดนางรมฮังการี", "เห็ดหูหนู"];
+        const baselines = {};
+        
+        speciesList.forEach(sp => {
+            const matches = prodLogs.filter(l => l.species === sp);
+            if (matches.length > 0) {
+                const avgYield = matches.reduce((acc, c) => acc + c.harvest, 0) / matches.length;
+                const avgCost = matches.reduce((acc, c) => acc + c.cost, 0) / matches.length;
+                
+                const normalizedYield = Math.max(0.1, Math.min(0.6, avgYield / 130));
+                baselines[sp] = {
+                    yield: normalizedYield,
+                    cost: avgCost
+                };
+            }
+        });
+
+        localStorage.setItem("mssm_user_baselines", JSON.stringify(baselines));
+        window.showMushroomAlert("🚀 ทำการวิเคราะห์ข้อมูลเก็บเกี่ยวเรียบร้อยแล้ว!\nระบบได้ส่งออกค่าต้นทุนและค่าสัมประสิทธิ์ผลผลิตเฉลี่ยจริงเข้าสู่เครื่องประมวลผล MSSM Lab สำเร็จ");
+    }
 </script>
 <script src="assets/js/core.js"></script>
 </body>

@@ -195,6 +195,18 @@
 
         <!-- 3D Live Asset Alert Board -->
         <div class="px-6 mt-4">
+            <div id="regionalPriceAlert" class="bg-indigo-950/40 border border-indigo-850 p-4 rounded-3xl hidden animate-pop-in mb-4">
+                <div class="flex items-start gap-3">
+                    <span class="w-9 h-9 rounded-2xl bg-indigo-900/65 text-indigo-400 flex items-center justify-center text-sm shadow-md shrink-0"><i class="fas fa-bullhorn"></i></span>
+                    <div>
+                        <strong class="text-xs sm:text-sm font-extrabold text-indigo-200">📊 แจ้งเตือนดัชนีราคาภูมิภาคผันผวนผิดปกติ (Regional Price Shock Alert)</strong>
+                        <p id="lblRegionalPriceAlertText" class="text-[11px] sm:text-xs text-indigo-300 mt-1 leading-relaxed">
+                            --
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <div id="stopLossAlert" class="bg-red-950/40 border border-red-800/60 p-4 rounded-3xl hidden animate-pop-in mb-6">
                 <div class="flex items-start gap-3">
                     <span class="w-9 h-9 rounded-2xl bg-red-900/60 text-red-400 flex items-center justify-center text-sm shadow-md shrink-0"><i class="fas fa-exclamation-triangle"></i></span>
@@ -239,16 +251,42 @@
 
                 <!-- Price Graph -->
                 <div class="trading-panel rounded-3xl p-5 shadow-lg flex-grow">
-                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3">
-                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-chart-line text-amber-400"></i> Dynamic Pricing Index (ดัชนีราคาผันผวน 24 ชม.)</h2>
-                        <div class="flex gap-1.5">
-                            <span class="px-2 py-0.5 rounded bg-slate-850 text-slate-400 text-[9px] font-bold">ตลาดหัวอิฐ</span>
-                            <span class="px-2 py-0.5 rounded bg-slate-850 text-slate-400 text-[9px] font-bold">ตลาดพัทลุง</span>
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3 flex-wrap gap-2">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-chart-line text-amber-400"></i> Dynamic Pricing Index (ดัชนีราคาขายส่ง)</h2>
+                        <div class="flex gap-1">
+                            <button onclick="toggleChartMode('24h')" id="btnChart24h" class="px-2.5 py-1 rounded bg-amber-500 text-white text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition">24 ชม. เรียลไทม์</button>
+                            <button onclick="toggleChartMode('6m')" id="btnChart6m" class="px-2.5 py-1 rounded bg-slate-800 text-slate-400 text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition">แนวโน้ม 6 เดือน</button>
                         </div>
                     </div>
 
                     <div class="h-[280px] md:h-[350px] w-full relative">
                         <canvas id="marketChart"></canvas>
+                        <canvas id="marketTrendChart" class="hidden"></canvas>
+                    </div>
+                </div>
+
+                <!-- Regional Pricing Table Card -->
+                <div class="trading-panel rounded-3xl p-5 shadow-lg">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3">
+                        <h2 class="text-xs sm:text-sm font-bold text-white flex items-center gap-2"><i class="fas fa-globe text-indigo-400"></i> Regional Wholesale Index (เปรียบเทียบราคาระหว่างภูมิภาค)</h2>
+                        <span class="text-[9px] text-slate-400">ปรับตามอัตราขนส่งและดีมานด์ท้องถิ่น</span>
+                    </div>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/20">
+                        <table class="w-full text-xs text-left border-collapse min-w-[500px]">
+                            <thead>
+                                <tr class="text-slate-500 border-b border-slate-850 pb-1.5 text-center font-bold">
+                                    <th class="py-2.5 px-3 text-left">สายพันธุ์เห็ด</th>
+                                    <th class="py-2.5">ราคากลาง (ภาคกลาง)</th>
+                                    <th class="py-2.5">ภาคเหนือ</th>
+                                    <th class="py-2.5">ภาคอีสาน</th>
+                                    <th class="py-2.5">ภาคใต้</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionalPricesTableBody" class="divide-y divide-slate-850">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -583,6 +621,9 @@
                     currentPrices[key] = Math.max(10, currentPrices[key]);
                 }
 
+                // Sync current prices to localStorage for the lab calculator to read
+                localStorage.setItem('mssm_market_prices', JSON.stringify(currentPrices));
+
                 // Handle news event timer countdown
                 if (activeMarketEvent) {
                     activeEventTimeLeft -= 3;
@@ -604,10 +645,30 @@
                     }
                 }
 
-                // Update ticker & table
+                // Check abnormal regional prices alerts
+                const regAlertBox = document.getElementById('regionalPriceAlert');
+                const regAlertText = document.getElementById('lblRegionalPriceAlertText');
+                if (regAlertBox && regAlertText) {
+                    if (currentPrices['เห็ดแครง'] > 178.0) {
+                        regAlertText.innerHTML = `🚨 ดัชนีราคาสูงผิดปกติ: ราคากลางเห็ดแครงพุ่งสูงเกินขีดจำกัดความต้องการที่ **${currentPrices['เห็ดแครง'].toFixed(1)} บ./กก.** แนะนำให้ผู้ประกอบการเร่งจำหน่ายผลผลิตในสต็อกออกสู่ภูมิภาคใต้เพื่อคว้าส่วนต่างราคาสูงสุด!`;
+                        regAlertBox.classList.remove('hidden');
+                    } else if (currentPrices['เห็ดแครง'] < 145.0) {
+                        regAlertText.innerHTML = `⚠️ ดัชนีราคาต่ำผิดปกติ: ราคากลางเห็ดแครงดิ่งลงแตะขอบเขตลงทุนขั้นต่ำที่ **${currentPrices['เห็ดแครง'].toFixed(1)} บ./กก.** แนะนำเกษตรกรชะลอการแปรรูปสด หรือแปรรูปเป็นเห็ดหูหนูตากแห้งเพื่อพยุงดัชนีผลตอบแทนความคุ้มค่า!`;
+                        regAlertBox.classList.remove('hidden');
+                    } else if (activeMarketEvent) {
+                        regAlertText.innerHTML = `📢 เหตุการณ์ข่าวตลาดยังมีผลกระทบ: **${activeMarketEvent.text}** ส่งผลให้ราคากลางตลาดผันผวนปรับตัวตามกลไกราคาดีมานด์และซัพพลาย (ผลกระทบเหลือเวลาจำลองอีก ${activeEventTimeLeft} วินาที)`;
+                        regAlertBox.classList.remove('hidden');
+                    } else {
+                        regAlertBox.classList.add('hidden');
+                    }
+                }
+
+                // Update UI elements
                 startTicker();
                 renderHoldingsTable();
                 updateEstimatedCost();
+                renderRegionalPricesTable();
+                renderForecasts();
             } catch (err) {
                 console.error("Market tick error ignored for stability: ", err);
             }
@@ -1029,6 +1090,16 @@
             list.innerHTML = '';
             for (let key in demands) {
                 const item = demands[key];
+                const currentPrice = currentPrices[key];
+                
+                let forecastMult = 1.0;
+                if (key === 'เห็ดแครง') forecastMult = 1.06;
+                else if (key === 'เห็ดนางฟ้าภูฐาน') forecastMult = 0.98;
+                else if (key === 'เห็ดนางรมฮังการี') forecastMult = 1.02;
+                else if (key === 'เห็ดหูหนู') forecastMult = 1.04;
+                
+                const forecastPrice = currentPrice * forecastMult;
+                
                 const card = document.createElement('div');
                 card.className = 'bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between text-xs transition hover:scale-[1.01]';
                 card.innerHTML = `
@@ -1037,18 +1108,95 @@
                         <p class="text-[10px] text-slate-400 leading-relaxed">${item.note}</p>
                     </div>
                     <div class="text-right shrink-0">
-                        <span class="text-[9px] text-slate-500 block">ตลาดดีมานด์</span>
-                        <div class="flex items-center gap-1.5 justify-end mt-0.5">
-                            <div class="w-12 bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                <div class="bg-purple-500 h-1.5" style="width: ${item.score}%"></div>
-                            </div>
-                            <strong class="text-purple-400 font-extrabold text-[11px]">${item.score}%</strong>
-                        </div>
-                        <span class="text-[9px] text-slate-400 block mt-1">แนะนำ: ${item.range}</span>
+                        <span class="text-[9px] text-slate-500 block">พยากรณ์ล่วงหน้า 1 เดือน</span>
+                        <strong class="text-emerald-400 font-mono font-black text-xs block mt-0.5">${forecastPrice.toFixed(1)} บ./กก.</strong>
+                        <span class="text-[9px] text-slate-400 block mt-0.5">ดีมานด์แกร่ง: ${item.score}%</span>
                     </div>
                 `;
                 list.appendChild(card);
             }
+        }
+
+        function renderRegionalPricesTable() {
+            const tbody = document.getElementById('regionalPricesTableBody');
+            if (!tbody) return;
+            
+            tbody.innerHTML = '';
+            for (let key in currentPrices) {
+                const base = currentPrices[key];
+                
+                const pCentral = base;
+                const pSouth = key === 'เห็ดแครง' ? base * 1.12 : base * 0.95;
+                const pNorth = key === 'เห็ดนางฟ้าภูฐาน' || key === 'เห็ดนางรมฮังการี' ? base * 1.08 : base * 0.95;
+                const pNortheast = base * 1.03;
+                
+                const tr = document.createElement('tr');
+                tr.className = 'text-center border-b border-slate-850/50 hover:bg-slate-900/40 text-slate-350';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 text-left font-bold text-white">${key}</td>
+                    <td class="py-2.5 font-mono font-bold text-slate-200">${pCentral.toFixed(1)} บ.</td>
+                    <td class="py-2.5 font-mono text-cyan-400">${pNorth.toFixed(1)} บ.</td>
+                    <td class="py-2.5 font-mono text-amber-450">${pNortheast.toFixed(1)} บ.</td>
+                    <td class="py-2.5 font-mono text-emerald-400 font-bold">${pSouth.toFixed(1)} บ.</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        let activeChartMode = '24h';
+        let trendChartObj = null;
+        
+        function toggleChartMode(mode) {
+            if (activeChartMode === mode) return;
+            activeChartMode = mode;
+            
+            const btn24h = document.getElementById('btnChart24h');
+            const btn6m = document.getElementById('btnChart6m');
+            const canvas24h = document.getElementById('marketChart');
+            const canvas6m = document.getElementById('marketTrendChart');
+            
+            if (mode === '24h') {
+                btn24h.className = 'px-2.5 py-1 rounded bg-amber-500 text-white text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition';
+                btn6m.className = 'px-2.5 py-1 rounded bg-slate-800 text-slate-400 text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition';
+                canvas24h.classList.remove('hidden');
+                canvas6m.classList.add('hidden');
+            } else {
+                btn6m.className = 'px-2.5 py-1 rounded bg-amber-500 text-white text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition';
+                btn24h.className = 'px-2.5 py-1 rounded bg-slate-800 text-slate-400 text-[9px] font-bold border-none cursor-pointer hover:scale-102 transition';
+                canvas24h.classList.add('hidden');
+                canvas6m.classList.remove('hidden');
+                initTrendChart();
+            }
+        }
+        
+        function initTrendChart() {
+            if (trendChartObj) return;
+            const ctx = document.getElementById('marketTrendChart').getContext('2d');
+            
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน'];
+            trendChartObj = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'เห็ดแครง', data: [150, 153, 157, 160, 163, 165.0], borderColor: '#10b981', borderWidth: 2, tension: 0.25 },
+                        { label: 'เห็ดนางฟ้าภูฐาน', data: [88, 90, 92, 94, 93, 95.0], borderColor: '#3b82f6', borderWidth: 2, tension: 0.25 },
+                        { label: 'เห็ดนางรมฮังการี', data: [78, 80, 83, 85, 82, 85.0], borderColor: '#8b5cf6', borderWidth: 2, tension: 0.25 },
+                        { label: 'เห็ดหูหนู', data: [64, 62, 60, 58, 56, 58.5], borderColor: '#ef4444', borderWidth: 2, tension: 0.25 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94a3b8', font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 8 } } },
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 8 } } }
+                    }
+                }
+            });
         }
     </script>
 <script src="assets/js/core.js"></script>

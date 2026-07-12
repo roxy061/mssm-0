@@ -4,10 +4,10 @@
    ----------------------------------------------- */
 
 const DB = [
-    { id: 'hunu', name: 'เห็ดหูหนูดำ', growth: 0.42, yieldG: 247.3, flowerDay: 14.1, walkDay: 30, img: 'assets/images/hunu.webp' },
-    { id: 'kraeng', name: 'เห็ดแครง', growth: 0.85, yieldG: 322.5, flowerDay: 8.2, walkDay: 30, img: 'assets/images/kraeng.webp' },
-    { id: 'nfa', name: 'นางฟ้าภูฐาน', growth: 0.61, yieldG: 428.6, flowerDay: 9.6, walkDay: 7, img: 'assets/images/nangfa.webp' },
-    { id: 'nrom', name: 'นางรมฮังการี', growth: 0.58, yieldG: 401.8, flowerDay: 10.4, walkDay: 7, img: 'assets/images/nangrom.webp' }
+    { id: 'hunu', name: 'เห็ดหูหนูดำ', sciName: 'Auricularia auricula-judae', tempMin: 25, tempMax: 32, humMin: 85, humMax: 95, growth: 0.42, yieldG: 240.0, flowerDay: 13.5, walkDay: 27.5, resistance: 'สูงมาก (ทนทานต่อโรคพืชทั่วไป)', region: 'ภาคกลาง, ภาคใต้, ภาคเหนือ', img: 'assets/images/hunu.webp' },
+    { id: 'kraeng', name: 'เห็ดแครง', sciName: 'Schizophyllum commune', tempMin: 25, tempMax: 30, humMin: 70, humMax: 85, growth: 0.85, yieldG: 335.0, flowerDay: 4.0, walkDay: 9.0, resistance: 'สูง (ทนทานต่อราเขียวและอากาศร้อน)', region: 'ภาคใต้, ภาคกลาง', img: 'assets/images/kraeng.webp' },
+    { id: 'nfa', name: 'นางฟ้าภูฐาน', sciName: 'Pleurotus ostreatus (Bhutan)', tempMin: 23, tempMax: 28, humMin: 75, humMax: 90, growth: 0.61, yieldG: 425.0, flowerDay: 5.0, walkDay: 10.5, resistance: 'ปานกลาง (ค่อนข้างอ่อนไหวต่อราส้ม)', region: 'ภาคเหนือ, ภาคอีสาน, ภาคกลาง', img: 'assets/images/nangfa.webp' },
+    { id: 'nrom', name: 'นางรมฮังการี', sciName: 'Pleurotus ostreatus (Hungary)', tempMin: 20, tempMax: 25, humMin: 80, humMax: 90, growth: 0.58, yieldG: 375.0, flowerDay: 8.5, walkDay: 17.5, resistance: 'ต่ำ (อ่อนไหวต่อน้ำขังและไรเห็ด)', region: 'ภาคเหนือ, ภาคอีสาน', img: 'assets/images/nangrom.webp' }
 ];
 let charts = {};
 
@@ -16,6 +16,30 @@ function validateWeights() {
     for (let i = 1; i <= 6; i++) total += parseFloat(document.getElementById('w' + i)?.value) || 0;
     const el = document.getElementById('weightAlert');
     if (el) el.classList.toggle('hidden', Math.abs(total - 100) < 0.01);
+}
+
+let _pricesSynced = false;
+function syncPricesFromMarket() {
+    if (_pricesSynced) return;
+    const saved = localStorage.getItem('mssm_market_prices');
+    if (saved) {
+        try {
+            const marketPrices = JSON.parse(saved);
+            const map = {
+                'เห็ดหูหนู': 'inPriceHunu',
+                'เห็ดแครง': 'inPriceKraeng',
+                'เห็ดนางฟ้าภูฐาน': 'inPriceNangfa',
+                'เห็ดนางรมฮังการี': 'inPriceNangrom'
+            };
+            for (const [thaiName, elId] of Object.entries(map)) {
+                const el = document.getElementById(elId);
+                if (el && marketPrices[thaiName] !== undefined) {
+                    el.value = Math.round(marketPrices[thaiName]);
+                }
+            }
+            _pricesSynced = true;
+        } catch (e) { }
+    }
 }
 
 function resetAll() {
@@ -37,8 +61,10 @@ function resetAll() {
 
 function calc() {
     validateWeights();
+    syncPricesFromMarket();
     const gonsVal = document.getElementById('inGons')?.value;
     const cpgVal = document.getElementById('inCostPerGon')?.value;
+    const regionVal = document.getElementById('inRegion')?.value || 'south';
     const gons = parseFloat(gonsVal);
     const cpg = parseFloat(cpgVal);
     const tc = gons * cpg;
@@ -66,6 +92,14 @@ function calc() {
 
     saveInputs(gons, cpg, prices, weights);
 
+    const regionWeather = {
+        south: { name: 'ภาคใต้', tempMin: 25, tempMax: 34, humMin: 80, humMax: 95 },
+        north: { name: 'ภาคเหนือ', tempMin: 18, tempMax: 32, humMin: 65, humMax: 85 },
+        central: { name: 'ภาคกลาง', tempMin: 24, tempMax: 36, humMin: 70, humMax: 90 },
+        northeast: { name: 'ภาคอีสาน', tempMin: 22, tempMax: 35, humMin: 60, humMax: 85 }
+    };
+    const reg = regionWeather[regionVal];
+
     let results = DB.map(m => {
         const yKg = (m.yieldG * gons) / 1000;
         const rev = yKg * prices[m.id];
@@ -73,7 +107,37 @@ function calc() {
         const bcr = tc > 0 ? rev / tc : 0;
         const td = m.walkDay + m.flowerDay;
         const di = td > 0 ? rev / td : 0;
-        return { ...m, yieldKg: yKg, revenue: rev, profit, bcr, payback: di > 0 ? tc / di : 0, totalDays: td };
+
+        const mTempMid = (m.tempMin + m.tempMax) / 2;
+        const rTempMid = (reg.tempMin + reg.tempMax) / 2;
+        const dTemp = Math.abs(mTempMid - rTempMid);
+        const sTemp = Math.max(0, 100 - dTemp * 8);
+
+        const mHumMid = (m.humMin + m.humMax) / 2;
+        const rHumMid = (reg.humMin + reg.humMax) / 2;
+        const dHum = Math.abs(mHumMid - rHumMid);
+        const sHum = Math.max(0, 100 - dHum * 4);
+
+        const suitability = Math.round((sTemp + sHum) / 2);
+
+        const costMix = tc * 0.50;
+        const costSter = tc * 0.20;
+        const costLabor = tc * 0.30;
+
+        return { 
+            ...m, 
+            yieldKg: yKg, 
+            revenue: rev, 
+            profit, 
+            bcr, 
+            payback: rev > 0 ? (tc / rev) * 90 : 0, 
+            totalDays: td,
+            suitability,
+            costMix,
+            costSter,
+            costLabor,
+            costTotal: tc
+        };
     });
 
     const metrics = ['growth', 'yieldG', 'profit', 'bcr', 'flowerDay', 'payback'];
@@ -92,9 +156,36 @@ function calc() {
         return { ...r, normValues: nv, mpi };
     }).sort((a, b) => b.mpi - a.mpi);
 
+    const latestReport = {
+        gons,
+        cpg,
+        regionName: reg.name,
+        regionCode: regionVal,
+        results: results.map(r => ({
+            id: r.id,
+            name: r.name,
+            sciName: r.sciName,
+            mpi: r.mpi,
+            suitability: r.suitability,
+            yieldKg: r.yieldKg,
+            costTotal: r.costTotal,
+            revenue: r.revenue,
+            profit: r.profit,
+            bcr: r.bcr,
+            payback: r.payback,
+            spawnDays: r.walkDay,
+            firstFlushDays: r.flowerDay,
+            resistance: r.resistance
+        }))
+    };
+    localStorage.setItem('mssm_latest_report', JSON.stringify(latestReport));
+
     renderDash(results);
     renderTable(results, gons, cpg);
     renderScore(results, weights);
+    renderMPICard(results, reg);
+    renderYieldCostComparison(results, gons, cpg);
+    renderSubstrateMix(gons);
     renderCharts(results);
 }
 
@@ -105,7 +196,7 @@ function renderDash(data) {
     el.innerHTML = data.map((item, i) => {
         const win = i === 0 ? 'ring-2 ring-emerald-500 dark:ring-emerald-400 bg-gradient-to-r from-emerald-500/5 to-transparent shadow-md' : '';
         const star = item.mpi > 0.85 ? '★★★★★' : item.mpi > 0.7 ? '★★★★☆' : '★★★☆☆';
-        return `<div class="flex items-center justify-between p-3 md:p-4 rounded-xl bg-white/50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/50 ${win}">
+        return `<div class="flex items-center justify-between p-3 md:p-4 rounded-xl bg-white/50 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700/55 ${win}">
             <span class="text-lg md:text-xl font-black whitespace-nowrap">${medals[i]} ${i + 1}</span>
             <img src="${item.img}" class="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600 shadow-sm">
             <div class="flex-1 min-w-0 px-2 text-left"><h4 class="text-sm md:text-base font-bold text-gray-800 dark:text-gray-100 truncate">${item.name}</h4><span class="text-[10px] md:text-xs text-amber-500">${star}</span></div>
@@ -120,7 +211,23 @@ function renderTable(data, gons, cpg) {
     const dark = document.documentElement.classList.contains('dark');
     el.innerHTML = data.map(item => {
         const pc = item.profit >= 0 ? (dark ? 'text-emerald-400' : 'text-emerald-600') : 'text-red-500';
-        return `<tr class="border-b border-gray-100 dark:border-gray-700/50"><td class="p-2 md:p-3 text-left font-bold text-gray-700 dark:text-gray-200 text-xs md:text-sm">${item.name}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300">${item.yieldKg.toFixed(2)}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300">${(gons * cpg).toFixed(0)}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300">${item.revenue.toFixed(0)}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm font-bold ${pc}">${item.profit.toFixed(0)}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300">${item.bcr.toFixed(2)}</td><td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300">${item.payback.toFixed(1)}</td></tr>`;
+        let bcrBadge = '';
+        if (item.bcr > 1.5) {
+            bcrBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">คุ้มค่ามาก</span>`;
+        } else if (item.bcr >= 1.0) {
+            bcrBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-500/10 text-amber-500 border border-amber-500/20">คุ้มค่า</span>`;
+        } else {
+            bcrBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-rose-500/10 text-rose-500 border border-rose-500/20">ขาดทุน</span>`;
+        }
+        return `<tr class="border-b border-gray-100 dark:border-gray-700/50">
+            <td class="p-2 md:p-3 text-left font-bold text-gray-700 dark:text-gray-200 text-xs md:text-sm">${item.name}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 font-mono">${item.yieldKg.toFixed(2)}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 font-mono">${(gons * cpg).toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 font-mono">${item.revenue.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm font-bold ${pc} font-mono">${item.profit.toLocaleString(undefined, {maximumFractionDigits:0})}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 font-mono flex items-center justify-center gap-1.5">${item.bcr.toFixed(2)} ${bcrBadge}</td>
+            <td class="p-2 md:p-3 text-center text-xs md:text-sm text-gray-600 dark:text-gray-300 font-mono">${item.payback.toFixed(1)}</td>
+        </tr>`;
     }).join('');
 }
 
@@ -310,4 +417,78 @@ function exportCSV() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+function renderMPICard(results, reg) {
+    const list = document.getElementById('mpiDetailsList');
+    if (!list) return;
+    const sorted = [...results].sort((a, b) => b.mpi - a.mpi);
+    list.innerHTML = sorted.map((item, idx) => {
+        let level = '';
+        let colorClass = '';
+        if (item.mpi >= 0.8) {
+            level = 'เหมาะสมมากที่สุด (Excellent)';
+            colorClass = 'bg-emerald-500';
+        } else if (item.mpi >= 0.6) {
+            level = 'เหมาะสมดี (Very Good)';
+            colorClass = 'bg-teal-500';
+        } else if (item.mpi >= 0.4) {
+            level = 'เหมาะสมปานกลาง (Fair)';
+            colorClass = 'bg-amber-500';
+        } else {
+            level = 'เหมาะสมต่ำ (Low)';
+            colorClass = 'bg-rose-500';
+        }
+        return `
+            <div class="p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-xl border border-gray-150 dark:border-gray-800">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-extrabold text-xs text-gray-850 dark:text-gray-250">อันดับ ${idx + 1}: ${item.name}</span>
+                    <strong class="text-amber-550 dark:text-amber-450 text-xs font-black">MPI: ${item.mpi.toFixed(4)}</strong>
+                </div>
+                <div class="flex justify-between items-center text-[10px] text-gray-400 mb-1.5">
+                    <span>ระดับ: ${level}</span>
+                    <span>อากาศภาค${reg.name}: <strong class="text-emerald-500 font-bold">${item.suitability}%</strong></span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                    <div class="${colorClass} h-full rounded-full" style="width: ${Math.round(item.mpi * 100)}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderYieldCostComparison(results, gons, cpg) {
+    const tbody = document.getElementById('yieldCostComparisonBody');
+    if (!tbody) return;
+    tbody.innerHTML = results.map(item => {
+        return `
+            <tr class="border-b border-gray-100 dark:border-gray-700/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10">
+                <td class="p-2 md:p-3 text-left font-bold text-gray-700 dark:text-gray-200">${item.name}</td>
+                <td class="p-2 md:p-3 font-mono">${(item.costMix / gons).toFixed(2)} บ.</td>
+                <td class="p-2 md:p-3 font-mono">${(item.costSter / gons).toFixed(2)} บ.</td>
+                <td class="p-2 md:p-3 font-mono">${(item.costLabor / gons).toFixed(2)} บ.</td>
+                <td class="p-2 md:p-3 font-mono font-bold text-rose-500">${item.costTotal.toLocaleString()} บ.</td>
+                <td class="p-2 md:p-3 font-mono font-black text-emerald-500">${item.yieldKg.toFixed(2)} กก.</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderSubstrateMix(gons) {
+    const dryWeightPerBag = 227.5;
+    const totalDryWeight = (gons * dryWeightPerBag) / 1000;
+    const sawdust = totalDryWeight * 0.885;
+    const riceBran = totalDryWeight * 0.08;
+    const lime = totalDryWeight * 0.02;
+    const minerals = totalDryWeight * 0.015;
+    const water = gons * 0.4225;
+    const setVal = (id, val, unit) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = `${val.toFixed(2)} ${unit}`;
+    };
+    setVal('mixSawdust', sawdust, 'กิโลกรัม');
+    setVal('mixRiceBran', riceBran, 'กิโลกรัม');
+    setVal('mixLime', lime, 'กิโลกรัม');
+    setVal('mixMinerals', minerals, 'กิโลกรัม');
+    setVal('mixWater', water, 'ลิตร (กก.)');
 }
