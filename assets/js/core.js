@@ -536,89 +536,200 @@ function renderSidebar() {
     
     const path = window.location.pathname;
     const isIndex = path.endsWith('index.html') || path.endsWith('/') || !path.includes('.html');
-    const mode = localStorage.getItem('globalRenderMode') || '2d';
+    const curFile = path.split('/').pop() || 'index.html';
+    const curHash = window.location.hash;
+    const curMode = new URLSearchParams(window.location.search).get('mode') || localStorage.getItem('globalRenderMode') || '2d';
 
     let builderBtnClass = "bg-gradient-to-br from-indigo-500 to-purple-600 text-white";
     let builderBadge = "";
-    if (mode === '3d') {
+    if (curMode === '3d') {
         builderBtnClass = "bg-gradient-to-br from-purple-600 via-pink-650 to-indigo-650 text-white animate-pulse shadow-md shadow-pink-500/20";
         builderBadge = '<span class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[8px] font-black bg-pink-500 text-white rounded-full uppercase tracking-widest animate-bounce">3D</span>';
     }
 
-    const menuItems = [
-        { href: "index.html", label: "หน้าแรก", icon: "fa-home", colorClass: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400" },
-        { href: "lab.html", label: "MSSM Lab", icon: "fa-flask", colorClass: "bg-gradient-to-br from-emerald-400 to-emerald-600 text-white" },
-        { href: "ai.html", label: "AI Assistant", icon: "fa-robot", colorClass: "bg-gradient-to-br from-amber-400 to-amber-600 text-white" },
-        { href: "builder2d.html", label: "ออกแบบโรงเรือน (Builder)", icon: "fa-cubes", colorClass: builderBtnClass, isBuilder: true },
-        { href: "market.html", label: "ตลาดราคากลางสด", icon: "fa-chart-line", colorClass: "bg-gradient-to-br from-rose-500 to-rose-600 text-white" },
-        { href: "quiz_pvp.html", label: "ทดสอบความรู้", icon: "fa-trophy", colorClass: "bg-gradient-to-br from-amber-500 to-orange-600 text-white" },
-        { href: "dataset.html", label: "คลังข้อมูลวิจัย", icon: "fa-database", colorClass: "bg-gradient-to-br from-blue-400 to-blue-600 text-white" },
-        { href: "management.html", label: "การจัดการฟาร์ม", icon: "fa-tasks", colorClass: "bg-gradient-to-br from-indigo-400 to-indigo-650 text-white" },
-        { href: "doc.html", label: "คู่มือวิจัย", icon: "fa-book", colorClass: "bg-gradient-to-br from-purple-400 to-purple-600 text-white" },
-        { href: "settings.html", label: "ศูนย์ตั้งค่าอัจฉริยะ", icon: "fa-cog", colorClass: "bg-gradient-to-br from-gray-500 to-slate-700 text-white" },
-        { href: "https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform", label: "แบบสอบถาม", icon: "fa-poll", colorClass: "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400", target: "_blank" }
-    ];
-
-    const indexAnchors = [
-        { href: isIndex ? "#products" : "index.html#products", label: "สายพันธุ์เห็ด", icon: "fa-seedling", colorClass: "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400" },
-        { href: isIndex ? "#charts" : "index.html#charts", label: "ประเมินผล", icon: "fa-chart-bar", colorClass: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
-        { href: isIndex ? "#zerowaste" : "index.html#zerowaste", label: "Zero Waste", icon: "fa-recycle", colorClass: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" },
-        { href: isIndex ? "#contact" : "index.html#contact", label: "ติดต่อ", icon: "fa-envelope", colorClass: "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400" }
-    ];
-
-    let html = `<div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เมนูหลัก</div>`;
-
-    menuItems.forEach((item, idx) => {
-        let isCurrent = path.includes(item.href);
-        if (item.isBuilder && (path.includes('builder2d.html') || path.includes('mushroom_3d.html'))) isCurrent = true;
-        else if (item.href === 'index.html' && isIndex) isCurrent = true;
-
-        let activeClass = isCurrent 
-            ? "nav-item active flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 transition-all" 
-            : "nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all";
-
-        let linkContent = `
-            <a href="${item.href}" ${item.target ? `target="${item.target}"` : ""} class="${activeClass} relative">
-                <span class="w-7 h-7 flex items-center justify-center rounded-lg ${item.colorClass} text-xs"><i class="fas ${item.icon}"></i></span>
-                <span>${item.label}</span>
-                ${item.isBuilder ? builderBadge : ""}
-            </a>
-        `;
-
-        if (item.isBuilder) {
-            const isAnyActive = path.includes('builder2d.html') || path.includes('mushroom_3d.html');
-            linkContent = linkContent.replace('<span>ออกแบบโรงเรือน (Builder)</span>', `
-                <span>ออกแบบโรงเรือน (Builder)</span>
-                <span onclick="toggleBuilderSubmenu(event)" class="ml-auto p-1 text-gray-400 hover:text-gray-600 dark:hover:text-white transition cursor-pointer z-20"><i id="builderChevron" class="fas ${isAnyActive ? 'fa-chevron-up' : 'fa-chevron-down'} text-[10px]"></i></span>
-            `);
-            html += linkContent + `
-                <div id="builderSubmenu" class="mt-1 space-y-0.5 border-l border-slate-100 dark:border-slate-800 ml-6 pl-1 ${isAnyActive ? '' : 'hidden'}">
-                    <a href="builder2d.html?mode=2d" class="pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"><i class="fas fa-cubes text-[10px]"></i> โหมด 2D</a>
-                    <a href="mushroom_3d.html?mode=3d" class="pl-11 nav-item flex items-center gap-2.5 py-2.5 rounded-lg text-xs font-bold text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/10"><i class="fas fa-cube text-[10px]"></i> โหมด 3D</a>
-                </div>`;
-        } else {
-            html += linkContent;
+    const menuGroups = [
+        {
+            id: "group_main",
+            label: "1🏠 กลุ่มเมนูหลัก",
+            items: [
+                { href: "index.html", label: "1.1 หน้าแรก", icon: "fa-home", colorClass: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400" },
+                { href: isIndex ? "#products" : "index.html#products", label: "1.2 สายพันธุ์เห็ด", icon: "fa-seedling", colorClass: "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400" },
+                { href: isIndex ? "#charts" : "index.html#charts", label: "1.3 ประเมินผล", icon: "fa-chart-bar", colorClass: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
+                { href: isIndex ? "#zerowaste" : "index.html#zerowaste", label: "1.4 Zero Waste", icon: "fa-recycle", colorClass: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" },
+                { href: isIndex ? "#contact" : "index.html#contact", label: "1.5 ติดต่อ", icon: "fa-envelope", colorClass: "bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400" }
+            ]
+        },
+        {
+            id: "group_tools",
+            label: "2⚙️ กลุ่มเครื่องมือการทำงาน",
+            items: [
+                { href: "lab.html", label: "2.1 MSSM Lab", icon: "fa-flask", colorClass: "bg-gradient-to-br from-emerald-400 to-emerald-600 text-white" },
+                { href: "ai.html", label: "2.2 AI Assistant", icon: "fa-robot", colorClass: "bg-gradient-to-br from-amber-400 to-amber-600 text-white" },
+                {
+                    id: "group_tools_builder",
+                    label: "2.3 ออกแบบโรงเรือน (Builder)",
+                    icon: "fa-cubes",
+                    colorClass: builderBtnClass,
+                    isBuilder: true,
+                    subitems: [
+                        { href: "builder2d.html?mode=2d", label: "2.3.1 ออกแบบจำลอง 2D", icon: "fa-cubes", colorClass: "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400" },
+                        { href: "mushroom_3d.html?mode=3d", label: "2.3.2 ออกแบบจำลอง 3D", icon: "fa-cube", colorClass: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" }
+                    ]
+                }
+            ]
+        },
+        {
+            id: "group_data",
+            label: "3📊 กลุ่มข้อมูลและการจัดการ",
+            items: [
+                { href: "market.html", label: "3.1 ตลาดราคากลาง", icon: "fa-chart-line", colorClass: "bg-gradient-to-br from-rose-500 to-rose-600 text-white" },
+                { href: "quiz_pvp.html", label: "3.2 ทดสอบความรู้", icon: "fa-trophy", colorClass: "bg-gradient-to-br from-amber-500 to-orange-600 text-white" },
+                {
+                    id: "group_data_research",
+                    label: "3.3 คลังข้อมูลวิจัย",
+                    icon: "fa-database",
+                    colorClass: "bg-gradient-to-br from-blue-400 to-blue-600 text-white",
+                    subitems: [
+                        { href: "dataset.html", label: "3.3.1 คลังข้อมูลวิจัย", icon: "fa-database", colorClass: "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400" },
+                        { href: "doc.html", label: "3.3.2 คู่มือวิจัย", icon: "fa-book", colorClass: "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400" }
+                    ]
+                },
+                { href: "management.html", label: "3.4 การจัดการฟาร์ม", icon: "fa-tasks", colorClass: "bg-gradient-to-br from-indigo-400 to-indigo-650 text-white" }
+            ]
+        },
+        {
+            id: "group_info",
+            label: "4ℹ️กลุ่มข้อมูลโครงการและอื่นๆ",
+            items: [
+                { href: "https://docs.google.com/forms/d/e/1FAIpQLSfv9wysUClz6pVb4c6e1fMVbXUn-a0MU5Yj9ui9HSoSLch2Jw/viewform", label: "4.1 แบบสอบถาม", icon: "fa-poll", colorClass: "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400", target: "_blank" },
+                { href: "settings.html", label: "4.2 ศูนย์ตั้งค่า", icon: "fa-cog", colorClass: "bg-gradient-to-br from-gray-500 to-slate-700 text-white" }
+            ]
         }
+    ];
 
-        if (idx === 0) {
-            html += `<div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">`;
-            indexAnchors.forEach(anchor => {
+    function isItemActive(item) {
+        if (item.href.startsWith('http')) return false;
+        
+        const hrefParts = item.href.split('#');
+        const hrefBase = hrefParts[0];
+        const hrefHash = hrefParts[1] ? '#' + hrefParts[1] : '';
+        
+        const targetFile = hrefBase.split('?')[0] || 'index.html';
+        const targetMode = new URLSearchParams(hrefBase.split('?')[1] || '').get('mode');
+        
+        const targetIsIndex = targetFile === 'index.html' || targetFile === '';
+        
+        if (targetIsIndex) {
+            if (!isIndex) return false;
+            if (hrefHash) {
+                return curHash === hrefHash;
+            }
+            return curHash === '' || curHash === '#top';
+        }
+        
+        const testCurFile = curFile === '' || curFile === '/' ? 'index.html' : curFile;
+        if (testCurFile === targetFile) {
+            if (targetMode) {
+                return targetMode === curMode;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    const isAutoTour = localStorage.getItem('autoTourEnabled') === 'true';
+
+    function shouldExpand(groupId, defaultActive) {
+        if (isAutoTour) return true;
+        const stored = localStorage.getItem('sidebar_expanded_' + groupId);
+        if (stored !== null) {
+            return stored === 'true';
+        }
+        return defaultActive;
+    }
+
+    let html = '';
+    menuGroups.forEach(group => {
+        const isGroupActive = group.items.some(item => {
+            if (item.subitems) {
+                return item.subitems.some(sub => isItemActive(sub));
+            }
+            return isItemActive(item);
+        });
+        const isGroupExpanded = shouldExpand(group.id, isGroupActive);
+        
+        html += `
+            <!-- Group: ${group.label} -->
+            <div class="mb-2">
+                <div onclick="toggleSidebarGroup('${group.id}')" class="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 cursor-pointer select-none transition-all duration-200 border border-transparent hover:border-emerald-500/10 dark:hover:border-emerald-500/5">
+                    <span>${group.label}</span>
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-gray-150/40 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500">
+                        <i id="${group.id}_chevron" class="fas fa-chevron-down text-[8px] transition-transform duration-300 ${isGroupExpanded ? 'rotate-180' : ''}"></i>
+                    </span>
+                </div>
+                <div id="${group.id}" class="overflow-hidden transition-all duration-300 ease-in-out pl-2 border-l border-slate-100 dark:border-slate-800/80 ml-3.5 space-y-1 mt-1 ${isGroupExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}">
+        `;
+        
+        group.items.forEach(item => {
+            if (item.subitems) {
+                const isSubActive = item.subitems.some(sub => isItemActive(sub));
+                const isSubExpanded = shouldExpand(item.id, isSubActive);
+                
                 html += `
-                    <a href="${anchor.href}" class="nav-item flex items-center gap-3 px-3 py-3.5 rounded-lg text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all">
-                        <span class="w-7 h-7 flex items-center justify-center rounded-lg ${anchor.colorClass} text-xs"><i class="fas ${anchor.icon}"></i></span>
-                        ${anchor.label}
+                    <div class="mb-0.5">
+                        <div onclick="toggleSidebarGroup('${item.id}')" class="flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 cursor-pointer select-none transition-all duration-200">
+                            <span class="flex items-center gap-3">
+                                <span class="w-7 h-7 flex items-center justify-center rounded-lg ${item.colorClass} text-xs relative">
+                                    <i class="fas ${item.icon}"></i>
+                                    ${item.isBuilder && curMode === '3d' ? builderBadge : ''}
+                                </span>
+                                <span>${item.label}</span>
+                            </span>
+                            <span class="flex items-center justify-center w-5 h-5">
+                                <i id="${item.id}_chevron" class="fas fa-chevron-down text-[8px] transition-transform duration-300 ${isSubExpanded ? 'rotate-180' : ''}"></i>
+                            </span>
+                        </div>
+                        <div id="${item.id}" class="overflow-hidden transition-all duration-300 ease-in-out pl-3 border-l border-slate-100 dark:border-slate-800/80 ml-5.5 space-y-1 mt-0.5 ${isSubExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}">
+                `;
+                
+                item.subitems.forEach(sub => {
+                    const isActive = isItemActive(sub);
+                    const activeClass = isActive
+                        ? "nav-item active flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-500/10 shadow-sm transition-all"
+                        : "nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] font-semibold text-gray-500 dark:text-gray-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 hover:text-gray-900 dark:hover:text-gray-100 transition-all";
+                        
+                    html += `
+                        <a href="${sub.href}" class="${activeClass}">
+                            <span class="w-5 h-5 flex items-center justify-center rounded-md ${sub.colorClass || 'bg-gray-100 dark:bg-gray-800'} text-[10px]"><i class="fas ${sub.icon}"></i></span>
+                            <span>${sub.label}</span>
+                        </a>
+                    `;
+                });
+                
+                html += `
+                        </div>
+                    </div>
+                `;
+            } else {
+                const isActive = isItemActive(item);
+                const activeClass = isActive
+                    ? "nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-200 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-500/10 shadow-sm transition-all"
+                    : "nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-gray-900 dark:hover:text-gray-100 transition-all";
+                    
+                html += `
+                    <a href="${item.href}" ${item.target ? `target="${item.target}"` : ""} class="${activeClass} relative">
+                        <span class="w-7 h-7 flex items-center justify-center rounded-lg ${item.colorClass} text-xs"><i class="fas ${item.icon}"></i></span>
+                        <span>${item.label}</span>
                     </a>
                 `;
-            });
-            html += `</div><div class="border-t border-gray-100 dark:border-gray-800 my-3 pt-3">
-                    <div class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">เครื่องมือ</div>`;
-        }
+            }
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
     });
-
-    html += `
-        </div>
-        </div>
-    `;
 
     sidebar.innerHTML = `
         <!-- Brand Header -->
@@ -641,21 +752,41 @@ function renderSidebar() {
             ${html}
         </nav>
     `;
+
+    if (!window._hashListenerAdded) {
+        window._hashListenerAdded = true;
+        window.addEventListener('hashchange', renderSidebar);
+    }
 }
 
-// === COLLAPSIBLE BUILDER SUBMENU TOGGLE ===
-function toggleBuilderSubmenu(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const submenu = document.getElementById('builderSubmenu');
-    const chevron = document.getElementById('builderChevron');
-    if (submenu) {
-        submenu.classList.toggle('hidden');
-        const isHidden = submenu.classList.contains('hidden');
-        if (chevron) {
-            chevron.className = isHidden ? "fas fa-chevron-down text-[10px]" : "fas fa-chevron-up text-[10px]";
-        }
+// === CENTRALIZED SIDEBAR GROUP COLLAPSE/EXPAND TOGGLE ===
+window.toggleSidebarGroup = function(groupId) {
+    const groupEl = document.getElementById(groupId);
+    const chevronEl = document.getElementById(groupId + '_chevron');
+    if (!groupEl) return;
+    
+    const isExpanded = groupEl.classList.contains('max-h-[1000px]');
+    
+    if (isExpanded) {
+        groupEl.classList.remove('max-h-[1000px]', 'opacity-100');
+        groupEl.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
+        localStorage.setItem('sidebar_expanded_' + groupId, 'false');
+        if (chevronEl) chevronEl.classList.remove('rotate-180');
+    } else {
+        groupEl.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
+        groupEl.classList.add('max-h-[1000px]', 'opacity-100');
+        localStorage.setItem('sidebar_expanded_' + groupId, 'true');
+        if (chevronEl) chevronEl.classList.add('rotate-180');
     }
+};
+
+// Deprecated alias for backward compatibility
+function toggleBuilderSubmenu(event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    window.toggleSidebarGroup('group_tools_builder');
 }
 
 // === PWA SETUP ===
