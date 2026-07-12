@@ -288,7 +288,6 @@ function initSmartHeader() {
     let lastScrollY = window.scrollY;
     const themeBtn = document.getElementById('themeToggle');
     const hamBtn = document.getElementById('hamburgerBtn');
-    const connBtn = document.getElementById('connBadge');
     let smartTicking = false;
 
     window.addEventListener('scroll', () => {
@@ -300,11 +299,9 @@ function initSmartHeader() {
                     const method = hide ? 'add' : 'remove';
                     themeBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
                     hamBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                    connBtn?.classList[method]('-translate-y-24', 'opacity-0', 'pointer-events-none');
                 } else {
                     themeBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
                     hamBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
-                    connBtn?.classList.remove('-translate-y-24', 'opacity-0', 'pointer-events-none');
                 }
                 lastScrollY = currentScrollY;
                 smartTicking = false;
@@ -316,13 +313,6 @@ function initSmartHeader() {
 
 // === NETWORK STATUS TOAST & LIVE BADGE ===
 function initNetworkStatus() {
-    const badge = document.createElement('div');
-    badge.id = 'connBadge';
-    // On mobile: skip heavy backdrop-blur
-    const blurClass = _isMobile ? 'bg-white/95 dark:bg-gray-800/95' : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-md';
-    badge.className = `fixed top-3 right-16 md:top-5 md:right-24 z-[100] flex items-center gap-1.5 px-2.5 py-2 rounded-xl ${blurClass} border border-gray-200 dark:border-gray-700 shadow-md transition-all duration-300`;
-    document.body.appendChild(badge);
-
     const toast = document.createElement('div');
     toast.id = 'network-status-toast';
     toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-20 opacity-0 pointer-events-none flex items-center gap-2';
@@ -330,13 +320,6 @@ function initNetworkStatus() {
 
     function updateStatus(isOnline) {
         if (isOnline) {
-            badge.innerHTML = `
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <span class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">LIVE</span>
-            `;
             if (toast.dataset.initialized) {
                 toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-emerald-500/90 dark:bg-emerald-600/90 text-white border-emerald-400/30 flex items-center gap-2 animate-pop-in';
                 toast.innerHTML = '<i class="fas fa-bolt animate-pulse"></i> ออนไลน์แล้ว: ระบบพร้อมใช้งาน';
@@ -345,17 +328,10 @@ function initNetworkStatus() {
                 }, 3000);
             }
         } else {
-            badge.innerHTML = `
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                </span>
-                <span class="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider animate-pulse">OFFLINE</span>
-            `;
-            toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-red-500/90 dark:bg-red-600/90 text-white border-red-400/30 flex items-center gap-2 animate-pop-in';
+            toast.className = 'fixed bottom-24 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-full text-sm font-bold shadow-xl border backdrop-blur-md transition-all duration-500 translate-y-0 opacity-100 bg-red-500/90 dark:bg-red-650/90 text-white border-red-400/30 flex items-center gap-2 animate-pop-in';
             toast.innerHTML = '<i class="fas fa-wifi-slash animate-bounce"></i> ออฟไลน์อยู่: ตรวจสอบสัญญาณเน็ต';
+            toast.dataset.initialized = "true";
         }
-        toast.dataset.initialized = "true";
     }
 
     window.addEventListener('online', () => updateStatus(true));
