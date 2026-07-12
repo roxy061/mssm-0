@@ -93,7 +93,7 @@ function openMenu() {
 }
 
 function closeMenu() {
-    if (window.innerWidth >= 1024) return;
+    if (window.innerWidth >= 1024 && !window.location.pathname.includes('mushroom_3d.html')) return;
     const { menu, overlay } = _getMenuEls();
     if (!menu) return;
     _menuOpen = false;
@@ -120,8 +120,13 @@ window.addEventListener('resize', () => {
             const { menu, overlay } = _getMenuEls();
             if (menu) {
                 _menuOpen = false;
-                menu.classList.remove('hidden', '-translate-x-full');
-                menu.setAttribute('aria-hidden', 'false');
+                if (!window.location.pathname.includes('mushroom_3d.html')) {
+                    menu.classList.remove('hidden', '-translate-x-full');
+                    menu.setAttribute('aria-hidden', 'false');
+                } else {
+                    menu.classList.add('hidden', '-translate-x-full');
+                    menu.setAttribute('aria-hidden', 'true');
+                }
             }
             overlay?.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');

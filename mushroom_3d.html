@@ -136,6 +136,9 @@
                 <span id="lblWalletCash">50,000 บาท</span>
             </div>
             <a href="index.html" class="bg-slate-950 border border-slate-800 text-slate-300 hover:text-white font-bold text-[9px] px-3 py-1.5 rounded-lg transition">หน้าหลัก</a>
+            <button onclick="toggleMenu()" class="w-8 h-8 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 hover:text-white transition flex items-center justify-center cursor-pointer" aria-label="Open Navigation Menu">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
@@ -225,9 +228,9 @@
         <main class="flex-grow flex flex-col relative h-full">
             <div id="canvas3d" class="w-full h-full"></div>
 
-            <!-- Mobile hamburger -->
-            <button onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 left-4 w-9 h-9 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl flex items-center justify-center z-30 cursor-pointer">
-                <i class="fas fa-bars"></i>
+            <!-- Mobile tools toggle -->
+            <button onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 right-4 w-9 h-9 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl flex items-center justify-center z-30 cursor-pointer" aria-label="Toggle CAD Tools">
+                <i class="fas fa-sliders-h"></i>
             </button>
 
             <!-- Drag-mode hint overlay (shows briefly when dragging) -->
@@ -848,6 +851,17 @@
             init3D();
         };
     </script>
+    <!-- Mobile Overlay -->
+    <div id="menuOverlay" onclick="closeMenu()" class="hidden fixed inset-0 z-[60] bg-black/50 dark:bg-black/70 backdrop-blur-sm"></div>
+
+    <!-- Sidebar -->
+    <aside id="mobileMenu" class="fixed top-0 left-0 w-[260px] h-screen z-[70] bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col overflow-y-auto shadow-2xl transition-transform duration-300 -translate-x-full">
+        <!-- Nav Items -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <!-- Will be overwritten by core.js renderSidebar -->
+        </nav>
+    </aside>
+
     <script src="assets/js/core.js"></script>
 </body>
 </html>
