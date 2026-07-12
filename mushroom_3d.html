@@ -53,6 +53,16 @@
         }
         .drag-cursor { cursor: grab !important; }
         .drag-cursor:active { cursor: grabbing !important; }
+        
+        /* Hide spin buttons for numeric inputs */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
     </style>
 
     <!-- GLOBAL RENDER MODE ROUTER -->
@@ -98,6 +108,7 @@
         <div class="flex items-center gap-1">
             <button onclick="undoLastAction()" class="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-bold rounded-lg hover:border-emerald-500 transition flex items-center gap-1"><i class="fas fa-undo"></i> ย้อนกลับ</button>
             <button onclick="clear3DScene()" class="px-2.5 py-1.5 bg-red-950/40 border border-red-900/60 text-[10px] text-red-400 font-bold rounded-lg hover:bg-red-900/20 transition flex items-center gap-1"><i class="fas fa-trash-alt"></i> ล้าง</button>
+            <button id="btnOrientationToggle" onclick="toggleOrientationMode()" class="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-bold rounded-lg hover:border-emerald-500 transition flex items-center gap-1"><i class="fas fa-mobile-alt"></i> หน้าจอ: อัตโนมัติ</button>
             <div class="w-[1px] h-4 bg-slate-700 mx-1"></div>
             <button onclick="savePlanToFile()" class="px-2.5 py-1.5 bg-emerald-600 border border-emerald-500 text-[10px] text-white font-bold rounded-lg hover:bg-emerald-500 transition flex items-center gap-1"><i class="fas fa-save"></i> บันทึกแปลน</button>
             <button onclick="triggerFileSelect()" class="px-2.5 py-1.5 bg-blue-600 border border-blue-500 text-[10px] text-white font-bold rounded-lg hover:bg-blue-500 transition flex items-center gap-1"><i class="fas fa-folder-open"></i> ดึงแปลน</button>
@@ -209,8 +220,11 @@
         <main class="flex-grow flex flex-col relative h-full">
             <div id="canvas3d" class="w-full h-full"></div>
 
-            <!-- Mobile tools toggle -->
-            <button onclick="toggleMobileSidebar()" class="md:hidden absolute top-4 right-4 w-9 h-9 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl flex items-center justify-center z-30 cursor-pointer" aria-label="Toggle CAD Tools">
+            <!-- Mobile tools toggles -->
+            <button id="btnLeftToggle" onclick="toggleMobileSidebar()" class="absolute top-4 left-4 w-9 h-9 bg-slate-900/90 border border-slate-700 text-emerald-400 rounded-xl flex items-center justify-center z-30 cursor-pointer shadow-lg hover:border-emerald-500 transition" aria-label="Toggle Tools">
+                <i class="fas fa-tools"></i>
+            </button>
+            <button id="btnRightToggle" onclick="toggleMobileRightSidebar()" class="absolute top-4 right-4 w-9 h-9 bg-slate-900/90 border border-slate-700 text-blue-400 rounded-xl flex items-center justify-center z-30 cursor-pointer shadow-lg hover:border-blue-500 transition" aria-label="Toggle Settings">
                 <i class="fas fa-sliders-h"></i>
             </button>
 
@@ -221,7 +235,7 @@
         </main>
 
         <!-- ═══ RIGHT SIDEBAR ════════════════════════════════════════════════ -->
-        <aside class="w-44 cad-sidebar-right flex flex-col shrink-0 overflow-y-auto max-md:hidden">
+        <aside id="rightSidebar" class="w-44 cad-sidebar-right flex flex-col shrink-0 overflow-y-auto max-md:hidden">
 
             <!-- View Mode -->
             <div class="p-3 border-b border-slate-700">
@@ -286,11 +300,35 @@
                         <option value="standard">วัสดุมาตรฐาน</option>
                         <option value="steel">โครงเหล็ก</option>
                         <option value="canvas">ผ้าใบ</option>
-                        <option value="glass">กระจก/โพลี</option>
+                        <option value="glass">กระจกใส</option>
+                        <option value="polycarbonate">แผ่นโพลีคาร์บอเนต</option>
+                    </select>
+                    <select id="finishSelect" onchange="updateSelectedMaterial()" class="w-full bg-slate-800 text-slate-300 text-[9px] p-1 border border-slate-600 rounded mt-1">
+                        <option value="default">พื้นผิวเริ่มต้น</option>
+                        <option value="matte">เรียบด้าน (Matte)</option>
+                        <option value="glossy">เรียบมัน (Glossy)</option>
+                        <option value="metallic">โลหะสะท้อน (Metallic)</option>
+                        <option value="translucent">โปร่งแสง (Translucent)</option>
                     </select>
                     <div class="flex items-center gap-2 mt-1">
                         <label class="text-[9px] text-slate-400">สี:</label>
                         <input type="color" id="matColor" onchange="updateSelectedColor()" class="w-full h-5 cursor-pointer bg-transparent border-0 p-0">
+                    </div>
+                </div>
+
+                <div id="objDimensions" class="hidden space-y-1 mt-2 border-t border-slate-700 pt-2 text-[9px]">
+                    <span class="text-slate-400 font-bold block mb-1">ปรับขนาดวัตถุ (เมตร):</span>
+                    <div class="flex items-center justify-between gap-1">
+                        <label class="text-slate-500 w-10">กว้าง (X):</label>
+                        <input type="number" id="inputDimW" step="0.1" min="0.05" class="w-16 bg-slate-800 border border-slate-600 rounded text-slate-300 text-center py-0.5" oninput="changeSelectedDim()">
+                    </div>
+                    <div class="flex items-center justify-between gap-1 mt-1">
+                        <label class="text-slate-500 w-10">ยาว (Z):</label>
+                        <input type="number" id="inputDimL" step="0.1" min="0.05" class="w-16 bg-slate-800 border border-slate-600 rounded text-slate-300 text-center py-0.5" oninput="changeSelectedDim()">
+                    </div>
+                    <div class="flex items-center justify-between gap-1 mt-1">
+                        <label class="text-slate-500 w-10">สูง (Y):</label>
+                        <input type="number" id="inputDimH" step="0.1" min="0.05" class="w-16 bg-slate-800 border border-slate-600 rounded text-slate-300 text-center py-0.5" oninput="changeSelectedDim()">
                     </div>
                 </div>
             </div>
@@ -321,6 +359,15 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Save & Export -->
+            <div class="p-3 border-t border-slate-700">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-save text-emerald-400"></i> บันทึก & ส่งออก</span>
+                <div class="grid grid-cols-1 gap-1.5">
+                    <button onclick="quickSavePlan()" class="bg-emerald-900/30 hover:bg-emerald-800 border border-emerald-600/30 text-[9px] text-emerald-400 py-1.5 rounded transition flex items-center justify-center gap-1 cursor-pointer"><i class="fas fa-hdd"></i> บันทึกด่วน</button>
+                    <button onclick="quickLoadPlan()" class="bg-blue-900/30 hover:bg-blue-800 border border-blue-600/30 text-[9px] text-blue-400 py-1.5 rounded transition flex items-center justify-center gap-1 cursor-pointer"><i class="fas fa-redo-alt"></i> โหลดด่วน</button>
+                </div>
+            </div>
         </aside>
     </div>
 
@@ -337,8 +384,113 @@
 
         let placedObjects = [];
         let mobileSidebarOpen = false;
+        let mobileRightSidebarOpen = false;
+        let currentLayoutState = localStorage.getItem('mushroom_3d_layout') || 'auto'; // auto | portrait | landscape
         let activeHeightOffset = 0.0;
         let selectedObject = null;
+
+        function toggleOrientationMode() {
+            if (currentLayoutState === 'auto') {
+                currentLayoutState = 'portrait';
+            } else if (currentLayoutState === 'portrait') {
+                currentLayoutState = 'landscape';
+            } else {
+                currentLayoutState = 'auto';
+            }
+            localStorage.setItem('mushroom_3d_layout', currentLayoutState);
+            updateLayout();
+        }
+
+        function toggleMobileSidebar() {
+            mobileSidebarOpen = !mobileSidebarOpen;
+            if (mobileSidebarOpen) {
+                mobileRightSidebarOpen = false; // close the other drawer
+            }
+            updateLayout();
+        }
+
+        function toggleMobileRightSidebar() {
+            mobileRightSidebarOpen = !mobileRightSidebarOpen;
+            if (mobileRightSidebarOpen) {
+                mobileSidebarOpen = false; // close the other drawer
+            }
+            updateLayout();
+        }
+
+        function updateLayout() {
+            const leftSidebar = document.getElementById('leftSidebar');
+            const rightSidebar = document.getElementById('rightSidebar');
+            const btnLeftToggle = document.getElementById('btnLeftToggle');
+            const btnRightToggle = document.getElementById('btnRightToggle');
+            
+            if (!leftSidebar || !rightSidebar) return;
+            
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // Determine layout mode
+            let isLandscape = true;
+            if (currentLayoutState === 'auto') {
+                isLandscape = width > height;
+            } else {
+                isLandscape = currentLayoutState === 'landscape';
+            }
+            
+            if (isLandscape) {
+                // Horizontal / Landscape mode: static sidebars
+                leftSidebar.className = "w-60 cad-sidebar flex flex-col shrink-0 z-15 overflow-y-auto";
+                rightSidebar.className = "w-44 cad-sidebar-right flex flex-col shrink-0 overflow-y-auto";
+                leftSidebar.style.transform = "";
+                rightSidebar.style.transform = "";
+                
+                if (btnLeftToggle) btnLeftToggle.classList.add('hidden');
+                if (btnRightToggle) btnRightToggle.classList.add('hidden');
+            } else {
+                // Vertical / Portrait mode: drawers
+                leftSidebar.className = "w-60 cad-sidebar flex flex-col shrink-0 z-40 overflow-y-auto fixed inset-y-0 left-0 pt-12 -translate-x-full transition-transform duration-300";
+                rightSidebar.className = "w-44 cad-sidebar-right flex flex-col shrink-0 z-40 overflow-y-auto fixed inset-y-0 right-0 pt-12 translate-x-full transition-transform duration-300";
+                
+                if (mobileSidebarOpen) {
+                    leftSidebar.style.transform = "translateX(0)";
+                } else {
+                    leftSidebar.style.transform = "translateX(-100%)";
+                }
+                
+                if (mobileRightSidebarOpen) {
+                    rightSidebar.style.transform = "translateX(0)";
+                } else {
+                    rightSidebar.style.transform = "translateX(100%)";
+                }
+                
+                if (btnLeftToggle) btnLeftToggle.classList.remove('hidden');
+                if (btnRightToggle) btnRightToggle.classList.remove('hidden');
+            }
+            
+            // Update orientation toggle button label
+            const btnOrient = document.getElementById('btnOrientationToggle');
+            if (btnOrient) {
+                let label = "หน้าจอ: อัตโนมัติ";
+                if (currentLayoutState === 'portrait') label = "หน้าจอ: แนวตั้ง 📱";
+                if (currentLayoutState === 'landscape') label = "หน้าจอ: แนวนอน 💻";
+                btnOrient.innerHTML = `<i class="fas fa-mobile-alt"></i> ${label}`;
+            }
+            
+            // Re-adjust rendering canvas
+            onWindowResize();
+        }
+
+        const baseDimensions = {
+            'pillar': { w: 0.24, h: 2.5, l: 0.24 },
+            'wall': { w: 0.8, h: 1.2, l: 0.15 },
+            'roof': { w: 7.0, h: 1.2, l: 7.0 },
+            'door': { w: 0.6, h: 1.8, l: 0.1 },
+            'window': { w: 0.5, h: 0.5, l: 0.1 },
+            'bag_hungarian': { w: 0.36, h: 0.5, l: 0.36 },
+            'bag_splitgill': { w: 0.36, h: 0.5, l: 0.36 },
+            'mist': { w: 0.2, h: 0.2, l: 0.2 },
+            'fan': { w: 0.35, h: 0.35, l: 0.15 },
+            'shelves': { w: 1.0, h: 1.8, l: 0.4 }
+        };
 
         const toolPrices = {
             'pillar': 150,
@@ -424,6 +576,11 @@
             transformControl.addEventListener('dragging-changed', function (event) {
                 controls.enabled = !event.value;
             });
+            transformControl.addEventListener('change', () => {
+                if (selectedObject && controlMode === 'transform') {
+                    updateSelectedInfoUI();
+                }
+            });
             scene.add(transformControl);
 
             // Ground plane for raycast tracking
@@ -434,12 +591,12 @@
 
             drawCADDimensionLines();
             syncWalletUI();
-            onWindowResize();
+            updateLayout();
 
             // Event Listeners
             renderer.domElement.addEventListener('pointerdown', onPointerDown);
-            window.addEventListener('resize', onWindowResize);
-            window.addEventListener('orientationchange', () => setTimeout(onWindowResize, 200));
+            window.addEventListener('resize', updateLayout);
+            window.addEventListener('orientationchange', () => setTimeout(updateLayout, 200));
 
             // Save default camera state for reset
             controls.saveState();
@@ -468,15 +625,7 @@
             scene.add(line);
         }
 
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('leftSidebar');
-            mobileSidebarOpen = !mobileSidebarOpen;
-            if (mobileSidebarOpen) {
-                sidebar.style.transform = 'translateX(0)';
-            } else {
-                sidebar.style.transform = 'translateX(-100%)';
-            }
-        }
+
 
         function setControlMode(mode) {
             controlMode = mode;
@@ -556,6 +705,48 @@
             }
         }
 
+        let isDraggingObject = false;
+        let dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+        function onPointerMoveDrag(event) {
+            if (!isDraggingObject || !selectedObject) return;
+            
+            updateMouseCoords(event);
+            raycaster.setFromCamera(mouse, camera);
+            
+            const intersectPoint = new THREE.Vector3();
+            raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+            
+            if (intersectPoint) {
+                const gridX = Math.round(intersectPoint.x * 2) / 2;
+                const gridZ = Math.round(intersectPoint.z * 2) / 2;
+                
+                if (Math.abs(gridX) <= 4.0 && Math.abs(gridZ) <= 4.0) {
+                    selectedObject.mesh.position.x = gridX;
+                    selectedObject.mesh.position.z = gridZ;
+                    
+                    if (transformControl.object) {
+                        transformControl.update();
+                    }
+                    
+                    updateSelectedInfoUI();
+                }
+            }
+        }
+
+        function onPointerUpDrag() {
+            isDraggingObject = false;
+            controls.enabled = true;
+            
+            const dragHint = document.getElementById('dragHint');
+            if (dragHint) dragHint.classList.add('hidden');
+            
+            window.removeEventListener('pointermove', onPointerMoveDrag);
+            window.removeEventListener('pointerup', onPointerUpDrag);
+            
+            updateRightPanelStats();
+        }
+
         // ─── POINTER DOWN ────────────────────────────────────────────────────────
         function onPointerDown(event) {
             if (event.button !== undefined && event.button !== 0) return; // left click only
@@ -567,11 +758,24 @@
             raycaster.setFromCamera(mouse, camera);
 
             const placedMeshes = placedObjects.map(o => o.mesh);
-            // Include transform handles so we don't deselect when clicking them
             const hits = raycaster.intersectObjects(placedMeshes);
 
             if (hits.length > 0) {
                 onCanvasBuildClick(hits);
+                
+                // If in transform mode and translate mode, start direct dragging
+                if (controlMode === 'transform' && transformMode === 'translate' && selectedObject) {
+                    isDraggingObject = true;
+                    controls.enabled = false;
+                    
+                    dragPlane.constant = -selectedObject.mesh.position.y;
+                    
+                    const dragHint = document.getElementById('dragHint');
+                    if (dragHint) dragHint.classList.remove('hidden');
+                    
+                    window.addEventListener('pointermove', onPointerMoveDrag);
+                    window.addEventListener('pointerup', onPointerUpDrag);
+                }
             } else if (controlMode === 'build') {
                 // Click on empty ground
                 onCanvasBuildClick([]);
@@ -602,6 +806,107 @@
             if (infoEl) infoEl.textContent = 'คลิกเลือกวัสดุ...';
             document.getElementById('objActions').classList.add('hidden');
             document.getElementById('objMaterial').classList.add('hidden');
+            document.getElementById('objDimensions').classList.add('hidden');
+        }
+
+        function updateSelectedInfoUI() {
+            if (!selectedObject) {
+                deselectObject();
+                return;
+            }
+            
+            const typeLabel = { 
+                pillar:'เสาโรงเรือน', 
+                wall:'กำแพงกั้น', 
+                roof:'หลังคา',
+                door:'ประตูเข้า', 
+                window:'บานระบาย', 
+                bag_hungarian:'ก้อนเห็ดนางรม',
+                bag_splitgill:'ก้อนเห็ดแครง', 
+                mist:'หัวพ่นหมอก', 
+                fan:'พัดลมระบาย', 
+                shelves:'ชั้นวางก้อน' 
+            };
+            
+            const infoEl = document.getElementById('selectedInfo');
+            if (infoEl) {
+                infoEl.innerHTML = `<span class="text-emerald-400 font-black">${typeLabel[selectedObject.type] || selectedObject.type}</span><br><span class="text-slate-400">Y: ${selectedObject.mesh.position.y.toFixed(1)} ม.</span>`;
+            }
+            
+            document.getElementById('objActions').classList.remove('hidden');
+            document.getElementById('objMaterial').classList.remove('hidden');
+            
+            // Show dimensions controls if it has a base dimension definition
+            const baseDim = baseDimensions[selectedObject.type];
+            if (baseDim) {
+                document.getElementById('objDimensions').classList.remove('hidden');
+                
+                // Get current scale and convert to meters
+                const currentW = baseDim.w * selectedObject.mesh.scale.x;
+                const currentL = baseDim.l * selectedObject.mesh.scale.z;
+                const currentH = baseDim.h * selectedObject.mesh.scale.y;
+                
+                document.getElementById('inputDimW').value = parseFloat(currentW.toFixed(2));
+                document.getElementById('inputDimL').value = parseFloat(currentL.toFixed(2));
+                document.getElementById('inputDimH').value = parseFloat(currentH.toFixed(2));
+            } else {
+                document.getElementById('objDimensions').classList.add('hidden');
+            }
+
+            // Sync material options
+            const mat = selectedObject.mesh.material;
+            const matSelect = document.getElementById('matSelect');
+            const finishSelect = document.getElementById('finishSelect');
+            const matColor = document.getElementById('matColor');
+            
+            if (matSelect && matColor) {
+                if (mat.metalness > 0.8 && mat.roughness < 0.3) {
+                    matSelect.value = 'steel';
+                } else if (mat.metalness < 0.2 && mat.roughness > 0.7) {
+                    matSelect.value = 'canvas';
+                } else if (mat.transparent && mat.opacity < 0.5) {
+                    matSelect.value = 'glass';
+                } else if (mat.transparent && mat.opacity >= 0.5 && mat.opacity < 0.8) {
+                    matSelect.value = 'polycarbonate';
+                } else {
+                    matSelect.value = 'standard';
+                }
+                
+                if (finishSelect) {
+                    if (mat.roughness > 0.8 && mat.metalness < 0.1) {
+                        finishSelect.value = 'matte';
+                    } else if (mat.roughness < 0.15 && mat.metalness < 0.2) {
+                        finishSelect.value = 'glossy';
+                    } else if (mat.roughness < 0.3 && mat.metalness > 0.8) {
+                        finishSelect.value = 'metallic';
+                    } else if (mat.transparent && mat.opacity >= 0.5 && mat.opacity < 0.7) {
+                        finishSelect.value = 'translucent';
+                    } else {
+                        finishSelect.value = 'default';
+                    }
+                }
+
+                if (mat.color) {
+                    matColor.value = '#' + mat.color.getHexString();
+                }
+            }
+        }
+
+        function changeSelectedDim() {
+            if (!selectedObject) return;
+            const baseDim = baseDimensions[selectedObject.type];
+            if (!baseDim) return;
+            
+            const wVal = parseFloat(document.getElementById('inputDimW').value) || baseDim.w;
+            const lVal = parseFloat(document.getElementById('inputDimL').value) || baseDim.l;
+            const hVal = parseFloat(document.getElementById('inputDimH').value) || baseDim.h;
+            
+            // Avoid 0 scales
+            selectedObject.mesh.scale.x = Math.max(0.01, wVal / baseDim.w);
+            selectedObject.mesh.scale.z = Math.max(0.01, lVal / baseDim.l);
+            selectedObject.mesh.scale.y = Math.max(0.01, hVal / baseDim.h);
+            
+            updateRightPanelStats();
         }
 
         // ─── BUILD CLICK (place / select) ──────────────────────
@@ -633,15 +938,8 @@
                     document.getElementById('lblHeightOffsetVal').textContent = currentOffset.toFixed(1) + ' ม.';
                     activeHeightOffset = currentOffset;
 
-                    // Update info panel
-                    const typeLabel = { pillar:'เสาโรงเรือน', wall:'กำแพงกั้น', roof:'หลังคา',
-                        door:'ประตูเข้า', window:'บานระบาย', bag_hungarian:'ก้อนเห็ดนางรม',
-                        bag_splitgill:'ก้อนเห็ดแครง', mist:'หัวพ่นหมอก', fan:'พัดลมระบาย', shelves:'ชั้นวางก้อน' };
-                    const infoEl = document.getElementById('selectedInfo');
-                    if (infoEl) infoEl.innerHTML = `<span class="text-emerald-400 font-black">${typeLabel[obj.type]||obj.type}</span><br><span class="text-slate-400">Y: ${selectedObject.mesh.position.y.toFixed(1)} ม.</span>`;
-                    
-                    document.getElementById('objActions').classList.remove('hidden');
-                    document.getElementById('objMaterial').classList.remove('hidden');
+                    // Update info panel & dimensions
+                    updateSelectedInfoUI();
                 }
                 return;
             }
@@ -687,33 +985,48 @@
                 budgetEl.textContent = cash.toLocaleString() + ' บ.';
             }
 
-            let minX = 9999, maxX = -9999, minZ = 9999, maxZ = -9999, maxY = 0;
+            let minX = Infinity, maxX = -Infinity;
+            let minZ = Infinity, maxZ = -Infinity;
+            let maxY = 0;
             let shelvesCount = 0;
-            let areaCount = 0;
+            let bagCount = 0;
+            let structuralCount = 0;
 
             placedObjects.forEach(obj => {
                 if (obj.type === 'shelves') shelvesCount++;
-                if (obj.type === 'wall' || obj.type === 'pillar') {
-                    areaCount++;
+                if (obj.type === 'bag_hungarian' || obj.type === 'bag_splitgill') bagCount++;
+                
+                // Track bounding box of all structural items
+                if (['wall', 'pillar', 'roof', 'shelves'].includes(obj.type)) {
+                    structuralCount++;
                     const pos = obj.mesh.position;
-                    if (pos.x < minX) minX = pos.x;
-                    if (pos.x > maxX) maxX = pos.x;
-                    if (pos.z < minZ) minZ = pos.z;
-                    if (pos.z > maxZ) maxZ = pos.z;
-                    if (pos.y > maxY) maxY = pos.y;
+                    
+                    const baseDim = baseDimensions[obj.type] || { w: 0.5, h: 0.5, l: 0.5 };
+                    const w = baseDim.w * obj.mesh.scale.x;
+                    const l = baseDim.l * obj.mesh.scale.z;
+                    const h = baseDim.h * obj.mesh.scale.y;
+                    
+                    if (pos.x - w/2 < minX) minX = pos.x - w/2;
+                    if (pos.x + w/2 > maxX) maxX = pos.x + w/2;
+                    if (pos.z - l/2 < minZ) minZ = pos.z - l/2;
+                    if (pos.z + l/2 > maxZ) maxZ = pos.z + l/2;
+                    
+                    const heightPoint = pos.y + h/2;
+                    if (heightPoint > maxY) maxY = heightPoint;
                 }
             });
 
             let area = 0;
             let vol = 0;
-            if (areaCount >= 4) {
-                const w = Math.abs(maxX - minX);
-                const l = Math.abs(maxZ - minZ);
+            if (structuralCount > 0) {
+                const w = maxX - minX;
+                const l = maxZ - minZ;
                 area = w * l;
-                vol = area * (maxY || 2);
+                vol = area * (maxY || 2.0); // default height 2m if not specified
             }
 
-            let capacity = shelvesCount * 500; // estimated 500 bags per shelf
+            // Estimate 500 bags per shelf, plus any individually placed bags
+            let capacity = (shelvesCount * 500) + bagCount;
 
             document.getElementById('lblTotalArea').textContent = area.toFixed(1) + ' ตร.ม.';
             document.getElementById('lblTotalVol').textContent = vol.toFixed(1) + ' ลบ.ม.';
@@ -770,29 +1083,52 @@
         function updateSelectedMaterial() {
             if (!selectedObject) return;
             const type = document.getElementById('matSelect').value;
+            const finish = document.getElementById('finishSelect').value;
             const mat = selectedObject.mesh.material;
             
+            // 1. Apply base material preset properties
             if (type === 'steel') {
                 mat.metalness = 0.9;
-                mat.roughness = 0.2;
+                mat.roughness = 0.15;
                 mat.transparent = false;
                 mat.opacity = 1;
             } else if (type === 'canvas') {
-                mat.metalness = 0.1;
-                mat.roughness = 0.8;
+                mat.metalness = 0.05;
+                mat.roughness = 0.85;
                 mat.transparent = false;
                 mat.opacity = 1;
             } else if (type === 'glass') {
                 mat.metalness = 0.1;
-                mat.roughness = 0.1;
+                mat.roughness = 0.05;
                 mat.transparent = true;
-                mat.opacity = 0.4;
+                mat.opacity = 0.35;
+            } else if (type === 'polycarbonate') {
+                mat.metalness = 0.15;
+                mat.roughness = 0.45;
+                mat.transparent = true;
+                mat.opacity = 0.75;
             } else {
                 // standard
-                mat.metalness = 0.5;
+                mat.metalness = 0.4;
                 mat.roughness = 0.5;
                 mat.transparent = false;
                 mat.opacity = 1;
+            }
+
+            // 2. Overlay custom surface finish modifiers if specified
+            if (finish === 'matte') {
+                mat.roughness = 0.9;
+                mat.metalness = 0.0;
+            } else if (finish === 'glossy') {
+                mat.roughness = 0.08;
+                mat.metalness = 0.1;
+            } else if (finish === 'metallic') {
+                mat.roughness = 0.2;
+                mat.metalness = 0.95;
+            } else if (finish === 'translucent') {
+                mat.transparent = true;
+                mat.opacity = 0.55;
+                mat.roughness = 0.5;
             }
         }
 
@@ -854,6 +1190,85 @@
             document.getElementById('lblHeightOffsetVal').textContent = activeHeightOffset.toFixed(1) + ' ม.';
             if (selectedObject) {
                 selectedObject.mesh.position.y = activeHeightOffset + getBaseHeight(selectedObject.type);
+            }
+        }
+
+        function quickSavePlan() {
+            if (placedObjects.length === 0) {
+                window.showMushroomAlert('ไม่พบวัตถุโครงสร้างที่จะบันทึก!');
+                return;
+            }
+            const exportData = placedObjects.map(obj => ({
+                type: obj.type,
+                x: obj.mesh.position.x,
+                y: obj.mesh.position.y,
+                z: obj.mesh.position.z,
+                rotY: obj.mesh.rotation.y,
+                scaleX: obj.mesh.scale.x,
+                scaleY: obj.mesh.scale.y,
+                scaleZ: obj.mesh.scale.z,
+                color: obj.mesh.material.color.getHex(),
+                metalness: obj.mesh.material.metalness,
+                roughness: obj.mesh.material.roughness,
+                opacity: obj.mesh.material.opacity,
+                transparent: obj.mesh.material.transparent
+            }));
+            localStorage.setItem('mushroom_3d_quick_save', JSON.stringify(exportData));
+            window.showMushroomAlert('บันทึกแบบแปลนด่วนลงในเบราว์เซอร์แล้ว!');
+        }
+
+        function quickLoadPlan() {
+            const raw = localStorage.getItem('mushroom_3d_quick_save');
+            if (!raw) {
+                window.showMushroomAlert('ไม่พบข้อมูลบันทึกด่วนในเบราว์เซอร์!');
+                return;
+            }
+            try {
+                const data = JSON.parse(raw);
+                if (!Array.isArray(data)) {
+                    window.showMushroomAlert('รูปแบบไฟล์แปลนไม่ถูกต้อง!');
+                    return;
+                }
+
+                // Clear existing scene elements first
+                placedObjects.forEach(obj => scene.remove(obj.mesh));
+                placedObjects = [];
+
+                // Rebuild objects from data
+                data.forEach(item => {
+                    const geom = toolGeometries[item.type];
+                    const baseMat = toolMaterials[item.type];
+                    if (geom && baseMat) {
+                        const mat = baseMat.clone();
+                        if (item.color !== undefined) mat.color.setHex(item.color);
+                        if (item.metalness !== undefined) mat.metalness = item.metalness;
+                        if (item.roughness !== undefined) mat.roughness = item.roughness;
+                        if (item.opacity !== undefined) mat.opacity = item.opacity;
+                        if (item.transparent !== undefined) mat.transparent = item.transparent;
+
+                        const mesh = new THREE.Mesh(geom, mat);
+                        mesh.position.set(item.x, item.y, item.z);
+                        if (item.rotY) mesh.rotation.y = item.rotY;
+                        
+                        if (item.scaleX !== undefined && item.scaleY !== undefined && item.scaleZ !== undefined) {
+                            mesh.scale.set(item.scaleX, item.scaleY, item.scaleZ);
+                        } else {
+                            mesh.scale.set(1, 1, 1);
+                        }
+                        
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+                        scene.add(mesh);
+                        placedObjects.push({ type: item.type, mesh: mesh });
+                    }
+                });
+
+                syncWalletUI();
+                deselectObject();
+                updateRightPanelStats();
+                window.showMushroomAlert('โหลดแบบแปลนด่วนจากเบราว์เซอร์สำเร็จ!');
+            } catch (err) {
+                window.showMushroomAlert('เกิดข้อผิดพลาดในการโหลดแบบแปลน: ' + err.message);
             }
         }
 
@@ -930,7 +1345,13 @@
                             const mesh = new THREE.Mesh(geom, mat);
                             mesh.position.set(item.x, item.y, item.z);
                             if (item.rotY) mesh.rotation.y = item.rotY;
-                            if (item.scaleX) mesh.scale.set(item.scaleX, item.scaleY, item.scaleZ);
+                            
+                            if (item.scaleX !== undefined && item.scaleY !== undefined && item.scaleZ !== undefined) {
+                                mesh.scale.set(item.scaleX, item.scaleY, item.scaleZ);
+                            } else {
+                                mesh.scale.set(1, 1, 1);
+                            }
+                            
                             mesh.castShadow = true;
                             mesh.receiveShadow = true;
                             scene.add(mesh);
@@ -939,6 +1360,8 @@
                     });
 
                     syncWalletUI();
+                    deselectObject();
+                    updateRightPanelStats();
                     window.showMushroomAlert('โหลดไฟล์แบบแปลนสำเร็จเรียบร้อย!');
                 } catch (err) {
                     window.showMushroomAlert('เกิดข้อผิดพลาดในการอ่านไฟล์แบบแปลน: ' + err.message);
