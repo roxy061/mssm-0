@@ -13,6 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- OrbitControls -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
 
     <style>
         body {
@@ -52,27 +53,6 @@
         }
         .drag-cursor { cursor: grab !important; }
         .drag-cursor:active { cursor: grabbing !important; }
-        /* Fullscreen Landscape Warning Overlay */
-        #orientationOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background-color: #0b0f19;
-            z-index: 9999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 24px;
-        }
-        .rotate-phone-anim {
-            animation: rotatePhone 2s infinite ease-in-out;
-        }
-        @keyframes rotatePhone {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(-90deg); }
-            100% { transform: rotate(0deg); }
-        }
     </style>
 
     <!-- GLOBAL RENDER MODE ROUTER -->
@@ -102,12 +82,7 @@
 
 <body class="h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- LANDSCAPE ORIENTATION GUARD -->
-    <div id="orientationOverlay">
-        <span class="text-6xl text-emerald-400 rotate-phone-anim mb-6"><i class="fas fa-mobile-alt"></i></span>
-        <h2 class="text-lg font-black text-white uppercase tracking-wider">กรุณาหมุนโทรศัพท์เป็นแนวตั้ง/แนวนอน</h2>
-        <p class="text-xs text-slate-400 mt-2 max-w-xs leading-relaxed">โปรแกรมออกแบบโรงเรือน 3 มิติ ต้องการพื้นที่มุมมองในแบบ **แนวนอน (Landscape Mode)** เพื่อแสดงผลแถบเครื่องมือเขียนแบบได้อย่างถูกต้อง</p>
-    </div>
+
 
     <!-- TOP CAD HEADER -->
     <header class="cad-header h-12 px-4 flex items-center justify-between shrink-0 z-20">
@@ -126,6 +101,7 @@
             <div class="w-[1px] h-4 bg-slate-700 mx-1"></div>
             <button onclick="savePlanToFile()" class="px-2.5 py-1.5 bg-emerald-600 border border-emerald-500 text-[10px] text-white font-bold rounded-lg hover:bg-emerald-500 transition flex items-center gap-1"><i class="fas fa-save"></i> บันทึกแปลน</button>
             <button onclick="triggerFileSelect()" class="px-2.5 py-1.5 bg-blue-600 border border-blue-500 text-[10px] text-white font-bold rounded-lg hover:bg-blue-500 transition flex items-center gap-1"><i class="fas fa-folder-open"></i> ดึงแปลน</button>
+            <button onclick="exportImage()" class="px-2.5 py-1.5 bg-purple-600 border border-purple-500 text-[10px] text-white font-bold rounded-lg hover:bg-purple-500 transition flex items-center gap-1"><i class="fas fa-image"></i> ภาพ</button>
             <input type="file" id="fileInput" accept=".json" onchange="loadPlanFromFile(event)" style="display:none;">
         </div>
 
@@ -170,10 +146,15 @@
                         <span>กำแพงกั้น</span>
                         <span class="text-[8px] text-slate-400">300 บ.</span>
                     </button>
-                    <button onclick="selectBuildTool('roof')" id="toolRoof" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300 col-span-2">
+                    <button onclick="selectBuildTool('roof')" id="toolRoof" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
                         <span class="text-sm"><i class="fas fa-home text-blue-500"></i></span>
-                        <span>หลังคาลาดชันคาปูชิโน่</span>
+                        <span>หลังคา</span>
                         <span class="text-[8px] text-slate-400">1,200 บ.</span>
+                    </button>
+                    <button onclick="selectBuildTool('shelves')" id="toolShelves" class="tool-btn p-2 rounded-xl flex flex-col items-center justify-center text-center gap-1 text-[10px] font-bold text-slate-300">
+                        <span class="text-sm"><i class="fas fa-bars text-purple-400"></i></span>
+                        <span>ชั้นวางก้อน</span>
+                        <span class="text-[8px] text-slate-400">500 บ.</span>
                     </button>
                 </div>
             </div>
@@ -259,19 +240,23 @@
 
             <!-- Control Mode -->
             <div class="p-3 border-b border-slate-700">
-                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-gamepad text-emerald-400"></i> โหมด</span>
-                <div class="grid grid-cols-1 gap-1.5">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-gamepad text-emerald-400"></i> โหมดแก้ไข</span>
+                <div class="grid grid-cols-2 gap-1.5">
                     <button onclick="setControlMode('build')" id="btnCtrlBuild"
-                        class="tool-btn active flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        class="tool-btn active flex items-center gap-1 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
                         <span>🔨</span> <span>วางวัสดุ</span>
                     </button>
-                    <button onclick="setControlMode('drag')" id="btnCtrlDrag"
-                        class="tool-btn flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span>✋</span> <span>ลากย้าย</span>
+                    <button onclick="setTransformMode('translate')" id="btnCtrlTranslate"
+                        class="tool-btn flex items-center gap-1 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>✋</span> <span>ย้าย</span>
                     </button>
-                    <button onclick="setControlMode('orbit')" id="btnCtrlOrbit"
-                        class="tool-btn flex items-center gap-2 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
-                        <span>🔍</span> <span>หมุนกล้อง</span>
+                    <button onclick="setTransformMode('rotate')" id="btnCtrlRotate"
+                        class="tool-btn flex items-center gap-1 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>🔄</span> <span>หมุน</span>
+                    </button>
+                    <button onclick="setTransformMode('scale')" id="btnCtrlScale"
+                        class="tool-btn flex items-center gap-1 p-2 rounded-xl text-[10px] font-black text-slate-300 cursor-pointer">
+                        <span>📏</span> <span>ขนาด</span>
                     </button>
                 </div>
             </div>
@@ -288,7 +273,26 @@
             <!-- Selected Object Info -->
             <div class="p-3 border-b border-slate-700">
                 <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2"><i class="fas fa-info-circle text-amber-400"></i> วัสดุที่เลือก</span>
-                <div id="selectedInfo" class="text-[9px] text-slate-500 text-center leading-relaxed">คลิกเลือกวัสดุ...</div>
+                <div id="selectedInfo" class="text-[9px] text-slate-500 text-center leading-relaxed mb-2">คลิกเลือกวัสดุ...</div>
+                
+                <div id="objActions" class="hidden grid grid-cols-3 gap-1 mb-2">
+                    <button onclick="copySelected()" class="bg-blue-900/50 hover:bg-blue-600 border border-blue-500/30 text-[9px] text-white py-1 rounded"><i class="fas fa-copy"></i> ก๊อปปี้</button>
+                    <button onclick="deleteSelected()" class="bg-red-900/50 hover:bg-red-600 border border-red-500/30 text-[9px] text-white py-1 rounded"><i class="fas fa-trash"></i> ลบ</button>
+                    <button onclick="alignSelected()" class="bg-emerald-900/50 hover:bg-emerald-600 border border-emerald-500/30 text-[9px] text-white py-1 rounded"><i class="fas fa-magnet"></i> จัดตรง</button>
+                </div>
+
+                <div id="objMaterial" class="hidden space-y-1">
+                    <select id="matSelect" onchange="updateSelectedMaterial()" class="w-full bg-slate-800 text-slate-300 text-[9px] p-1 border border-slate-600 rounded">
+                        <option value="standard">วัสดุมาตรฐาน</option>
+                        <option value="steel">โครงเหล็ก</option>
+                        <option value="canvas">ผ้าใบ</option>
+                        <option value="glass">กระจก/โพลี</option>
+                    </select>
+                    <div class="flex items-center gap-2 mt-1">
+                        <label class="text-[9px] text-slate-400">สี:</label>
+                        <input type="color" id="matColor" onchange="updateSelectedColor()" class="w-full h-5 cursor-pointer bg-transparent border-0 p-0">
+                    </div>
+                </div>
             </div>
 
             <!-- Stats -->
@@ -300,6 +304,18 @@
                         <span class="text-emerald-400 font-black" id="lblObjCount">0</span>
                     </div>
                     <div class="flex justify-between text-[9px]">
+                        <span class="text-slate-500">พื้นที่รวม</span>
+                        <span class="text-blue-400 font-black" id="lblTotalArea">0 ตร.ม.</span>
+                    </div>
+                    <div class="flex justify-between text-[9px]">
+                        <span class="text-slate-500">ปริมาตรอากาศ</span>
+                        <span class="text-cyan-400 font-black" id="lblTotalVol">0 ลบ.ม.</span>
+                    </div>
+                    <div class="flex justify-between text-[9px]">
+                        <span class="text-slate-500">ความจุก้อน</span>
+                        <span class="text-purple-400 font-black" id="lblCapacity">0 ก้อน</span>
+                    </div>
+                    <div class="flex justify-between text-[9px] mt-1 border-t border-slate-700 pt-1">
                         <span class="text-slate-500">งบคงเหลือ</span>
                         <span class="text-amber-400 font-black" id="lblBudgetLeft">50,000 บ.</span>
                     </div>
@@ -310,10 +326,11 @@
 
     <!-- Script CAD Engine -->
     <script>
-        let scene, camera, renderer, controls;
+        let scene, camera, renderer, controls, transformControl;
         let gridHelper, planeMesh;
         let activeTool = 'pillar';
-        let controlMode = 'build';  // build | drag | orbit
+        let controlMode = 'build';  // build | transform
+        let transformMode = 'translate';
         let viewMode = '3d';
         let raycaster = new THREE.Raycaster();
         let mouse = new THREE.Vector2();
@@ -322,13 +339,6 @@
         let mobileSidebarOpen = false;
         let activeHeightOffset = 0.0;
         let selectedObject = null;
-
-        // Drag-to-move state
-        let isDragging = false;
-        let dragObject = null;
-        let dragStartPos = new THREE.Vector3();
-        let dragOffsetY = 0;  // keep the original Y during drag
-        const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
         const toolPrices = {
             'pillar': 150,
@@ -340,7 +350,8 @@
             'bag_splitgill': 25,
             'mist': 150,
             'fan': 350,
-            'rotate': 0
+            'rotate': 0,
+            'shelves': 500
         };
 
         const toolMaterials = {
@@ -352,7 +363,8 @@
             'bag_hungarian': new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.5 }),
             'bag_splitgill': new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.5 }),
             'mist': new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.3 }),
-            'fan': new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4 })
+            'fan': new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.4 }),
+            'shelves': new THREE.MeshStandardMaterial({ color: 0x581c87, roughness: 0.7 })
         };
 
         const toolGeometries = {
@@ -364,7 +376,8 @@
             'bag_hungarian': new THREE.CylinderGeometry(0.18, 0.18, 0.5, 8),
             'bag_splitgill': new THREE.CylinderGeometry(0.18, 0.18, 0.5, 8),
             'mist': new THREE.SphereGeometry(0.1, 8, 8),
-            'fan': new THREE.BoxGeometry(0.35, 0.35, 0.15)
+            'fan': new THREE.BoxGeometry(0.35, 0.35, 0.15),
+            'shelves': new THREE.BoxGeometry(1.0, 1.8, 0.4)
         };
 
         function init3D() {
@@ -378,7 +391,7 @@
             camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
             camera.position.set(6, 6, 8);
 
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
             renderer.setSize(width, height);
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.shadowMap.enabled = true;
@@ -406,6 +419,13 @@
             gridHelper.position.y = 0.01;
             scene.add(gridHelper);
 
+            // Transform Controls
+            transformControl = new THREE.TransformControls(camera, renderer.domElement);
+            transformControl.addEventListener('dragging-changed', function (event) {
+                controls.enabled = !event.value;
+            });
+            scene.add(transformControl);
+
             // Ground plane for raycast tracking
             const planeGeo = new THREE.PlaneGeometry(8, 8);
             planeGeo.rotateX(-Math.PI / 2);
@@ -414,14 +434,12 @@
 
             drawCADDimensionLines();
             syncWalletUI();
-            checkOrientation();
+            onWindowResize();
 
-            // Event Listeners — split into pointer down/move/up for drag support
+            // Event Listeners
             renderer.domElement.addEventListener('pointerdown', onPointerDown);
-            renderer.domElement.addEventListener('pointermove', onPointerMove);
-            renderer.domElement.addEventListener('pointerup',   onPointerUp);
             window.addEventListener('resize', onWindowResize);
-            window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
+            window.addEventListener('orientationchange', () => setTimeout(onWindowResize, 200));
 
             // Save default camera state for reset
             controls.saveState();
@@ -433,18 +451,7 @@
             animate();
         }
 
-        // Check if landscape or portrait and trigger warn overlay on mobile/tablets
-        function checkOrientation() {
-            const overlay = document.getElementById('orientationOverlay');
-            const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-            
-            if (isMobile && window.innerHeight > window.innerWidth) {
-                overlay.style.display = 'flex';
-            } else {
-                overlay.style.display = 'none';
-            }
-            onWindowResize();
-        }
+        // Removed checkOrientation function completely
 
         function drawCADDimensionLines() {
             const material = new THREE.LineBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
@@ -473,21 +480,41 @@
 
         function setControlMode(mode) {
             controlMode = mode;
-            const ids = ['btnCtrlBuild','btnCtrlDrag','btnCtrlOrbit'];
-            ids.forEach(id => {
+            document.getElementById('btnCtrlBuild').classList.add('active');
+            ['btnCtrlTranslate','btnCtrlRotate','btnCtrlScale'].forEach(id => document.getElementById(id).classList.remove('active'));
+            transformControl.detach();
+            controls.enabled = true;
+            renderer.domElement.style.cursor = 'crosshair';
+            
+            // Re-select active tool if we go back to build
+            if (activeTool) {
+                const activeBtn = document.getElementById('tool' + activeTool.charAt(0).toUpperCase() + activeTool.slice(1));
+                if (activeBtn) activeBtn.classList.add('active');
+            }
+        }
+
+        function setTransformMode(mode) {
+            controlMode = 'transform';
+            transformMode = mode;
+            document.getElementById('btnCtrlBuild').classList.remove('active');
+            ['btnCtrlTranslate','btnCtrlRotate','btnCtrlScale'].forEach(id => document.getElementById(id).classList.remove('active'));
+            
+            const map = { translate:'btnCtrlTranslate', rotate:'btnCtrlRotate', scale:'btnCtrlScale' };
+            document.getElementById(map[mode]).classList.add('active');
+
+            transformControl.setMode(mode);
+            if (selectedObject) {
+                transformControl.attach(selectedObject.mesh);
+            }
+            controls.enabled = true; // Orbit enabled until dragging
+            renderer.domElement.style.cursor = 'default';
+
+            // Deselect build tools
+            const toolBtnIds = ['toolRotate','toolPillar','toolWall','toolRoof','toolDoor','toolWindow','toolBag_hungarian','toolBag_splitgill','toolMist','toolFan','toolShelves'];
+            toolBtnIds.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('active');
             });
-            const map = { build:'btnCtrlBuild', drag:'btnCtrlDrag', orbit:'btnCtrlOrbit' };
-            const active = document.getElementById(map[mode]);
-            if (active) active.classList.add('active');
-
-            controls.enabled = (mode === 'orbit');
-
-            const canvas = renderer && renderer.domElement;
-            if (canvas) {
-                canvas.style.cursor = mode === 'drag' ? 'grab' : (mode === 'build' ? 'crosshair' : 'default');
-            }
         }
 
         function setCameraViewMode(mode) {
@@ -532,74 +559,25 @@
         // ─── POINTER DOWN ────────────────────────────────────────────────────────
         function onPointerDown(event) {
             if (event.button !== undefined && event.button !== 0) return; // left click only
+            
+            // If dragging transform control, do nothing else
+            if (transformControl.dragging) return;
+
             updateMouseCoords(event);
             raycaster.setFromCamera(mouse, camera);
 
             const placedMeshes = placedObjects.map(o => o.mesh);
+            // Include transform handles so we don't deselect when clicking them
             const hits = raycaster.intersectObjects(placedMeshes);
 
-            if (controlMode === 'drag' && hits.length > 0) {
-                // Start dragging the hit object
-                event.preventDefault();
-                isDragging = true;
-                dragObject = placedObjects.find(o => o.mesh === hits[0].object);
-
-                if (dragObject) {
-                    dragOffsetY = dragObject.mesh.position.y;
-                    // Update drag plane Y to the object's ground level
-                    dragPlane.constant = -dragOffsetY + dragOffsetY; // = 0, keep it on ground
-                    controls.enabled = false;
-                    renderer.domElement.style.cursor = 'grabbing';
-
-                    // Highlight dragged object
-                    if (dragObject.mesh.material.emissive) {
-                        dragObject.mesh.material.emissive.setHex(0x004d2a);
-                    }
-                    // Show drag hint
-                    const hint = document.getElementById('dragHint');
-                    if (hint) { hint.classList.remove('hidden'); }
-                }
-                return;
-            }
-
-            if (controlMode === 'build') {
+            if (hits.length > 0) {
                 onCanvasBuildClick(hits);
-            }
-        }
-
-        // ─── POINTER MOVE ────────────────────────────────────────────────────────
-        function onPointerMove(event) {
-            if (!isDragging || !dragObject) return;
-            event.preventDefault();
-            updateMouseCoords(event);
-            raycaster.setFromCamera(mouse, camera);
-
-            // Intersect a horizontal plane at Y=0 (ground)
-            const groundIntersects = raycaster.intersectObject(planeMesh);
-            if (groundIntersects.length > 0) {
-                const p = groundIntersects[0].point;
-                const gridX = Math.round(p.x * 2) / 2;
-                const gridZ = Math.round(p.z * 2) / 2;
-                // Clamp inside field
-                dragObject.mesh.position.x = Math.max(-4, Math.min(4, gridX));
-                dragObject.mesh.position.z = Math.max(-4, Math.min(4, gridZ));
-                // Keep original Y (height offset preserved)
-                dragObject.mesh.position.y = dragOffsetY;
-            }
-        }
-
-        // ─── POINTER UP ──────────────────────────────────────────────────────────
-        function onPointerUp(event) {
-            if (isDragging && dragObject) {
-                // Clear emissive highlight
-                if (dragObject.mesh.material.emissive) {
-                    dragObject.mesh.material.emissive.setHex(0x000000);
-                }
-                isDragging = false;
-                dragObject = null;
-                renderer.domElement.style.cursor = 'grab';
-                const hint = document.getElementById('dragHint');
-                if (hint) { hint.classList.add('hidden'); }
+            } else if (controlMode === 'build') {
+                // Click on empty ground
+                onCanvasBuildClick([]);
+            } else {
+                // Clicked empty space in transform mode -> deselect
+                deselectObject();
             }
         }
 
@@ -612,7 +590,21 @@
             mouse.y = -((clientY - rect.top)  / rect.height) * 2 + 1;
         }
 
-        // ─── BUILD CLICK (place / select / rotate / delete) ──────────────────────
+        function deselectObject() {
+            if (selectedObject) {
+                if (selectedObject.mesh.material.emissive) selectedObject.mesh.material.emissive.setHex(0x000000);
+                selectedObject = null;
+            }
+            if (controlMode === 'transform') {
+                transformControl.detach();
+            }
+            const infoEl = document.getElementById('selectedInfo');
+            if (infoEl) infoEl.textContent = 'คลิกเลือกวัสดุ...';
+            document.getElementById('objActions').classList.add('hidden');
+            document.getElementById('objMaterial').classList.add('hidden');
+        }
+
+        // ─── BUILD CLICK (place / select) ──────────────────────
         function onCanvasBuildClick(hits) {
             if (hits.length > 0) {
                 const hitMesh = hits[0].object;
@@ -630,6 +622,10 @@
                         selectedObject.mesh.material.emissive.setHex(0x003a1a);
                     }
 
+                    if (controlMode === 'transform') {
+                        transformControl.attach(selectedObject.mesh);
+                    }
+
                     // Sync height slider to selected object
                     const baseH = getBaseHeight(selectedObject.type);
                     const currentOffset = Math.max(0, selectedObject.mesh.position.y - baseH);
@@ -640,31 +636,17 @@
                     // Update info panel
                     const typeLabel = { pillar:'เสาโรงเรือน', wall:'กำแพงกั้น', roof:'หลังคา',
                         door:'ประตูเข้า', window:'บานระบาย', bag_hungarian:'ก้อนเห็ดนางรม',
-                        bag_splitgill:'ก้อนเห็ดแครง', mist:'หัวพ่นหมอก', fan:'พัดลมระบาย', rotate:'หมุน' };
+                        bag_splitgill:'ก้อนเห็ดแครง', mist:'หัวพ่นหมอก', fan:'พัดลมระบาย', shelves:'ชั้นวางก้อน' };
                     const infoEl = document.getElementById('selectedInfo');
                     if (infoEl) infoEl.innerHTML = `<span class="text-emerald-400 font-black">${typeLabel[obj.type]||obj.type}</span><br><span class="text-slate-400">Y: ${selectedObject.mesh.position.y.toFixed(1)} ม.</span>`;
-
-                    if (activeTool === 'rotate') {
-                        obj.mesh.rotation.y += Math.PI / 4;
-                        const originalScale = obj.mesh.scale.clone();
-                        obj.mesh.scale.multiplyScalar(1.15);
-                        setTimeout(() => { obj.mesh.scale.copy(originalScale); }, 100);
-                        return;
-                    }
-
-                    // Click selected again → delete
-                    adjustCash(toolPrices[obj.type]);
-                    scene.remove(obj.mesh);
-                    placedObjects.splice(idx, 1);
-                    selectedObject = null;
-                    const infoEl2 = document.getElementById('selectedInfo');
-                    if (infoEl2) infoEl2.textContent = 'คลิกเลือกวัสดุ...';
-                    updateRightPanelStats();
+                    
+                    document.getElementById('objActions').classList.remove('hidden');
+                    document.getElementById('objMaterial').classList.remove('hidden');
                 }
                 return;
             }
 
-            // Place new item on ground
+            // Place new item on ground if in build mode
             const groundIntersects = raycaster.intersectObject(planeMesh);
             if (groundIntersects.length > 0) {
                 const point = groundIntersects[0].point;
@@ -704,6 +686,132 @@
                 const cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
                 budgetEl.textContent = cash.toLocaleString() + ' บ.';
             }
+
+            let minX = 9999, maxX = -9999, minZ = 9999, maxZ = -9999, maxY = 0;
+            let shelvesCount = 0;
+            let areaCount = 0;
+
+            placedObjects.forEach(obj => {
+                if (obj.type === 'shelves') shelvesCount++;
+                if (obj.type === 'wall' || obj.type === 'pillar') {
+                    areaCount++;
+                    const pos = obj.mesh.position;
+                    if (pos.x < minX) minX = pos.x;
+                    if (pos.x > maxX) maxX = pos.x;
+                    if (pos.z < minZ) minZ = pos.z;
+                    if (pos.z > maxZ) maxZ = pos.z;
+                    if (pos.y > maxY) maxY = pos.y;
+                }
+            });
+
+            let area = 0;
+            let vol = 0;
+            if (areaCount >= 4) {
+                const w = Math.abs(maxX - minX);
+                const l = Math.abs(maxZ - minZ);
+                area = w * l;
+                vol = area * (maxY || 2);
+            }
+
+            let capacity = shelvesCount * 500; // estimated 500 bags per shelf
+
+            document.getElementById('lblTotalArea').textContent = area.toFixed(1) + ' ตร.ม.';
+            document.getElementById('lblTotalVol').textContent = vol.toFixed(1) + ' ลบ.ม.';
+            document.getElementById('lblCapacity').textContent = capacity.toLocaleString() + ' ก้อน';
+        }
+
+        // Actions
+        function copySelected() {
+            if (!selectedObject) return;
+            const cost = toolPrices[selectedObject.type];
+            let cash = parseFloat(localStorage.getItem('virtualWalletCash')) || 50000;
+            if (cash < cost) { window.showMushroomAlert('งบประมาณสะสมไม่เพียงพอ!'); return; }
+
+            const geom = toolGeometries[selectedObject.type];
+            const mat = selectedObject.mesh.material.clone(); // copy material
+            if (mat.emissive) mat.emissive.setHex(0x000000); // clear emissive in copy
+            const mesh = new THREE.Mesh(geom, mat);
+            
+            // offset slightly
+            mesh.position.copy(selectedObject.mesh.position);
+            mesh.position.x += 0.5;
+            mesh.position.z += 0.5;
+            mesh.rotation.copy(selectedObject.mesh.rotation);
+            mesh.scale.copy(selectedObject.mesh.scale);
+            
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+            placedObjects.push({ type: selectedObject.type, mesh: mesh });
+            
+            adjustCash(-cost);
+            updateRightPanelStats();
+        }
+
+        function deleteSelected() {
+            if (!selectedObject) return;
+            const idx = placedObjects.findIndex(obj => obj === selectedObject);
+            if (idx !== -1) {
+                adjustCash(toolPrices[selectedObject.type]);
+                scene.remove(selectedObject.mesh);
+                placedObjects.splice(idx, 1);
+                deselectObject();
+                updateRightPanelStats();
+            }
+        }
+
+        function alignSelected() {
+            if (!selectedObject) return;
+            const p = selectedObject.mesh.position;
+            p.x = Math.round(p.x * 2) / 2;
+            p.z = Math.round(p.z * 2) / 2;
+        }
+
+        function updateSelectedMaterial() {
+            if (!selectedObject) return;
+            const type = document.getElementById('matSelect').value;
+            const mat = selectedObject.mesh.material;
+            
+            if (type === 'steel') {
+                mat.metalness = 0.9;
+                mat.roughness = 0.2;
+                mat.transparent = false;
+                mat.opacity = 1;
+            } else if (type === 'canvas') {
+                mat.metalness = 0.1;
+                mat.roughness = 0.8;
+                mat.transparent = false;
+                mat.opacity = 1;
+            } else if (type === 'glass') {
+                mat.metalness = 0.1;
+                mat.roughness = 0.1;
+                mat.transparent = true;
+                mat.opacity = 0.4;
+            } else {
+                // standard
+                mat.metalness = 0.5;
+                mat.roughness = 0.5;
+                mat.transparent = false;
+                mat.opacity = 1;
+            }
+        }
+
+        function updateSelectedColor() {
+            if (!selectedObject) return;
+            const col = document.getElementById('matColor').value;
+            selectedObject.mesh.material.color.set(col);
+        }
+
+        function exportImage() {
+            renderer.render(scene, camera);
+            const dataURL = renderer.domElement.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `mssm_3d_plan_${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.showMushroomAlert('บันทึกภาพสำเร็จ!');
         }
 
 
@@ -761,7 +869,15 @@
                 x: obj.mesh.position.x,
                 y: obj.mesh.position.y,
                 z: obj.mesh.position.z,
-                rotY: obj.mesh.rotation.y
+                rotY: obj.mesh.rotation.y,
+                scaleX: obj.mesh.scale.x,
+                scaleY: obj.mesh.scale.y,
+                scaleZ: obj.mesh.scale.z,
+                color: obj.mesh.material.color.getHex(),
+                metalness: obj.mesh.material.metalness,
+                roughness: obj.mesh.material.roughness,
+                opacity: obj.mesh.material.opacity,
+                transparent: obj.mesh.material.transparent
             }));
 
             const jsonStr = JSON.stringify(exportData, null, 2);
@@ -802,11 +918,19 @@
                     // Rebuild objects from file data
                     data.forEach(item => {
                         const geom = toolGeometries[item.type];
-                        const mat = toolMaterials[item.type];
-                        if (geom && mat) {
+                        const baseMat = toolMaterials[item.type];
+                        if (geom && baseMat) {
+                            const mat = baseMat.clone();
+                            if (item.color !== undefined) mat.color.setHex(item.color);
+                            if (item.metalness !== undefined) mat.metalness = item.metalness;
+                            if (item.roughness !== undefined) mat.roughness = item.roughness;
+                            if (item.opacity !== undefined) mat.opacity = item.opacity;
+                            if (item.transparent !== undefined) mat.transparent = item.transparent;
+
                             const mesh = new THREE.Mesh(geom, mat);
                             mesh.position.set(item.x, item.y, item.z);
                             if (item.rotY) mesh.rotation.y = item.rotY;
+                            if (item.scaleX) mesh.scale.set(item.scaleX, item.scaleY, item.scaleZ);
                             mesh.castShadow = true;
                             mesh.receiveShadow = true;
                             scene.add(mesh);
